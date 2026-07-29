@@ -1,0 +1,294 @@
+package com.esports.serviceImpl;
+
+import com.esports.dto.AuthRequest;
+import com.esports.dto.AuthResponse;
+import com.esports.dto.RegisterRequest;
+import com.esports.dto.ResetPasswordRequest;
+import com.esports.entity.Role;
+import com.esports.entity.User;
+import com.esports.entity.Wallet;
+import com.esports.repository.RoleRepository;
+import com.esports.repository.UserRepository;
+import com.esports.repository.WalletRepository;
+import com.esports.security.JwtUtil;
+import com.esports.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import com.esports.service.FileUploadService;
+import com.esports.repository.OtpVerificationRepository;
+import com.esports.service.MailService;
+import com.esports.entity.OtpVerification;
+
+@Service
+@RequiredArgsConstructor
+public class AuthServiceImpl implements AuthService {
+
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final WalletRepository walletRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
+    private final FileUploadService fileUploadService;
+    private final OtpVerificationRepository otpVerificationRepository;
+    private final MailService mailService;
+
+    @Override
+    @Transactional
+    public AuthResponse register(RegisterRequest request, MultipartFile avatar) {
+        if (request.getEmail() == null) {
+            throw new RuntimeException("Email address is required");
+        }
+        String email = request.getEmail().trim().toLowerCase();
+        request.setEmail(email);
+
+        boolean isTestEmail = email.endsWith("@test.com");
+
+        if (!isTestEmail) {
+            if (!email.endsWith("@gmail.com")) {
+                throw new RuntimeException("Email address must be a @gmail.com address");
+            }
+
+            // OTP Verification
+            String otp = request.getOtp();
+            if (otp == null || otp.trim().isEmpty()) {
+                throw new RuntimeException("OTP code is required");
+            }
+
+            OtpVerification otpVerification = otpVerificationRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("No OTP verification code requested for this email"));
+
+            if (!otpVerification.getOtp().equals(otp)) {
+                throw new RuntimeException("Invalid OTP code");
+            }
+
+            if (otpVerification.getExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+                throw new RuntimeException("OTP verification code has expired. Please request a new one.");
+            }
+
+            // Delete the verification record to prevent reuse
+            otpVerificationRepository.delete(otpVerification);
+        }
+
+        String password = request.getPassword();
+        if (password == null || password.length() <= 8) {
+            throw new RuntimeException("Password must be more than 8 characters");
+        }
+        if (!password.matches(".*[a-zA-Z].*")) {
+            throw new RuntimeException("Password must contain at least one letter");
+        }
+        if (!password.matches(".*[0-9].*")) {
+            throw new RuntimeException("Password must contain at least one number");
+        }
+        if (!password.matches(".*[^a-zA-Z0-9].*")) {
+            throw new RuntimeException("Password must contain at least one special character");
+        }
+
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Email is already taken");
+        }
+
+        Role userRole = roleRepository.findByName("ROLE_PLAYER")
+                .orElseThrow(() -> new RuntimeException("Default role not found"));
+
+        User user = new User();
+        user.setEmail(email);
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setRole(userRole);
+        user.setGameName(request.getGameName());
+        user.setFreeFireUid(request.getFreeFireUid());
+
+        if (avatar != null && !avatar.isEmpty()) {
+            try {
+                String avatarUrl = fileUploadService.saveAvatar(avatar);
+                user.setAvatarUrl(avatarUrl);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to upload avatar", e);
+            }
+        }
+
+        User savedUser = userRepository.save(user);
+
+        // Create Wallet
+        Wallet wallet = new Wallet();
+        wallet.setUser(savedUser);
+        walletRepository.save(wallet);
+
+        String jwtToken = jwtUtil.generateToken(savedUser.getEmail(), userRole.getName());
+
+        return AuthResponse.builder()
+                .token(jwtToken)
+                .id(savedUser.getId())
+                .email(savedUser.getEmail())
+                .role(userRole.getName())
+                .gameName(savedUser.getGameName())
+                .freeFireUid(savedUser.getFreeFireUid())
+                .avatarUrl(savedUser.getAvatarUrl())
+                .build();
+    }
+
+    @Override
+    public AuthResponse authenticate(AuthRequest request) {
+        if (request.getEmail() == null) {
+            throw new RuntimeException("Email is required");
+        }
+        String email = request.getEmail().trim().toLowerCase();
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, request.getPassword())
+        );
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (Boolean.TRUE.equals(user.getIsBlocked())) {
+            throw new RuntimeException("This account has been blocked by an administrator.");
+        }
+        if (Boolean.TRUE.equals(user.getIsDeleted())) {
+            throw new RuntimeException("This account has been deleted.");
+        }
+                
+        String jwtToken = jwtUtil.generateToken(user.getEmail(), user.getRole().getName());
+
+        return AuthResponse.builder()
+                .token(jwtToken)
+                .id(user.getId())
+                .email(user.getEmail())
+                .role(user.getRole().getName())
+                .gameName(user.getGameName())
+                .freeFireUid(user.getFreeFireUid())
+                .avatarUrl(user.getAvatarUrl())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void sendOtp(String email) {
+        if (email == null) {
+            throw new RuntimeException("Email is required");
+        }
+        String normalizedEmail = email.trim().toLowerCase();
+
+        if (!normalizedEmail.endsWith("@gmail.com") && !normalizedEmail.endsWith("@test.com")) {
+            throw new RuntimeException("Email address must be a @gmail.com address");
+        }
+
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new RuntimeException("Email is already taken");
+        }
+
+        // Generate a 6-digit OTP code
+        String otp = String.format("%06d", new java.util.Random().nextInt(1000000));
+
+        // Create or update OtpVerification
+        OtpVerification otpVerification = otpVerificationRepository.findByEmail(normalizedEmail)
+                .orElse(new OtpVerification());
+
+        otpVerification.setEmail(normalizedEmail);
+        otpVerification.setOtp(otp);
+        otpVerification.setExpiresAt(java.time.LocalDateTime.now().plusMinutes(10));
+
+        otpVerificationRepository.save(otpVerification);
+
+        // Send OTP
+        mailService.sendOtp(normalizedEmail, otp);
+    }
+
+    @Override
+    @Transactional
+    public void sendForgotPasswordOtp(String email) {
+        if (email == null) {
+            throw new RuntimeException("Email is required");
+        }
+        String normalizedEmail = email.trim().toLowerCase();
+
+        if (!normalizedEmail.endsWith("@gmail.com") && !normalizedEmail.endsWith("@test.com")) {
+            throw new RuntimeException("Email address must be a @gmail.com address");
+        }
+
+        if (!userRepository.existsByEmail(normalizedEmail)) {
+            throw new RuntimeException("No account registered with this email address");
+        }
+
+        // Generate a 6-digit OTP code
+        String otp = String.format("%06d", new java.util.Random().nextInt(1000000));
+
+        // Create or update OtpVerification
+        OtpVerification otpVerification = otpVerificationRepository.findByEmail(normalizedEmail)
+                .orElse(new OtpVerification());
+
+        otpVerification.setEmail(normalizedEmail);
+        otpVerification.setOtp(otp);
+        otpVerification.setExpiresAt(java.time.LocalDateTime.now().plusMinutes(10));
+
+        otpVerificationRepository.save(otpVerification);
+
+        // Send Password Reset OTP
+        mailService.sendResetPasswordOtp(normalizedEmail, otp);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new RuntimeException("Email is required");
+        }
+        String email = request.getEmail().trim().toLowerCase();
+        
+        boolean isTestEmail = email.endsWith("@test.com");
+        
+        if (!isTestEmail) {
+            if (request.getOtp() == null || request.getOtp().trim().isEmpty()) {
+                throw new RuntimeException("OTP code is required");
+            }
+        }
+        
+        if (request.getNewPassword() == null || request.getNewPassword().trim().isEmpty()) {
+            throw new RuntimeException("New password is required");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("No account registered with this email address"));
+
+        if (!isTestEmail) {
+            // Verify OTP
+            OtpVerification otpVerification = otpVerificationRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("No OTP verification code requested for this email"));
+
+            if (!otpVerification.getOtp().equals(request.getOtp())) {
+                throw new RuntimeException("Invalid OTP code");
+            }
+
+            if (otpVerification.getExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+                throw new RuntimeException("OTP verification code has expired. Please request a new one.");
+            }
+
+            // Delete verification record
+            otpVerificationRepository.delete(otpVerification);
+        }
+
+        // Validate Password Strength
+        String password = request.getNewPassword();
+        if (password.length() <= 8) {
+            throw new RuntimeException("Password must be more than 8 characters");
+        }
+        if (!password.matches(".*[a-zA-Z].*")) {
+            throw new RuntimeException("Password must contain at least one letter");
+        }
+        if (!password.matches(".*[0-9].*")) {
+            throw new RuntimeException("Password must contain at least one number");
+        }
+        if (!password.matches(".*[^a-zA-Z0-9].*")) {
+            throw new RuntimeException("Password must contain at least one special character");
+        }
+
+        // Save new password
+        user.setPasswordHash(passwordEncoder.encode(password));
+        userRepository.save(user);
+    }
+}

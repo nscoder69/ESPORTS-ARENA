@@ -1,0 +1,1472 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.esports:backend >-------------------------
+[INFO] Building backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.3.2:clean (default-clean) @ backend ---
+[INFO] Deleting D:\project\gamebuild\backend\target
+[INFO] 
+[INFO] >>> spring-boot:3.3.0:run (default-cli) > test-compile @ backend >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 5 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ backend ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 58 source files with javac [debug parameters release 17] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ backend ---
+[INFO] skip non existing resourceDirectory D:\project\gamebuild\backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ backend ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.3.0:run (default-cli) < test-compile @ backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.3.0:run (default-cli) @ backend ---
+[INFO] Attaching agents: []
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.0)
+
+2026-06-27T19:57:41.501+05:30  INFO 25884 --- [esports-platform] [           main] com.esports.Application                  : Starting Application using Java 17.0.12 with PID 25884 (D:\project\gamebuild\backend\target\classes started by nitis in D:\project\gamebuild\backend)
+2026-06-27T19:57:41.501+05:30  INFO 25884 --- [esports-platform] [           main] com.esports.Application                  : No active profile set, falling back to 1 default profile: "default"
+2026-06-27T19:57:41.927+05:30  INFO 25884 --- [esports-platform] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-27T19:57:41.977+05:30  INFO 25884 --- [esports-platform] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 45 ms. Found 9 JPA repository interfaces.
+2026-06-27T19:57:42.364+05:30  INFO 25884 --- [esports-platform] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-27T19:57:42.377+05:30  INFO 25884 --- [esports-platform] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-27T19:57:42.377+05:30  INFO 25884 --- [esports-platform] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-06-27T19:57:42.417+05:30  INFO 25884 --- [esports-platform] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-27T19:57:42.417+05:30  INFO 25884 --- [esports-platform] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 887 ms
+2026-06-27T19:57:42.557+05:30  INFO 25884 --- [esports-platform] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-27T19:57:42.648+05:30  INFO 25884 --- [esports-platform] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@624b3544
+2026-06-27T19:57:42.648+05:30  INFO 25884 --- [esports-platform] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-27T19:57:42.677+05:30  INFO 25884 --- [esports-platform] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:3306/esports_db (MySQL 8.0)
+2026-06-27T19:57:42.722+05:30  INFO 25884 --- [esports-platform] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.021s)
+2026-06-27T19:57:42.735+05:30  INFO 25884 --- [esports-platform] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `esports_db`: 5
+2026-06-27T19:57:42.735+05:30  INFO 25884 --- [esports-platform] [           main] o.f.core.internal.command.DbMigrate      : Schema `esports_db` is up to date. No migration necessary.
+2026-06-27T19:57:42.781+05:30  INFO 25884 --- [esports-platform] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-27T19:57:42.810+05:30  INFO 25884 --- [esports-platform] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2026-06-27T19:57:42.830+05:30  INFO 25884 --- [esports-platform] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-27T19:57:42.983+05:30  INFO 25884 --- [esports-platform] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-27T19:57:43.009+05:30  WARN 25884 --- [esports-platform] [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-27T19:57:43.025+05:30  WARN 25884 --- [esports-platform] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_uuid_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-06-27T19:57:43.169+05:30  WARN 25884 --- [esports-platform] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_uuid_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-06-27T19:57:43.248+05:30  WARN 25884 --- [esports-platform] [           main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.esports.entity.TeamMember$TeamMemberId
+2026-06-27T19:57:43.248+05:30  WARN 25884 --- [esports-platform] [           main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.esports.entity.TeamMember$TeamMemberId
+2026-06-27T19:57:43.249+05:30  WARN 25884 --- [esports-platform] [           main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.esports.entity.MatchResult$MatchResultId
+2026-06-27T19:57:43.249+05:30  WARN 25884 --- [esports-platform] [           main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.esports.entity.MatchResult$MatchResultId
+2026-06-27T19:57:43.643+05:30  INFO 25884 --- [esports-platform] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-27T19:57:43.664+05:30  INFO 25884 --- [esports-platform] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-27T19:57:43.922+05:30  INFO 25884 --- [esports-platform] [           main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-06-27T19:57:43.923+05:30  WARN 25884 --- [esports-platform] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-06-27T19:57:44.030+05:30  WARN 25884 --- [esports-platform] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-27T19:57:44.482+05:30  INFO 25884 --- [esports-platform] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@5481001f, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5581e273, org.springframework.security.web.context.SecurityContextHolderFilter@55e75ce0, org.springframework.security.web.header.HeaderWriterFilter@408708a1, org.springframework.web.filter.CorsFilter@475c2f47, org.springframework.security.web.authentication.logout.LogoutFilter@19faa9dc, com.esports.filter.JwtAuthFilter@2396dc4e, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@35e63d26, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@6ec9f664, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@10806dbe, org.springframework.security.web.session.SessionManagementFilter@5a919251, org.springframework.security.web.access.ExceptionTranslationFilter@15d0f2a3, org.springframework.security.web.access.intercept.AuthorizationFilter@4b094115]
+2026-06-27T19:57:44.908+05:30  INFO 25884 --- [esports-platform] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-06-27T19:57:44.910+05:30  INFO 25884 --- [esports-platform] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-06-27T19:57:44.910+05:30  INFO 25884 --- [esports-platform] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@36c8e1c6]]
+2026-06-27T19:57:44.910+05:30  INFO 25884 --- [esports-platform] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-06-27T19:57:44.926+05:30  INFO 25884 --- [esports-platform] [           main] com.esports.Application                  : Started Application in 3.66 seconds (process running for 3.863)
+2026-06-27T19:58:44.904+05:30  INFO 25884 --- [esports-platform] [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-06-27T20:00:03.382+05:30  INFO 25884 --- [esports-platform] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-27T20:00:03.382+05:30  INFO 25884 --- [esports-platform] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-27T20:00:03.384+05:30  INFO 25884 --- [esports-platform] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    insert 
+    into
+        teams
+        (captain_id, created_at, invite_code, is_deleted, logo_url, name, updated_at, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        tm1_0.team_id,
+        tm1_0.user_id,
+        tm1_0.joined_at,
+        tm1_0.member_role 
+    from
+        team_members tm1_0 
+    where
+        (
+            tm1_0.team_id, tm1_0.user_id
+        ) in ((?, ?))
+Hibernate: 
+    insert 
+    into
+        team_members
+        (joined_at, member_role, team_id, user_id) 
+    values
+        (?, ?, ?, ?)
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        tm1_0.team_id,
+        tm1_0.user_id,
+        tm1_0.joined_at,
+        tm1_0.member_role 
+    from
+        team_members tm1_0 
+    where
+        tm1_0.team_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    join
+        roles r1_0 
+            on r1_0.id=u1_0.role_id 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        tm1_0.team_id,
+        tm1_0.user_id,
+        tm1_0.joined_at,
+        tm1_0.member_role 
+    from
+        team_members tm1_0 
+    where
+        tm1_0.team_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    join
+        roles r1_0 
+            on r1_0.id=u1_0.role_id 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    join
+        roles r1_0 
+            on r1_0.id=u1_0.role_id 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        tm1_0.team_id,
+        tm1_0.user_id,
+        tm1_0.joined_at,
+        tm1_0.member_role 
+    from
+        team_members tm1_0 
+    where
+        tm1_0.team_id=?
+Hibernate: 
+    delete 
+    from
+        team_members 
+    where
+        team_id=? 
+        and user_id=?
+Hibernate: 
+    delete 
+    from
+        teams 
+    where
+        id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        w1_0.id,
+        w1_0.balance,
+        w1_0.created_at,
+        w1_0.is_deleted,
+        w1_0.updated_at,
+        w1_0.user_id 
+    from
+        wallets w1_0 
+    where
+        w1_0.user_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        w1_0.id,
+        w1_0.balance,
+        w1_0.created_at,
+        w1_0.is_deleted,
+        w1_0.updated_at,
+        w1_0.user_id 
+    from
+        wallets w1_0 
+    where
+        w1_0.user_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.captain_id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.invite_code=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.invite_code=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.free_fire_uid,
+        u1_0.game_name,
+        u1_0.is_deleted,
+        u1_0.password_hash,
+        u1_0.role_id,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.created_at,
+        r1_0.is_deleted,
+        r1_0.name,
+        r1_0.updated_at 
+    from
+        roles r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.captain_id,
+        t1_0.created_at,
+        t1_0.invite_code,
+        t1_0.is_deleted,
+        t1_0.logo_url,
+        t1_0.name,
+        t1_0.updated_at 
+    from
+        teams t1_0 
+    where
+        t1_0.invite_code=?

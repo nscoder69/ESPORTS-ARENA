@@ -1,0 +1,42 @@
+import axios from 'axios';
+
+const API = axios.create({
+  baseURL: 'http://localhost:8080/api/v1',
+});
+
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
+  }
+  return req;
+});
+
+API.interceptors.response.use(
+  (response) => {
+    if (localStorage.getItem('userBlocked')) {
+      localStorage.removeItem('userBlocked');
+      window.dispatchEvent(new Event('userUnblocked'));
+    }
+    return response;
+  },
+  (error) => {
+    const status = error.response?.status;
+    const message = error.response?.data?.message || '';
+
+    if (status === 401 || status === 403) {
+      if (message.toLowerCase().includes('blocked') || message.toLowerCase().includes('locked')) {
+        localStorage.setItem('userBlocked', 'true');
+        window.dispatchEvent(new Event('userBlocked'));
+        return Promise.reject(error);
+      }
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userBlocked');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default API;

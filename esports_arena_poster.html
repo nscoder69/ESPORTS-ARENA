@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPORTS ARENA - Project Poster</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0813;
+            --panel-bg: rgba(22, 17, 39, 0.6);
+            --border-color: rgba(147, 51, 234, 0.3);
+            --neon-pink: #ff007f;
+            --neon-blue: #00f0ff;
+            --neon-purple: #9333ea;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(147, 51, 234, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.12) 0%, transparent 45%);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .poster-container {
+            width: 100%;
+            max-width: 1100px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                        0 0 40px rgba(147, 51, 234, 0.15);
+            padding: 3rem;
+            display: grid;
+            grid-template-columns: 1.2fr 1.8fr;
+            gap: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .poster-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+        }
+
+        /* Left Column: Poster Art */
+        .poster-art-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .image-wrapper {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.4s ease, border-color 0.4s ease;
+            aspect-ratio: 3/4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        .image-wrapper:hover {
+            transform: scale(1.02);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.25);
+        }
+
+        .poster-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-footer {
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-badge {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(147, 51, 234, 0.1));
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+
+        /* Right Column: Poster Content */
+        .poster-info-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .header-group {
+            margin-bottom: 2rem;
+        }
+
+        .logo-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            line-height: 1;
+            background: linear-gradient(to right, #ffffff, #a855f7, #00f0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .logo-subtitle {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--neon-pink);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .project-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            border-left: 3px solid var(--neon-blue);
+            padding-left: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(147, 51, 234, 0.05);
+            border-color: rgba(147, 51, 234, 0.3);
+            transform: translateX(5px);
+        }
+
+        .feature-icon-wrapper {
+            background: rgba(0, 240, 255, 0.1);
+            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-blue);
+            flex-shrink: 0;
+        }
+
+        .feature-card:nth-child(2) .feature-icon-wrapper {
+            background: rgba(255, 0, 127, 0.1);
+            color: var(--neon-pink);
+        }
+
+        .feature-card:nth-child(3) .feature-icon-wrapper {
+            background: rgba(147, 51, 234, 0.1);
+            color: var(--neon-purple);
+        }
+
+        .feature-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+            letter-spacing: 1px;
+        }
+
+        .feature-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Tech Stack Tags */
+        .tech-stack-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+        }
+
+        .tech-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tech-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #d1d5db;
+            transition: all 0.2s ease;
+        }
+
+        .tech-tag:hover {
+            background: var(--text-main);
+            color: var(--bg-color);
+            border-color: var(--text-main);
+            cursor: default;
+        }
+
+        /* Animations and Responsive */
+        @media (max-width: 900px) {
+            .poster-container {
+                grid-template-columns: 1fr;
+                padding: 2rem;
+                gap: 2rem;
+            }
+            .image-wrapper {
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            .logo-title {
+                font-size: 2.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="poster-container">
+        
+        <!-- Left: Poster Graphic -->
+        <div class="poster-art-section">
+            <div class="image-wrapper">
+                <img src="esports_arena_poster.png" alt="Esports Arena Graphic Poster" class="poster-image">
+            </div>
+            
+            <div class="brand-footer">
+                <span class="brand-badge">Full Stack App</span>
+                <span class="brand-badge" style="color: var(--neon-pink); border-color: rgba(255, 0, 127, 0.3);">Vite + Spring Boot</span>
+            </div>
+        </div>
+
+        <!-- Right: Info Panel -->
+        <div class="poster-info-section">
+            <div>
+                <div class="header-group">
+                    <h1 class="logo-title">Esports Arena</h1>
+                    <div class="logo-subtitle">4VS4 TOURNAMENT HUB</div>
+                </div>
+
+                <p class="project-description">
+                    A premium, high-performance web platform designed to host, manage, and scale competitive 4vs4 esports tournaments. Featuring seamless team formation, dynamic match tracking, and atomic virtual wallet transaction capabilities.
+                </p>
+
+                <!-- Core Feature Highlights -->
+                <div class="features-grid">
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="feature-title">Stateless JWT Security</h3>
+                            <p class="feature-desc">Robust authentication backed by Spring Security, encrypted BCrypt passwords, and smooth avatar uploads using multi-part forms.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="feature-title">Atomic Wallet Ledger</h3>
+                            <p class="feature-desc">An integrated virtual ledger supporting secure deposit/withdrawal cycles, automatic entry fee deductions, and prize disbursements.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="feature-title">Dynamic Glassmorphism UI</h3>
+                            <p class="feature-desc">React 19, TypeScript, and Tailwind CSS power an immersive gaming client complete with live scores and smooth animations.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tech Stack Footer -->
+            <div class="tech-stack-section">
+                <h4 class="tech-title">Technology Blueprint</h4>
+                <div class="tech-tags">
+                    <span class="tech-tag" style="border-color: rgba(0, 240, 255, 0.4); color: var(--neon-blue);">React 19</span>
+                    <span class="tech-tag" style="border-color: rgba(0, 240, 255, 0.4); color: var(--neon-blue);">TypeScript</span>
+                    <span class="tech-tag">Tailwind CSS</span>
+                    <span class="tech-tag">Framer Motion</span>
+                    <span class="tech-tag" style="border-color: rgba(147, 51, 234, 0.4); color: var(--neon-purple);">Spring Boot 3.3</span>
+                    <span class="tech-tag" style="border-color: rgba(147, 51, 234, 0.4); color: var(--neon-purple);">Spring Security JWT</span>
+                    <span class="tech-tag">Hibernate JPA</span>
+                    <span class="tech-tag">MySQL 8</span>
+                    <span class="tech-tag">Flyway Migrations</span>
+                    <span class="tech-tag">Vite</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
