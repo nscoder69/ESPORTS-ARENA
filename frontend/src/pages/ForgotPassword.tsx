@@ -108,13 +108,16 @@ export default function ForgotPassword() {
         {step === 1 ? (
           <form onSubmit={handleRequestOtp} className="space-y-5">
             <div>
-              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Email Address</label>
+              <label htmlFor="forgot-email" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Email Address</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
                   <Mail size={16} />
                 </div>
                 <input 
+                  id="forgot-email"
                   type="email" 
+                  name="email"
+                  autoComplete="email"
                   className="input-field pl-10"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -146,13 +149,16 @@ export default function ForgotPassword() {
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-5">
             <div>
-              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Verification OTP</label>
+              <label htmlFor="forgot-otp" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Verification OTP</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
                   <Key size={16} />
                 </div>
                 <input 
+                  id="forgot-otp"
                   type="text" 
+                  name="otp"
+                  autoComplete="one-time-code"
                   maxLength={6}
                   className="input-field pl-10 tracking-widest text-center text-lg font-bold"
                   value={otp}
@@ -164,13 +170,16 @@ export default function ForgotPassword() {
             </div>
 
             <div>
-              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">New Password</label>
+              <label htmlFor="forgot-new-password" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">New Password</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
                   <Lock size={16} />
                 </div>
                 <input 
+                  id="forgot-new-password"
                   type="password" 
+                  name="newPassword"
+                  autoComplete="new-password"
                   className="input-field pl-10"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}

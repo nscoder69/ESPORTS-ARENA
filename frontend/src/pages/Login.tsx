@@ -48,13 +48,16 @@ export default function Login() {
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Email Address</label>
+            <label htmlFor="login-email" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Email Address</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
                 <Mail size={16} />
               </div>
               <input 
+                id="login-email"
                 type="email" 
+                name="email"
+                autoComplete="email"
                 className="input-field pl-10"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -65,7 +68,7 @@ export default function Login() {
           </div>
           <div>
             <div className="flex justify-between mb-2">
-              <label className="block text-textSecondary text-xs font-semibold uppercase tracking-wider">Password</label>
+              <label htmlFor="login-password" className="block text-textSecondary text-xs font-semibold uppercase tracking-wider">Password</label>
               <Link to="/forgot-password" className="text-xs text-primary hover:text-primary-hover transition-colors">Forgot password?</Link>
             </div>
             <div className="relative">
@@ -73,7 +76,10 @@ export default function Login() {
                 <Lock size={16} />
               </div>
               <input 
+                id="login-password"
                 type={showPassword ? "text" : "password"} 
+                name="password"
+                autoComplete="current-password"
                 className="input-field pl-10 pr-10"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

@@ -147,15 +147,17 @@ export default function Signup() {
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Email Address *</label>
+            <label htmlFor="signup-email" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Email Address *</label>
             <div className="flex gap-2">
               <div className="relative flex-grow">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
                   <Mail size={16} />
                 </div>
                 <input 
+                  id="signup-email"
                   type="email" 
                   name="email"
+                  autoComplete="email"
                   className="input-field pl-10"
                   value={formData.email}
                   onChange={handleChange}
@@ -201,14 +203,16 @@ export default function Signup() {
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Verification OTP *</label>
+              <label htmlFor="signup-otp" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Verification OTP *</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-primary">
                   <Key size={16} />
                 </div>
                 <input 
+                  id="signup-otp"
                   type="text" 
                   name="otp"
+                  autoComplete="one-time-code"
                   maxLength={6}
                   className="input-field pl-10 tracking-widest font-mono font-bold text-white placeholder-textSecondary/40"
                   value={formData.otp}
@@ -222,14 +226,16 @@ export default function Signup() {
           )}
           
           <div>
-            <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Password *</label>
+            <label htmlFor="signup-password" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Password *</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
                 <Lock size={16} />
               </div>
               <input 
+                id="signup-password"
                 type={showPassword ? "text" : "password"} 
                 name="password"
+                autoComplete="new-password"
                 className="input-field pl-10 pr-10"
                 value={formData.password}
                 onChange={handleChange}
@@ -286,14 +292,16 @@ export default function Signup() {
               </div>
 
               <div>
-                <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">In-Game Name</label>
+                <label htmlFor="signup-gamename" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">In-Game Name</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
                     <User size={16} />
                   </div>
                   <input 
+                    id="signup-gamename"
                     type="text" 
                     name="gameName"
+                    autoComplete="username"
                     className="input-field pl-10"
                     value={formData.gameName}
                     onChange={handleChange}
@@ -302,14 +310,16 @@ export default function Signup() {
                 </div>
               </div>
               <div>
-                <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Free Fire UID</label>
+                <label htmlFor="signup-uid" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Free Fire UID</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
                     <Gamepad2 size={16} />
                   </div>
                   <input 
+                    id="signup-uid"
                     type="text" 
                     name="freeFireUid"
+                    autoComplete="off"
                     className="input-field pl-10"
                     value={formData.freeFireUid}
                     onChange={handleChange}
