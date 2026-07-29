@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { User, Gamepad2, Upload, Camera, Save, ArrowLeft, Loader } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import API from '../services/api';
+import API, { getImageUrl } from '../services/api';
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const EditProfile = () => {
       setGameName(user.gameName || '');
       setFreeFireUid(user.freeFireUid || '');
       if (user.avatarUrl) {
-        setAvatarPreview(`http://localhost:8080${user.avatarUrl}`);
+        setAvatarPreview(getImageUrl(user.avatarUrl));
       }
     } else {
       navigate('/login');

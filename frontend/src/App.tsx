@@ -5,6 +5,7 @@ import { Trophy, LayoutDashboard, IndianRupee, LogOut, User, CheckCircle, Shield
 import { useState, useEffect, useCallback } from 'react';
 import { getWalletBalance } from './services/walletService';
 import { getUserNotifications, markAllNotificationsAsRead } from './services/notificationService';
+import { getImageUrl } from './services/api';
 import logo from './assets/obitoloo.png';
 
 const Home = React.lazy(() => import('./pages/Home'));
@@ -192,7 +193,7 @@ function App() {
                   >
                     <div className="w-9 h-9 rounded-full overflow-hidden border border-white/20 bg-surfaceHighlight flex items-center justify-center">
                       {user.avatarUrl ? (
-                        <img src={`http://localhost:8080${user.avatarUrl}`} alt="Profile" className="w-full h-full object-cover" />
+                        <img src={getImageUrl(user.avatarUrl)} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
                         <User size={18} className="text-textSecondary" />
                       )}

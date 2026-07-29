@@ -9,6 +9,7 @@ import { getAdminSupportTickets, replyToSupportTicket } from '../services/suppor
 import { getUserTransactionHistory, getUserWalletBalance, getPendingDeposits, verifyPendingDeposit, getPendingWithdrawals, verifyPendingWithdrawal } from '../services/walletService';
 import { MessageSquare } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
+import { getImageUrl } from '../services/api';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -651,7 +652,7 @@ const AdminDashboard = () => {
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded bg-surfaceHighlight border border-white/10 overflow-hidden flex-shrink-0">
                                   {reg.teamLogoUrl ? (
-                                    <img src={`http://localhost:8080${reg.teamLogoUrl}`} alt="logo" className="w-full h-full object-cover" />
+                                    <img src={getImageUrl(reg.teamLogoUrl)} alt="logo" className="w-full h-full object-cover" />
                                   ) : (
                                     <Users size={16} className="text-textSecondary m-auto mt-2" />
                                   )}
@@ -813,7 +814,7 @@ const AdminDashboard = () => {
                             <td className="py-4 px-4">
                               <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-surfaceHighlight/20 flex items-center justify-center">
                                 {u.avatarUrl ? (
-                                  <img src={`http://localhost:8080${u.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                                  <img src={getImageUrl(u.avatarUrl)} alt="Avatar" className="w-full h-full object-cover" />
                                 ) : (
                                   <Users size={16} className="text-textSecondary" />
                                 )}
@@ -1242,7 +1243,7 @@ const AdminDashboard = () => {
                   <div key={member.userId} className="flex justify-between items-center bg-surface border border-white/5 p-3 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center border border-white/10 overflow-hidden">
-                        {member.avatarUrl ? <img src={`http://localhost:8080${member.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" /> : <UserX size={14} className="text-textSecondary" />}
+                        {member.avatarUrl ? <img src={getImageUrl(member.avatarUrl)} alt="Avatar" className="w-full h-full object-cover" /> : <UserX size={14} className="text-textSecondary" />}
                       </div>
                       <div>
                         <div className="text-sm font-bold text-white">{member.gameName}</div>
@@ -1474,7 +1475,7 @@ const AdminDashboard = () => {
             <div className="flex flex-col sm:flex-row gap-6 items-start border-b border-white/10 pb-6 mb-6">
               <div className="w-16 h-16 rounded-full overflow-hidden border border-white/10 bg-surfaceHighlight/20 flex items-center justify-center flex-shrink-0">
                 {selectedProfileUser.avatarUrl ? (
-                  <img src={`http://localhost:8080${selectedProfileUser.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={getImageUrl(selectedProfileUser.avatarUrl)} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <Users size={32} className="text-textSecondary" />
                 )}

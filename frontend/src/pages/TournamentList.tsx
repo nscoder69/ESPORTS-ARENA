@@ -9,6 +9,7 @@ import { Copy, CheckCircle } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import TournamentCard from '../components/TournamentCard';
 import { getWalletBalance } from '../services/walletService';
+import { getImageUrl } from '../services/api';
 
 export default function TournamentList() {
   const location = useLocation();
@@ -597,7 +598,7 @@ export default function TournamentList() {
                   <div key={team.id} className="flex items-center gap-3 p-3 rounded-lg bg-surface border border-white/5">
                     <div className="w-8 h-8 rounded bg-background flex items-center justify-center overflow-hidden flex-shrink-0">
                       {team.logoUrl ? (
-                        <img src={`http://localhost:8080${team.logoUrl}`} alt={team.name} className="w-full h-full object-cover" />
+                        <img src={getImageUrl(team.logoUrl)} alt={team.name} className="w-full h-full object-cover" />
                       ) : (
                         <Trophy size={14} className="text-textSecondary" />
                       )}
@@ -658,7 +659,7 @@ export default function TournamentList() {
                       <div className="flex flex-col items-center">
                         <div className="w-12 h-12 rounded bg-surfaceHighlight border border-[#C0C0C0]/30 overflow-hidden flex items-center justify-center relative">
                           {tournamentResults.find(r => r.placement === 2).teamLogoUrl ? (
-                            <img src={`http://localhost:8080${tournamentResults.find(r => r.placement === 2).teamLogoUrl}`} alt="2nd logo" className="w-full h-full object-cover" />
+                            <img src={getImageUrl(tournamentResults.find(r => r.placement === 2).teamLogoUrl)} alt="2nd logo" className="w-full h-full object-cover" />
                           ) : (
                             <Users size={18} className="text-textSecondary" />
                           )}
@@ -677,7 +678,7 @@ export default function TournamentList() {
                       <div className="flex flex-col items-center">
                         <div className="w-16 h-16 rounded bg-surfaceHighlight border border-[#FFD700]/30 overflow-hidden flex items-center justify-center relative scale-110 -translate-y-2">
                           {tournamentResults.find(r => r.placement === 1).teamLogoUrl ? (
-                            <img src={`http://localhost:8080${tournamentResults.find(r => r.placement === 1).teamLogoUrl}`} alt="1st logo" className="w-full h-full object-cover" />
+                            <img src={getImageUrl(tournamentResults.find(r => r.placement === 1).teamLogoUrl)} alt="1st logo" className="w-full h-full object-cover" />
                           ) : (
                             <Trophy size={24} className="text-[#FFD700]" />
                           )}
@@ -696,7 +697,7 @@ export default function TournamentList() {
                       <div className="flex flex-col items-center">
                         <div className="w-12 h-12 rounded bg-surfaceHighlight border border-[#CD7F32]/30 overflow-hidden flex items-center justify-center relative">
                           {tournamentResults.find(r => r.placement === 3).teamLogoUrl ? (
-                            <img src={`http://localhost:8080${tournamentResults.find(r => r.placement === 3).teamLogoUrl}`} alt="3rd logo" className="w-full h-full object-cover" />
+                            <img src={getImageUrl(tournamentResults.find(r => r.placement === 3).teamLogoUrl)} alt="3rd logo" className="w-full h-full object-cover" />
                           ) : (
                             <Users size={18} className="text-textSecondary" />
                           )}
@@ -750,7 +751,7 @@ export default function TournamentList() {
                               <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 rounded bg-surfaceHighlight border border-white/5 overflow-hidden flex-shrink-0">
                                   {res.teamLogoUrl ? (
-                                    <img src={`http://localhost:8080${res.teamLogoUrl}`} alt="logo" className="w-full h-full object-cover" />
+                                    <img src={getImageUrl(res.teamLogoUrl)} alt="logo" className="w-full h-full object-cover" />
                                   ) : (
                                     <Users size={12} className="text-textSecondary m-auto mt-1" />
                                   )}

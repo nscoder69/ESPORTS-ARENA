@@ -5,6 +5,7 @@ import SockJS from 'sockjs-client';
 import { motion } from 'framer-motion';
 import { Send, Users, Trophy, Loader, XCircle } from 'lucide-react';
 import { getRegisteredTeamsForParticipant } from '../services/tournamentService';
+import { BACKEND_URL } from '../services/api';
 
 interface ChatMessage {
   senderName: string;
@@ -50,7 +51,7 @@ export default function LiveMatch() {
     if (isParticipant !== true) return;
 
     // Setup WebSocket
-    const socket = new SockJS('http://localhost:8080/ws');
+    const socket = new SockJS(`${BACKEND_URL}/ws`);
     const client = new Client({
       webSocketFactory: () => socket as any,
       debug: function (str) {
