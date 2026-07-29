@@ -46,4 +46,7 @@ app:
   razorpay:
     key-id: ${RAZORPAY_KEY_ID:rzp_test_pUrj47p2o1XQ6H}
     key-secret: ${RAZORPAY_KEY_SECRET:dummy_secret}
+  brevo:
+    api-key: ${BREVO_API_KEY:}
+
 
