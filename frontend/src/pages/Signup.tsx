@@ -323,9 +323,22 @@ export default function Signup() {
           <button 
             type="submit" 
             disabled={isLoading || !otpSent}
-            className="btn-primary mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isLoading ? 'Creating Account...' : 'Create Account'}
+            {isLoading ? (
+              <>
+                <motion.img
+                  src={logo}
+                  alt="Loading..."
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+                  className="w-5 h-5 object-contain"
+                />
+                <span>Creating Account...</span>
+              </>
+            ) : (
+              'Create Account'
+            )}
           </button>
         </form>
 

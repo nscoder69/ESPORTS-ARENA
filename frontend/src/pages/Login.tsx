@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { login } from '../services/authService';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import logo from '../assets/obitoloo.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -92,9 +93,22 @@ export default function Login() {
           <button 
             type="submit" 
             disabled={isLoading}
-            className="btn-primary mt-2"
+            className="btn-primary mt-2 flex items-center justify-center gap-2"
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? (
+              <>
+                <motion.img
+                  src={logo}
+                  alt="Signing in..."
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+                  className="w-5 h-5 object-contain"
+                />
+                <span>Signing in...</span>
+              </>
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
 
