@@ -158,6 +158,7 @@ public class MailServiceImpl implements MailService {
 
     private boolean sendViaBrevoHttpApi(String toEmail, String subject, String htmlContent) {
         if (brevoApiKey == null || brevoApiKey.trim().isEmpty()) {
+            log.warn("BREVO_API_KEY is empty or not set in Environment Variables.");
             return false;
         }
         try {
