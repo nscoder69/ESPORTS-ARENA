@@ -1,6 +1,14 @@
 import axios from 'axios';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+const getApiBaseUrl = (): string => {
+  let url = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1').trim().replace(/\/+$/, '');
+  if (!url.endsWith('/api/v1')) {
+    url = `${url}/api/v1`;
+  }
+  return url;
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 export const BACKEND_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
 
 export const getImageUrl = (url?: string | null): string => {
