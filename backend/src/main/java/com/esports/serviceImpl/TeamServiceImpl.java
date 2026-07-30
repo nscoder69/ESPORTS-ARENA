@@ -145,6 +145,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<TeamDto> getAllTeams() {
         return teamRepository.findAll().stream().map(team -> {
             TeamDto dto = new TeamDto();
@@ -159,6 +160,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<TeamDto> getMyTeams(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -177,6 +179,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public java.util.List<TeamMemberDto> getTeamMembers(java.util.UUID teamId) {
         return teamMemberRepository.findByTeam_Id(teamId).stream().map(member -> {
             TeamMemberDto dto = new TeamMemberDto();

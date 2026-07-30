@@ -70,6 +70,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TournamentDto> getAllTournaments() {
         return tournamentRepository.findAll().stream()
                 .filter(t -> t.getIsDeleted() == null || !t.getIsDeleted())
@@ -225,6 +226,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TournamentRegistrationDto> getRegistrationsForTournament(UUID tournamentId, String userEmail) {
         // Here we could verify if user is admin, but we'll assume controller handles roles, or we do basic check
         User admin = userRepository.findByEmail(userEmail)
@@ -240,6 +242,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Map<String, String>> getRegisteredTeamsForParticipant(UUID tournamentId, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -431,12 +434,14 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TournamentDto> getMyRegisteredTournaments(String userEmail) {
         List<Tournament> registeredTournaments = tournamentRepository.findTournamentsByUserEmail(userEmail);
         return registeredTournaments.stream().map(this::mapToTournamentDto).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TournamentDto> getUserRegisteredTournaments(UUID userId, String adminEmail) {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -645,6 +650,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TournamentRegistrationDto> getTournamentResults(UUID tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
