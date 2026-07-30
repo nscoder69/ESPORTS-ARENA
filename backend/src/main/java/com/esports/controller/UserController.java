@@ -17,7 +17,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PutMapping(value = "/profile", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/profile", method = {RequestMethod.PUT, RequestMethod.POST})
     public ResponseEntity<AuthResponse> updateProfile(
             @RequestParam(value = "gameName", required = false) String gameName,
             @RequestParam(value = "freeFireUid", required = false) String freeFireUid,

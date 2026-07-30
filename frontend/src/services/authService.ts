@@ -28,12 +28,7 @@ export const registerUser = async (data: any) => {
     }
   });
 
-  const response = await API.post('/auth/register', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-
-    }
-  });
+  const response = await API.post('/auth/register', formData);
   return response.data;
 };
 

@@ -62,12 +62,7 @@ const EditProfile = () => {
         formData.append('avatar', selectedFile);
       }
 
-      // We will create this endpoint in the backend shortly!
-      const response = await API.put('/users/profile', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const response = await API.put('/users/profile', formData);
 
       // Update local storage
       const updatedUser = response.data;

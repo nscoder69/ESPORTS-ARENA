@@ -108,11 +108,7 @@ export const getPublicPaymentSettings = async (): Promise<PaymentSettings> => {
 };
 
 export const updatePaymentSettings = async (formData: FormData): Promise<PaymentSettings> => {
-    const response = await api.post('/admin/settings/payment', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
+    const response = await api.post('/admin/settings/payment', formData);
     return response.data;
 };
 
