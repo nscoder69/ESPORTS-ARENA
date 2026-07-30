@@ -21,6 +21,7 @@ public class SystemSettingServiceImpl implements SystemSettingService {
     private final FileUploadService fileUploadService;
 
     @Override
+    @Transactional(readOnly = true)
     public PaymentSettingsDto getPaymentSettings() {
         String upiId = systemSettingRepository.findBySettingKey("upi_id")
                 .map(SystemSetting::getSettingValue)

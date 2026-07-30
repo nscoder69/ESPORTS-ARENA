@@ -31,21 +31,37 @@ export default function WalletDashboard() {
   const [bankIfscCode, setBankIfscCode] = useState('');
   const [withdrawError, setWithdrawError] = useState('');
 
-  useEffect(() => {
-    fetchWalletData();
-  }, []);
-
-  const fetchWalletData = async () => {
+  const fetchPaymentSettings = async () => {
     try {
-      const walletData = await getWalletBalance();
-      const transactionsData = await getTransactionHistory();
       const settings = await getPublicPaymentSettings();
-      
-      setWallet(walletData);
-      setTransactions(transactionsData);
       if (settings) {
         setPaymentSettings(settings);
       }
+    } catch (err) {
+      console.error("Failed to fetch payment settings", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchWalletData();
+    fetchPaymentSettings();
+  }, []);
+
+  useEffect(() => {
+    if (showDepositModal) {
+      fetchPaymentSettings();
+    }
+  }, [showDepositModal]);
+
+  const fetchWalletData = async () => {
+    try {
+      const [walletData, transactionsData] = await Promise.all([
+        getWalletBalance().catch(() => null),
+        getTransactionHistory().catch(() => [])
+      ]);
+      
+      if (walletData) setWallet(walletData);
+      if (transactionsData) setTransactions(transactionsData);
     } catch (error) {
       console.error("Failed to fetch wallet data", error);
     } finally {
