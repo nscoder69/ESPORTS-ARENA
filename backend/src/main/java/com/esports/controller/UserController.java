@@ -35,7 +35,7 @@ public class UserController {
                 .gameName(updatedUser.getGameName())
                 .freeFireUid(updatedUser.getFreeFireUid())
                 .avatarUrl(updatedUser.getAvatarUrl())
-                // token is not refreshed here, frontend keeps using the old one
+                .permissions(updatedUser.getPermissions())
                 .build();
 
         return ResponseEntity.ok(response);
@@ -44,6 +44,19 @@ public class UserController {
     @GetMapping
     public ResponseEntity<java.util.List<com.esports.dto.UserDto>> getAllUsers(Authentication authentication) {
         return ResponseEntity.ok(userService.getAllUsers(authentication.getName()));
+    }
+
+    @GetMapping("/admins")
+    public ResponseEntity<java.util.List<com.esports.dto.UserDto>> getAllAdmins(Authentication authentication) {
+        return ResponseEntity.ok(userService.getAllAdmins(authentication.getName()));
+    }
+
+    @PutMapping("/{userId}/role")
+    public ResponseEntity<com.esports.dto.UserDto> updateUserRoleAndPermissions(
+            @PathVariable java.util.UUID userId,
+            @RequestBody com.esports.dto.UpdateAdminRoleRequest request,
+            Authentication authentication) {
+        return ResponseEntity.ok(userService.updateUserRoleAndPermissions(userId, request, authentication.getName()));
     }
 
     @PutMapping("/{userId}/block")

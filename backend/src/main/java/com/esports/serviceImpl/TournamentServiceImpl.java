@@ -230,7 +230,7 @@ public class TournamentServiceImpl implements TournamentService {
         User admin = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Only admins can view all registrations");
         }
 
@@ -256,7 +256,7 @@ public class TournamentServiceImpl implements TournamentService {
         boolean isParticipant = registrations.stream()
                 .anyMatch(reg -> userTeams.stream().anyMatch(t -> t.getId().equals(reg.getTeam().getId())));
 
-        if (!isParticipant && !"ROLE_ADMIN".equals(user.getRole().getName())) {
+        if (!isParticipant && !"ROLE_ADMIN".equals(user.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(user.getRole().getName())) {
             throw new RuntimeException("You must be registered in this tournament to view the participants");
         }
 
@@ -440,7 +440,7 @@ public class TournamentServiceImpl implements TournamentService {
     public List<TournamentDto> getUserRegisteredTournaments(UUID userId, String adminEmail) {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access");
         }
         
@@ -487,7 +487,8 @@ public class TournamentServiceImpl implements TournamentService {
     private void verifyAdmin(String email) {
         User admin = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        String role = admin.getRole().getName();
+        if (!"ROLE_ADMIN".equals(role) && !"ROLE_SUPER_ADMIN".equals(role)) {
             throw new RuntimeException("Admin privileges required");
         }
     }

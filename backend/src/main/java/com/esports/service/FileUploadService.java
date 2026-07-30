@@ -41,4 +41,30 @@ public class FileUploadService {
         // Return the relative URL path
         return "/uploads/avatars/" + newFilename;
     }
+
+    private final String QR_UPLOAD_DIR = "uploads/qr/";
+
+    public String saveQrCode(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
+
+        Path uploadPath = Paths.get(QR_UPLOAD_DIR);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        String extension = ".png";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+
+        String newFilename = "qr_" + UUID.randomUUID().toString() + extension;
+        Path filePath = uploadPath.resolve(newFilename);
+
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return "/uploads/qr/" + newFilename;
+    }
 }

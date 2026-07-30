@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Wallet as WalletIcon, ArrowUpRight, ArrowDownRight, IndianRupee, Clock, Plus, ShieldCheck, Copy, Check, Landmark, Smartphone } from 'lucide-react';
-import { getWalletBalance, getTransactionHistory, depositFunds, withdrawFunds } from '../services/walletService';
-import type { Wallet, Transaction } from '../services/walletService';
+import { getWalletBalance, getTransactionHistory, depositFunds, withdrawFunds, getPublicPaymentSettings } from '../services/walletService';
+import type { Wallet, Transaction, PaymentSettings } from '../services/walletService';
+import { getImageUrl } from '../services/api';
 import logo from '../assets/obitoloo.png';
 import qrImage from '../assets/QR.jpeg';
 
 export default function WalletDashboard() {
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({ upiId: 'ultimatebackup112-1@okaxis', upiQrUrl: '' });
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -37,9 +39,13 @@ export default function WalletDashboard() {
     try {
       const walletData = await getWalletBalance();
       const transactionsData = await getTransactionHistory();
+      const settings = await getPublicPaymentSettings();
       
       setWallet(walletData);
       setTransactions(transactionsData);
+      if (settings) {
+        setPaymentSettings(settings);
+      }
     } catch (error) {
       console.error("Failed to fetch wallet data", error);
     } finally {
@@ -136,7 +142,7 @@ export default function WalletDashboard() {
   };
 
   const copyUpiId = () => {
-    navigator.clipboard.writeText('ultimatebackup112-1@okaxis');
+    navigator.clipboard.writeText(paymentSettings.upiId);
     setCopiedUpi(true);
     setTimeout(() => setCopiedUpi(false), 2000);
   };
@@ -368,10 +374,10 @@ export default function WalletDashboard() {
                   <p className="text-textSecondary text-xs mb-1 uppercase tracking-wider">Amount to deposit</p>
                   <p className="text-3xl font-bold font-display text-white mb-4">₹{Number(depositAmount).toFixed(2)}</p>
                   
-                  {/* Static QR Code */}
+                  {/* Dynamic QR Code */}
                   <div className="bg-white p-3 rounded-xl inline-block mb-4 shadow-xl border border-white/10">
                     <img 
-                      src={qrImage} 
+                      src={paymentSettings.upiQrUrl ? getImageUrl(paymentSettings.upiQrUrl) : qrImage} 
                       alt="UPI QR Code" 
                       className="w-36 h-36 object-contain" 
                     />
@@ -384,7 +390,7 @@ export default function WalletDashboard() {
                   <div className="bg-background rounded-lg border border-white/10 p-2.5 flex items-center justify-between max-w-sm mx-auto mb-6">
                     <div className="text-left pl-1.5">
                       <span className="block text-[9px] uppercase tracking-wider text-textSecondary font-semibold">Merchant UPI ID</span>
-                      <span className="block text-xs text-white font-medium">ultimatebackup112-1@okaxis</span>
+                      <span className="block text-xs text-white font-medium">{paymentSettings.upiId}</span>
                     </div>
                     <button 
                       onClick={copyUpiId}

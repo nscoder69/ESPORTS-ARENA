@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon } from 'lucide-react';
+import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllTournaments, getRegistrationsForTournament, cancelTournament, rescheduleTournament, removeTeamFromTournament, updateTournamentResults, deleteTournament, getUserRegisteredTournaments } from '../services/tournamentService';
 import { getTeamMembers } from '../services/teamService';
 import { getAllUsers, blockUser, unblockUser, deleteUser } from '../services/authService';
 import { getAdminSupportTickets, replyToSupportTicket } from '../services/supportService';
-import { getUserTransactionHistory, getUserWalletBalance, getPendingDeposits, verifyPendingDeposit, getPendingWithdrawals, verifyPendingWithdrawal } from '../services/walletService';
-import { MessageSquare } from 'lucide-react';
+import { getUserTransactionHistory, getUserWalletBalance, getPendingDeposits, verifyPendingDeposit, getPendingWithdrawals, verifyPendingWithdrawal, getPublicPaymentSettings, updatePaymentSettings, getAllAdmins, updateUserRoleAndPermissions } from '../services/walletService';
 import logo from '../assets/obitoloo.png';
+import qrImageDefault from '../assets/QR.jpeg';
 import { getImageUrl } from '../services/api';
 
 const AdminDashboard = () => {
@@ -42,7 +42,11 @@ const AdminDashboard = () => {
 
   const [tab, setTab] = useState<'active' | 'history'>('active');
 
-  const [adminView, setAdminView] = useState<'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals'>('tournaments');
+  const userStr = localStorage.getItem('user');
+  const currentUser = userStr ? JSON.parse(userStr) : null;
+  const isSuperAdmin = currentUser?.role === 'ROLE_SUPER_ADMIN';
+
+  const [adminView, setAdminView] = useState<'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'payment-settings' | 'access-control'>('tournaments');
   const [pendingDeposits, setPendingDeposits] = useState<any[]>([]);
   const [depositsLoading, setDepositsLoading] = useState(false);
   const [depositsError, setDepositsError] = useState('');
@@ -71,9 +75,23 @@ const AdminDashboard = () => {
   const [loadingProfileDetails, setLoadingProfileDetails] = useState(false);
   const [profileActiveTab, setProfileActiveTab] = useState<'transactions' | 'tournaments'>('transactions');
 
+  // Super Admin Payment Settings State
+  const [paymentSettings, setPaymentSettings] = useState<any>({ upiId: '', upiQrUrl: '' });
+  const [newUpiId, setNewUpiId] = useState('');
+  const [newQrFile, setNewQrFile] = useState<File | null>(null);
+  const [savingPayment, setSavingPayment] = useState(false);
+  const [paymentMsg, setPaymentMsg] = useState('');
+
+  // Super Admin Access Control State
+  const [adminsList, setAdminsList] = useState<any[]>([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
+  const [selectedAdminUser, setSelectedAdminUser] = useState<any | null>(null);
+  const [editRole, setEditRole] = useState<'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_PLAYER'>('ROLE_ADMIN');
+  const [editPermissions, setEditPermissions] = useState<string[]>([]);
+  const [savingAdminRole, setSavingAdminRole] = useState(false);
+
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr || JSON.parse(userStr).role !== 'ROLE_ADMIN') {
+    if (!userStr || (JSON.parse(userStr).role !== 'ROLE_ADMIN' && JSON.parse(userStr).role !== 'ROLE_SUPER_ADMIN')) {
       navigate('/');
       return;
     }
@@ -89,10 +107,86 @@ const AdminDashboard = () => {
       fetchPendingDeposits();
     } else if (adminView === 'withdrawals') {
       fetchPendingWithdrawals();
+    } else if (adminView === 'payment-settings') {
+      fetchPaymentSettings();
+    } else if (adminView === 'access-control') {
+      fetchAdmins();
     } else {
       fetchTournaments();
     }
   }, [adminView]);
+
+  const fetchPaymentSettings = async () => {
+    try {
+      const data = await getPublicPaymentSettings();
+      setPaymentSettings(data);
+      setNewUpiId(data.upiId || '');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSavePaymentSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingPayment(true);
+    setPaymentMsg('');
+    try {
+      const formData = new FormData();
+      if (newUpiId) formData.append('upiId', newUpiId);
+      if (newQrFile) formData.append('qrImage', newQrFile);
+
+      const updated = await updatePaymentSettings(formData);
+      setPaymentSettings(updated);
+      setPaymentMsg('Payment QR Code & Merchant UPI ID updated successfully!');
+      setNewQrFile(null);
+    } catch (err: any) {
+      setPaymentMsg(err.response?.data?.message || 'Failed to update payment settings');
+    } finally {
+      setSavingPayment(false);
+    }
+  };
+
+  const fetchAdmins = async () => {
+    setLoadingAdmins(true);
+    try {
+      const data = await getAllAdmins();
+      setAdminsList(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingAdmins(false);
+    }
+  };
+
+  const handleOpenEditAdminModal = (user: any) => {
+    setSelectedAdminUser(user);
+    setEditRole(user.role);
+    setEditPermissions(user.permissions ? user.permissions.split(',') : ['MANAGE_TOURNAMENTS', 'MANAGE_DEPOSITS', 'MANAGE_WITHDRAWALS', 'MANAGE_USERS', 'MANAGE_SUPPORT']);
+  };
+
+  const togglePermission = (perm: string) => {
+    if (editPermissions.includes(perm)) {
+      setEditPermissions(editPermissions.filter(p => p !== perm));
+    } else {
+      setEditPermissions([...editPermissions, perm]);
+    }
+  };
+
+  const handleSaveAdminRoleAndPermissions = async () => {
+    if (!selectedAdminUser) return;
+    setSavingAdminRole(true);
+    try {
+      const permsStr = editPermissions.join(',');
+      await updateUserRoleAndPermissions(selectedAdminUser.id, editRole, permsStr);
+      fetchAdmins();
+      setSelectedAdminUser(null);
+      alert('Admin permissions updated successfully!');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to update admin permissions');
+    } finally {
+      setSavingAdminRole(false);
+    }
+  };
 
   const fetchPendingDeposits = async () => {
     setDepositsLoading(true);
@@ -402,8 +496,18 @@ const AdminDashboard = () => {
       {/* Admin Header */}
       <div className="bg-surface border-b border-white/5 py-8">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center gap-2 text-rose-400 mb-4 font-bold tracking-widest text-xs uppercase">
-            <ShieldAlert size={14} /> System Administration
+          <div className="flex items-center gap-2 mb-4 font-bold tracking-widest text-xs uppercase">
+            <ShieldAlert size={14} className="text-rose-400" /> 
+            <span className="text-rose-400">System Administration</span>
+            {isSuperAdmin ? (
+              <span className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider shadow">
+                ★ Super Admin (Developer Control)
+              </span>
+            ) : (
+              <span className="bg-indigo-600 text-white px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider">
+                Sub-Admin
+              </span>
+            )}
           </div>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
@@ -414,7 +518,13 @@ const AdminDashboard = () => {
                     ? 'User Directory'
                     : adminView === 'support'
                       ? 'Customer Support Tickets'
-                      : 'Pending Deposits Approval'}
+                      : adminView === 'deposits'
+                        ? 'Pending Deposits Approval'
+                        : adminView === 'withdrawals'
+                          ? 'Pending Withdrawals Approval'
+                          : adminView === 'payment-settings'
+                            ? 'UPI QR & Merchant Payment Configuration'
+                            : 'Sub-Admin Access & Permissions Control'}
               </h1>
               <p className="text-textSecondary text-sm max-w-xl">
                 {adminView === 'tournaments'
@@ -423,7 +533,13 @@ const AdminDashboard = () => {
                     ? 'Monitor user registration data, check activity statuses, and view player in-game identities.'
                     : adminView === 'support'
                       ? 'Manage customer complaints and help requests. Select a ticket to view details and reply.'
-                      : 'Review manual UPI deposit requests. Verify transaction UTR references with your bank account, then approve or reject.'}
+                      : adminView === 'deposits'
+                        ? 'Review manual UPI deposit requests. Verify transaction UTR references with your bank account, then approve or reject.'
+                        : adminView === 'withdrawals'
+                          ? 'Review user withdrawal requests and approve or reject payouts.'
+                          : adminView === 'payment-settings'
+                            ? 'Super Admin Only: Dynamically update the platform deposit Merchant UPI ID and upload custom QR Code images.'
+                            : 'Super Admin Only: Create and manage Sub-Admins, assigning specific feature permissions.'}
               </p>
             </div>
             {adminView === 'tournaments' && (
@@ -434,37 +550,54 @@ const AdminDashboard = () => {
           </div>
 
           {/* View Toggle Tabs */}
-          <div className="flex gap-4 mt-6 border-b border-white/10 pb-0">
+          <div className="flex gap-4 mt-6 border-b border-white/10 pb-0 overflow-x-auto">
             <button
               onClick={() => setAdminView('tournaments')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative ${adminView === 'tournaments' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'tournaments' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
             >
               Tournaments
             </button>
             <button
               onClick={() => setAdminView('users')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative ${adminView === 'users' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'users' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
             >
               Users & Activity
             </button>
             <button
               onClick={() => setAdminView('support')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative ${adminView === 'support' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'support' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
             >
               Support Tickets
             </button>
             <button
               onClick={() => setAdminView('deposits')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative ${adminView === 'deposits' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'deposits' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
             >
               Pending Deposits
             </button>
             <button
               onClick={() => setAdminView('withdrawals')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative ${adminView === 'withdrawals' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'withdrawals' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
             >
               Pending Withdrawals
             </button>
+
+            {isSuperAdmin && (
+              <>
+                <button
+                  onClick={() => setAdminView('payment-settings')}
+                  className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap text-amber-400 ${adminView === 'payment-settings' ? 'text-amber-400 border-b-2 border-amber-400 font-bold' : 'text-amber-400/70 hover:text-amber-400'}`}
+                >
+                  ★ UPI QR & Settings
+                </button>
+                <button
+                  onClick={() => setAdminView('access-control')}
+                  className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap text-amber-400 ${adminView === 'access-control' ? 'text-amber-400 border-b-2 border-amber-400 font-bold' : 'text-amber-400/70 hover:text-amber-400'}`}
+                >
+                  ★ Sub-Admin Access Control
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -1117,7 +1250,7 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
-      ) : (
+      ) : adminView === 'withdrawals' ? (
         <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
           <div className="flex items-center justify-between">
             <div>
@@ -1202,8 +1335,237 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
+      ) : adminView === 'payment-settings' ? (
+        <div className="flex-grow max-w-4xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
+          <div className="glass-panel p-8 relative overflow-hidden border border-amber-500/20 shadow-2xl">
+            <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+              <QrCode size={28} className="text-amber-400" />
+              <div>
+                <h3 className="text-2xl font-bold font-display text-white">Payment UPI QR & Merchant Configuration</h3>
+                <p className="text-textSecondary text-xs">Super Admin Tool: Update platform UPI ID and custom deposit QR code image</p>
+              </div>
+            </div>
+
+            {paymentMsg && (
+              <div className={`mb-6 p-4 rounded-lg text-sm border font-medium ${paymentMsg.includes('successfully') ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'}`}>
+                {paymentMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleSavePaymentSettings} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                {/* QR Code Preview */}
+                <div className="text-center p-6 bg-background rounded-2xl border border-white/10">
+                  <span className="block text-xs font-semibold uppercase tracking-wider text-textSecondary mb-3">Active Deposit QR Code Preview</span>
+                  <div className="bg-white p-4 rounded-xl inline-block shadow-2xl border border-white/10 mb-3">
+                    <img 
+                      src={newQrFile ? URL.createObjectURL(newQrFile) : (paymentSettings.upiQrUrl ? getImageUrl(paymentSettings.upiQrUrl) : qrImageDefault)} 
+                      alt="UPI QR Code Preview" 
+                      className="w-44 h-44 object-contain mx-auto" 
+                    />
+                  </div>
+                  <span className="block text-[11px] text-textSecondary">
+                    {newQrFile ? `Selected file: ${newQrFile.name}` : (paymentSettings.upiQrUrl ? 'Custom QR Code Active' : 'Default Platform QR Code Active')}
+                  </span>
+                </div>
+
+                {/* Controls */}
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Merchant UPI ID *</label>
+                    <input 
+                      type="text"
+                      required
+                      value={newUpiId}
+                      onChange={e => setNewUpiId(e.target.value)}
+                      placeholder="e.g. yourname@okaxis"
+                      className="w-full input-field font-medium text-white text-base py-3"
+                    />
+                    <span className="block text-[11px] text-textSecondary mt-1">Users will see and copy this exact UPI ID on the wallet deposit modal.</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Upload New QR Code Image (Optional)</label>
+                    <input 
+                      type="file"
+                      accept="image/*"
+                      onChange={e => {
+                        if (e.target.files && e.target.files[0]) {
+                          setNewQrFile(e.target.files[0]);
+                        }
+                      }}
+                      className="w-full text-xs text-textSecondary file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-black hover:file:bg-primary-hover file:cursor-pointer cursor-pointer"
+                    />
+                    <span className="block text-[11px] text-textSecondary mt-1">Upload JPEG/PNG image of your payment UPI QR code.</span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={savingPayment}
+                    className="w-full btn-primary py-3.5 flex items-center justify-center gap-2 font-bold text-sm cursor-pointer disabled:opacity-50"
+                  >
+                    {savingPayment ? 'Saving Configuration...' : 'Save Payment Configuration'}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : (
+        <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-white font-display font-bold text-xl">Sub-Admin & Access Permissions Directory</h3>
+              <p className="text-textSecondary text-xs mt-1">Super Admin Control: Assign role levels (Super Admin / Sub-Admin / Player) and configure granular module accesses.</p>
+            </div>
+            <button
+              onClick={fetchAdmins}
+              className="bg-surfaceHighlight hover:bg-white/10 text-white px-4 py-2 rounded-lg border border-white/10 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <RefreshCw size={14} /> Refresh List
+            </button>
+          </div>
+
+          {loadingAdmins ? (
+            <div className="flex justify-center py-16"><Loader className="animate-spin text-amber-400" size={32} /></div>
+          ) : (
+            <div className="glass-panel border border-white/5 rounded-2xl overflow-hidden shadow-2xl bg-surfaceHighlight/10">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/10 text-textSecondary text-xs uppercase tracking-wider bg-surfaceHighlight/30">
+                      <th className="py-3 px-4">Admin Email</th>
+                      <th className="py-3 px-4">In-Game Name</th>
+                      <th className="py-3 px-4">Role Tier</th>
+                      <th className="py-3 px-4">Assigned Permissions</th>
+                      <th className="py-3 px-4 text-right">Access Management</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {adminsList.map((adm) => (
+                      <tr key={adm.id} className="border-b border-white/5 hover:bg-white/5 transition-colors text-sm">
+                        <td className="py-4 px-4 font-semibold text-white">{adm.email}</td>
+                        <td className="py-4 px-4 text-textSecondary">{adm.gameName || 'N/A'}</td>
+                        <td className="py-4 px-4">
+                          {adm.role === 'ROLE_SUPER_ADMIN' ? (
+                            <span className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-extrabold text-[10px] px-2.5 py-1 rounded uppercase tracking-wider">
+                              Super Admin
+                            </span>
+                          ) : (
+                            <span className="bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 font-bold text-[10px] px-2.5 py-1 rounded uppercase tracking-wider">
+                              Sub-Admin
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-4 px-4 text-xs text-textSecondary">
+                          {adm.role === 'ROLE_SUPER_ADMIN' ? (
+                            <span className="text-amber-400 font-semibold">Full Access (All System Controls)</span>
+                          ) : (
+                            <div className="flex flex-wrap gap-1">
+                              {adm.permissions ? (
+                                adm.permissions.split(',').map((p: string) => (
+                                  <span key={p} className="bg-white/10 text-white px-2 py-0.5 rounded text-[10px] font-mono">
+                                    {p.replace('MANAGE_', '')}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-emerald-400 font-semibold">Default (All Admin Modules)</span>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-4 px-4 text-right">
+                          <button
+                            onClick={() => handleOpenEditAdminModal(adm)}
+                            className="px-3 py-1.5 rounded text-xs font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer flex items-center gap-1.5 ml-auto"
+                          >
+                            <Edit3 size={12} /> Configure Access & Role
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
       )}
       {/* Modals */}
+
+      {/* Edit Admin Access Modal */}
+      {selectedAdminUser && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel max-w-lg w-full p-6 relative border border-amber-500/20 shadow-2xl">
+            <button 
+              onClick={() => setSelectedAdminUser(null)} 
+              className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-xl font-bold font-display text-white mb-1">Configure Sub-Admin Access</h3>
+            <p className="text-textSecondary text-xs mb-6">User: <strong className="text-white">{selectedAdminUser.email}</strong></p>
+
+            <div className="space-y-5">
+              <div>
+                <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Select Admin Role Level</label>
+                <select
+                  value={editRole}
+                  onChange={e => setEditRole(e.target.value as any)}
+                  className="w-full input-field py-2.5 text-sm bg-surface font-semibold text-white"
+                >
+                  <option value="ROLE_ADMIN">Sub-Admin (Granted Required Accesses)</option>
+                  <option value="ROLE_SUPER_ADMIN">Super Admin (Primary Developer Admin - Full Controls)</option>
+                  <option value="ROLE_PLAYER">Standard Player (Revoke Admin Rights)</option>
+                </select>
+              </div>
+
+              {editRole === 'ROLE_ADMIN' && (
+                <div>
+                  <label className="block text-textSecondary text-xs font-semibold mb-3 uppercase tracking-wider">Select Module Permissions</label>
+                  <div className="space-y-2 bg-background p-4 rounded-xl border border-white/10">
+                    {[
+                      { key: 'MANAGE_TOURNAMENTS', label: 'Tournaments Management (Create, Reschedule, Bracket Results)' },
+                      { key: 'MANAGE_DEPOSITS', label: 'Pending Deposits Approval (Verify UTR & Credit Cash)' },
+                      { key: 'MANAGE_WITHDRAWALS', label: 'Pending Withdrawals Approval (Payout Verification)' },
+                      { key: 'MANAGE_USERS', label: 'User Directory & Moderation (Block, Delete, View Profile)' },
+                      { key: 'MANAGE_SUPPORT', label: 'Customer Support Tickets (View & Reply Complaints)' }
+                    ].map(perm => (
+                      <label key={perm.key} className="flex items-center gap-3 p-2 rounded hover:bg-white/5 cursor-pointer text-xs text-white">
+                        <input
+                          type="checkbox"
+                          checked={editPermissions.includes(perm.key)}
+                          onChange={() => togglePermission(perm.key)}
+                          className="w-4 h-4 rounded text-primary focus:ring-primary bg-surface border-white/20 cursor-pointer"
+                        />
+                        <span className="font-medium">{perm.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedAdminUser(null)}
+                  className="flex-1 py-3 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 transition-colors text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveAdminRoleAndPermissions}
+                  disabled={savingAdminRole}
+                  className="flex-1 btn-primary py-3 font-semibold text-xs cursor-pointer disabled:opacity-50"
+                >
+                  {savingAdminRole ? 'Saving...' : 'Save Admin Permissions'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Reschedule Modal */}
       {rescheduleModalOpen && (

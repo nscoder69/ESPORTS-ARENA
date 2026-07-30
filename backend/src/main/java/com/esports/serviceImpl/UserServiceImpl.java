@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final com.esports.repository.RoleRepository roleRepository;
     private final FileUploadService fileUploadService;
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
@@ -58,27 +59,52 @@ public class UserServiceImpl implements UserService {
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public java.util.List<com.esports.dto.UserDto> getAllUsers(String adminEmail) {
-        User admin = userRepository.findByEmail(adminEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
-            throw new RuntimeException("Unauthorized: Only admins can perform this action");
-        }
+        verifyAdmin(adminEmail);
 
         return userRepository.findAll().stream()
                 .filter(u -> u.getIsDeleted() == null || !u.getIsDeleted())
-                .map(u -> {
-                    com.esports.dto.UserDto dto = new com.esports.dto.UserDto();
-                    dto.setId(u.getId());
-                    dto.setEmail(u.getEmail());
-                    dto.setRole(u.getRole().getName());
-                    dto.setGameName(u.getGameName());
-                    dto.setFreeFireUid(u.getFreeFireUid());
-                    dto.setAvatarUrl(u.getAvatarUrl());
-                    dto.setCreatedAt(u.getCreatedAt());
-                    dto.setLastActiveAt(u.getLastActiveAt());
-                    dto.setIsBlocked(u.getIsBlocked());
-                    return dto;
-                }).collect(java.util.stream.Collectors.toList());
+                .map(this::convertToDto)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public java.util.List<com.esports.dto.UserDto> getAllAdmins(String adminEmail) {
+        verifySuperAdmin(adminEmail);
+
+        return userRepository.findAll().stream()
+                .filter(u -> (u.getIsDeleted() == null || !u.getIsDeleted()))
+                .filter(u -> "ROLE_ADMIN".equals(u.getRole().getName()) || "ROLE_SUPER_ADMIN".equals(u.getRole().getName()))
+                .map(this::convertToDto)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public com.esports.dto.UserDto updateUserRoleAndPermissions(java.util.UUID userId, com.esports.dto.UpdateAdminRoleRequest request, String adminEmail) {
+        verifySuperAdmin(adminEmail);
+
+        User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        if (request.getRole() != null && !request.getRole().trim().isEmpty()) {
+            String roleName = request.getRole().trim().toUpperCase();
+            if (!roleName.startsWith("ROLE_")) {
+                roleName = "ROLE_" + roleName;
+            }
+
+            com.esports.entity.Role role = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRole()));
+
+            targetUser.setRole(role);
+        }
+
+        if (request.getPermissions() != null) {
+            targetUser.setPermissions(request.getPermissions().trim());
+        }
+
+        User updatedUser = userRepository.save(targetUser);
+        return convertToDto(updatedUser);
     }
 
     @Override
@@ -146,11 +172,35 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
+    private com.esports.dto.UserDto convertToDto(User u) {
+        com.esports.dto.UserDto dto = new com.esports.dto.UserDto();
+        dto.setId(u.getId());
+        dto.setEmail(u.getEmail());
+        dto.setRole(u.getRole().getName());
+        dto.setGameName(u.getGameName());
+        dto.setFreeFireUid(u.getFreeFireUid());
+        dto.setAvatarUrl(u.getAvatarUrl());
+        dto.setCreatedAt(u.getCreatedAt());
+        dto.setLastActiveAt(u.getLastActiveAt());
+        dto.setIsBlocked(u.getIsBlocked());
+        dto.setPermissions(u.getPermissions());
+        return dto;
+    }
+
     private void verifyAdmin(String email) {
         User admin = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Admin user not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        String role = admin.getRole().getName();
+        if (!"ROLE_ADMIN".equals(role) && !"ROLE_SUPER_ADMIN".equals(role)) {
             throw new RuntimeException("Unauthorized: Only admins can perform this action");
+        }
+    }
+
+    private void verifySuperAdmin(String email) {
+        User admin = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (!"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
+            throw new RuntimeException("Unauthorized: Only Super Admin can perform this action");
         }
     }
 }

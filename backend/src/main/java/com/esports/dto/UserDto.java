@@ -15,4 +15,5 @@ public class UserDto {
     private LocalDateTime createdAt;
     private LocalDateTime lastActiveAt;
     private Boolean isBlocked;
+    private String permissions;
 }

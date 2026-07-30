@@ -39,4 +39,18 @@ public class User extends BaseEntity {
 
     @Column(name = "is_blocked", nullable = false)
     private Boolean isBlocked = false;
+
+    @Column(name = "permissions", columnDefinition = "TEXT")
+    private String permissions;
+
+    public boolean hasPermission(String requiredPermission) {
+        if ("ROLE_SUPER_ADMIN".equals(this.role != null ? this.role.getName() : null)) {
+            return true;
+        }
+        if (permissions == null || permissions.trim().isEmpty()) {
+            return true;
+        }
+        java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
+        return permList.contains(requiredPermission);
+    }
 }

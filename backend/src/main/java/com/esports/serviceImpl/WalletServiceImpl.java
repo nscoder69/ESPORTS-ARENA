@@ -146,7 +146,7 @@ public class WalletServiceImpl implements WalletService {
     public List<TransactionDto> getUserTransactionHistory(java.util.UUID userId, String adminEmail) {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access");
         }
         
@@ -166,7 +166,7 @@ public class WalletServiceImpl implements WalletService {
     public WalletDto getUserWalletBalance(java.util.UUID userId, String adminEmail) {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access");
         }
         
@@ -290,7 +290,7 @@ public class WalletServiceImpl implements WalletService {
     public java.util.List<TransactionDto> getAllPendingDeposits(String adminEmail) {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access: Admins only");
         }
 
@@ -306,7 +306,7 @@ public class WalletServiceImpl implements WalletService {
     public WalletDto approveManualDeposit(String adminEmail, java.util.UUID transactionId, boolean approve) {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access: Admins only");
         }
 
@@ -361,7 +361,7 @@ public class WalletServiceImpl implements WalletService {
     public java.util.List<TransactionDto> getAllPendingWithdrawals(String adminEmail) {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access: Admins only");
         }
 
@@ -377,7 +377,7 @@ public class WalletServiceImpl implements WalletService {
     public WalletDto approveWithdrawal(String adminEmail, java.util.UUID transactionId, boolean approve) {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access: Admins only");
         }
 

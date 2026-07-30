@@ -96,3 +96,32 @@ export const verifyPendingWithdrawal = async (transactionId: string, approve: bo
     const response = await api.put(`/wallet/admin/verify-withdrawal/${transactionId}?approve=${approve}`);
     return response.data;
 };
+
+export interface PaymentSettings {
+    upiId: string;
+    upiQrUrl: string;
+}
+
+export const getPublicPaymentSettings = async (): Promise<PaymentSettings> => {
+    const response = await api.get('/public/settings/payment');
+    return response.data;
+};
+
+export const updatePaymentSettings = async (formData: FormData): Promise<PaymentSettings> => {
+    const response = await api.post('/admin/settings/payment', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return response.data;
+};
+
+export const getAllAdmins = async (): Promise<any[]> => {
+    const response = await api.get('/users/admins');
+    return response.data;
+};
+
+export const updateUserRoleAndPermissions = async (userId: string, role: string, permissions: string): Promise<any> => {
+    const response = await api.put(`/users/${userId}/role`, { role, permissions });
+    return response.data;
+};

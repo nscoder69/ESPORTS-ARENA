@@ -129,6 +129,7 @@ public class AuthServiceImpl implements AuthService {
                 .gameName(savedUser.getGameName())
                 .freeFireUid(savedUser.getFreeFireUid())
                 .avatarUrl(savedUser.getAvatarUrl())
+                .permissions(savedUser.getPermissions())
                 .build();
     }
 
@@ -163,6 +164,7 @@ public class AuthServiceImpl implements AuthService {
                 .gameName(user.getGameName())
                 .freeFireUid(user.getFreeFireUid())
                 .avatarUrl(user.getAvatarUrl())
+                .permissions(user.getPermissions())
                 .build();
     }
 

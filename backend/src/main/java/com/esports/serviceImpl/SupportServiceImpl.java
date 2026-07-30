@@ -79,7 +79,8 @@ public class SupportServiceImpl implements SupportService {
     private void verifyAdmin(String email) {
         User admin = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Admin user not found"));
-        if (!"ROLE_ADMIN".equals(admin.getRole().getName())) {
+        String role = admin.getRole().getName();
+        if (!"ROLE_ADMIN".equals(role) && !"ROLE_SUPER_ADMIN".equals(role)) {
             throw new RuntimeException("Unauthorized: Only admins can perform this action");
         }
     }

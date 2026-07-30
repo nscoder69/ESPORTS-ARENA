@@ -17,4 +17,5 @@ public class AuthResponse {
     private String gameName;
     private String freeFireUid;
     private String avatarUrl;
+    private String permissions;
 }
