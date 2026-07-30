@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { motion } from 'framer-motion';
-import { Send, Users, Trophy, Loader, XCircle } from 'lucide-react';
+import { Send, Users, Trophy, XCircle } from 'lucide-react';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { getRegisteredTeamsForParticipant } from '../services/tournamentService';
 import { BACKEND_URL } from '../services/api';
 
@@ -13,96 +14,86 @@ interface ChatMessage {
   timestamp: string;
 }
 
+
+
 export default function LiveMatch() {
-  const { id } = useParams<{ id: string }>(); // Tournament or Match ID
-  const tournamentId = id || 'test-room';
+  const { id } = useParams<{ id: string }>();
+  const tournamentId = id || '';
+  
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
-  const stompClient = useRef<Client | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-  const senderName = currentUser.username || currentUser.email?.split('@')[0] || 'Guest';
   const [isParticipant, setIsParticipant] = useState<boolean | null>(null);
+  const [stompClient, setStompClient] = useState<Client | null>(null);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+  const currentUserName = user?.gameName || user?.email || 'Player';
 
   useEffect(() => {
-    if (tournamentId === 'test-room' || currentUser.role === 'ROLE_ADMIN') {
-      setIsParticipant(true);
-      return;
-    }
+    if (!tournamentId) return;
 
     const checkParticipation = async () => {
       try {
         const teams = await getRegisteredTeamsForParticipant(tournamentId);
-        if (teams && teams.length > 0) {
-          setIsParticipant(true);
-        } else {
-          setIsParticipant(false);
-        }
-      } catch {
+        setIsParticipant(teams.length > 0);
+      } catch (err) {
         setIsParticipant(false);
       }
     };
 
     checkParticipation();
-  }, [tournamentId, currentUser.role]);
+  }, [tournamentId]);
 
   useEffect(() => {
-    if (isParticipant !== true) return;
+    if (!isParticipant || !tournamentId) return;
 
-    // Setup WebSocket
     const socket = new SockJS(`${BACKEND_URL}/ws`);
     const client = new Client({
-      webSocketFactory: () => socket as any,
-      debug: function (str) {
-        console.log(str);
-      },
+      webSocketFactory: () => socket,
+      debug: (str) => console.log(str),
+      reconnectDelay: 5000,
       onConnect: () => {
-        console.log('Connected to WebSocket');
-        client.subscribe(`/topic/tournament/${tournamentId}`, (msg) => {
-          if (msg.body) {
-            const newMsg: ChatMessage = JSON.parse(msg.body);
-            setMessages((prev) => [...prev, newMsg]);
-          }
+        client.subscribe(`/topic/chat/${tournamentId}`, (message) => {
+          const receivedMessage = JSON.parse(message.body);
+          setMessages((prev) => [...prev, receivedMessage]);
         });
-      },
+      }
     });
 
     client.activate();
-    stompClient.current = client;
+    setStompClient(client);
 
     return () => {
-      if (client.active) {
-        client.deactivate();
-      }
+      client.deactivate();
     };
-  }, [tournamentId, isParticipant]);
+  }, [isParticipant, tournamentId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputMessage.trim() && stompClient.current?.active) {
-      const messageDto = {
-        senderName,
-        content: inputMessage,
-        tournamentId
-      };
+    if (!inputMessage.trim() || !stompClient || !stompClient.connected || !user) return;
 
-      stompClient.current.publish({
-        destination: `/app/chat/${tournamentId}`,
-        body: JSON.stringify(messageDto)
-      });
-      setInputMessage('');
-    }
+    const messageDto = {
+      senderName: currentUserName,
+      content: inputMessage,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    stompClient.publish({
+      destination: `/app/chat/${tournamentId}`,
+      body: JSON.stringify(messageDto)
+    });
+    setInputMessage('');
   };
 
   if (isParticipant === null) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <Loader className="animate-spin text-primary" size={32} />
+        <LoadingSpinner size={36} />
       </div>
     );
   }
@@ -181,13 +172,13 @@ export default function LiveMatch() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 key={idx}
-                className={`flex flex-col ${msg.senderName === senderName ? 'items-end' : 'items-start'}`}
+                className={`flex flex-col ${msg.senderName === currentUserName ? 'items-end' : 'items-start'}`}
               >
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-xs font-bold text-primary">{msg.senderName}</span>
                   <span className="text-[10px] text-textSecondary">{msg.timestamp}</span>
                 </div>
-                <div className={`px-4 py-2 rounded-lg text-sm max-w-[85%] ${msg.senderName === senderName
+                <div className={`px-4 py-2 rounded-lg text-sm max-w-[85%] ${msg.senderName === currentUserName
                     ? 'bg-primary text-white rounded-tr-none'
                     : 'bg-surfaceHighlight text-white border border-white/5 rounded-tl-none'
                   }`}>
@@ -199,7 +190,7 @@ export default function LiveMatch() {
           <div ref={messagesEndRef} />
         </div>
 
-        <form onSubmit={sendMessage} className="p-4 border-t border-white/10 bg-surfaceHighlight/50">
+        <form onSubmit={handleSendMessage} className="p-4 border-t border-white/10 bg-surfaceHighlight/50">
           <div className="relative">
             <input
               type="text"

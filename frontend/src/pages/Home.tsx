@@ -74,7 +74,7 @@ export default function Home() {
                   <Users size={20} className="text-textSecondary group-hover:text-primary transition-colors" />
                 </div>
                 <span className="text-white font-semibold">Solo</span>
-                <span className="text-[10px] uppercase tracking-wider text-textSecondary mt-1 font-semibold">1v99</span>
+                <span className="text-[10px] uppercase tracking-wider text-textSecondary mt-1 font-semibold">1v49</span>
               </Link>
 
               <Link to="/tournaments?mode=full-map-duo" className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-xl bg-surfaceHighlight hover:bg-primary/20 border border-white/5 hover:border-primary/50 transition-all group">

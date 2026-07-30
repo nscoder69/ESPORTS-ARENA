@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet as WalletIcon, ArrowUpRight, ArrowDownRight, IndianRupee, Clock, Plus, ShieldCheck, QrCode, Copy, Check, Landmark, Smartphone } from 'lucide-react';
-import { getWalletBalance, getTransactionHistory, depositFunds, withdrawFunds, createRazorpayOrder, verifyRazorpayPayment } from '../services/walletService';
+import { Wallet as WalletIcon, ArrowUpRight, ArrowDownRight, IndianRupee, Clock, Plus, ShieldCheck, Copy, Check, Landmark, Smartphone } from 'lucide-react';
+import { getWalletBalance, getTransactionHistory, depositFunds, withdrawFunds } from '../services/walletService';
 import type { Wallet, Transaction } from '../services/walletService';
 import logo from '../assets/obitoloo.png';
 import qrImage from '../assets/QR.jpeg';
@@ -15,8 +15,7 @@ export default function WalletDashboard() {
   // Deposit States
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositAmount, setDepositAmount] = useState('');
-  const [depositStep, setDepositStep] = useState<'amount' | 'payment-method' | 'upi-qr'>('amount');
-  const [paymentMethod, setPaymentMethod] = useState<'RAZORPAY' | 'GPAY' | 'PHONEPE' | 'PAYTM' | 'QR'>('RAZORPAY');
+  const [depositStep, setDepositStep] = useState<'amount' | 'upi-qr'>('amount');
   const [utrNumber, setUtrNumber] = useState('');
   const [copiedUpi, setCopiedUpi] = useState(false);
 
@@ -48,90 +47,7 @@ export default function WalletDashboard() {
     }
   };
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      if ((window as any).Razorpay) {
-        resolve(true);
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
 
-  const handleRazorpayDeposit = async () => {
-    setIsProcessing(true);
-    try {
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        alert('Failed to load Razorpay Payment Gateway SDK. Please check your internet connection.');
-        setIsProcessing(false);
-        return;
-      }
-
-      const order = await createRazorpayOrder(Number(depositAmount));
-      const userStr = localStorage.getItem('user');
-      const currentUser = userStr ? JSON.parse(userStr) : {};
-
-      const options = {
-        key: "rzp_test_pUrj47p2o1XQ6H",
-        amount: order.amount * 100,
-        currency: order.currency,
-        name: "Esports Arena",
-        description: "Wallet Deposit",
-        order_id: order.orderId,
-        handler: async function (response: any) {
-          setIsProcessing(true);
-          try {
-            const updatedWallet = await verifyRazorpayPayment({
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-              amount: order.amount
-            });
-            
-            setWallet(updatedWallet);
-            setShowDepositModal(false);
-            setDepositAmount('');
-            setDepositStep('amount');
-            
-            const newTransactions = await getTransactionHistory();
-            setTransactions(newTransactions);
-            
-            window.dispatchEvent(new Event('walletUpdated'));
-            alert('Deposit successful!');
-          } catch (err: any) {
-            console.error("Verification failed", err);
-            alert(err.response?.data?.message || 'Verification failed. Please contact support.');
-          } finally {
-            setIsProcessing(false);
-          }
-        },
-        prefill: {
-          email: currentUser.email || "",
-          contact: currentUser.phoneNumber || ""
-        },
-        theme: {
-          color: "#6366f1"
-        },
-        modal: {
-          ondismiss: function () {
-            setIsProcessing(false);
-          }
-        }
-      };
-
-      const razorpayObject = new (window as any).Razorpay(options);
-      razorpayObject.open();
-    } catch (err: any) {
-      console.error("Razorpay order creation failed", err);
-      alert(err.response?.data?.message || 'Failed to initiate deposit. Please try again.');
-      setIsProcessing(false);
-    }
-  };
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -435,116 +351,14 @@ export default function WalletDashboard() {
                 <button 
                   onClick={() => {
                     if (depositAmount && Number(depositAmount) >= 10) {
-                      setDepositStep('payment-method');
+                      setDepositStep('upi-qr');
                     }
                   }}
                   disabled={!depositAmount || Number(depositAmount) < 10}
                   className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  Proceed to Payment
+                  Proceed to Pay via UPI QR Code
                 </button>
-              </div>
-            )}
-
-            {depositStep === 'payment-method' && (
-              <div>
-                <div className="mb-6 space-y-3">
-                  <label className="block text-textSecondary text-xs font-semibold mb-3 uppercase tracking-wider">Select Payment Method</label>
-                  
-                  <div 
-                    onClick={() => setPaymentMethod('RAZORPAY')}
-                    className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${paymentMethod === 'RAZORPAY' ? 'bg-primary/10 border-primary' : 'bg-surfaceHighlight/50 border-white/5 hover:border-white/20'}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                        <Smartphone size={18} />
-                      </div>
-                      <div>
-                        <span className="block text-white font-medium text-sm">Cards, UPI, NetBanking (Razorpay)</span>
-                        <span className="text-[10px] text-textSecondary">Instant checkout via secure gateway</span>
-                      </div>
-                    </div>
-                    <Smartphone size={18} className={paymentMethod === 'RAZORPAY' ? 'text-primary' : 'text-textSecondary'} />
-                  </div>
-
-                  <div 
-                    onClick={() => setPaymentMethod('GPAY')}
-                    className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${paymentMethod === 'GPAY' ? 'bg-primary/10 border-primary' : 'bg-surfaceHighlight/50 border-white/5 hover:border-white/20'}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#4285F4]/10 flex items-center justify-center text-blue-400 font-bold text-sm">G</div>
-                      <div>
-                        <span className="block text-white font-medium text-sm">Google Pay (Manual Verification)</span>
-                        <span className="text-[10px] text-textSecondary">Pay using GPay and verify UTR</span>
-                      </div>
-                    </div>
-                    <Smartphone size={18} className={paymentMethod === 'GPAY' ? 'text-primary' : 'text-textSecondary'} />
-                  </div>
-
-                  <div 
-                    onClick={() => setPaymentMethod('PHONEPE')}
-                    className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${paymentMethod === 'PHONEPE' ? 'bg-primary/10 border-primary' : 'bg-surfaceHighlight/50 border-white/5 hover:border-white/20'}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#673AB7]/10 flex items-center justify-center text-purple-400 font-bold text-sm">P</div>
-                      <div>
-                        <span className="block text-white font-medium text-sm">PhonePe (Manual Verification)</span>
-                        <span className="text-[10px] text-textSecondary">Pay using PhonePe and verify UTR</span>
-                      </div>
-                    </div>
-                    <Smartphone size={18} className={paymentMethod === 'PHONEPE' ? 'text-primary' : 'text-textSecondary'} />
-                  </div>
-
-                  <div 
-                    onClick={() => setPaymentMethod('PAYTM')}
-                    className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${paymentMethod === 'PAYTM' ? 'bg-primary/10 border-primary' : 'bg-surfaceHighlight/50 border-white/5 hover:border-white/20'}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#00b9f5]/10 flex items-center justify-center text-[#00b9f5] font-bold text-xs">Paytm</div>
-                      <div>
-                        <span className="block text-white font-medium text-sm">Paytm (Manual Verification)</span>
-                        <span className="text-[10px] text-textSecondary">Pay using Paytm and verify UTR</span>
-                      </div>
-                    </div>
-                    <Smartphone size={18} className={paymentMethod === 'PAYTM' ? 'text-primary' : 'text-textSecondary'} />
-                  </div>
-
-                  <div 
-                    onClick={() => setPaymentMethod('QR')}
-                    className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${paymentMethod === 'QR' ? 'bg-primary/10 border-primary' : 'bg-surfaceHighlight/50 border-white/5 hover:border-white/20'}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><QrCode size={18} /></div>
-                      <div>
-                        <span className="block text-white font-medium text-sm">UPI QR Code (Manual Verification)</span>
-                        <span className="text-[10px] text-textSecondary">Scan QR and verify UTR</span>
-                      </div>
-                    </div>
-                    <QrCode size={18} className={paymentMethod === 'QR' ? 'text-primary' : 'text-textSecondary'} />
-                  </div>
-                </div>
-                
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setDepositStep('amount')}
-                    className="flex-1 py-3 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 transition-colors text-sm cursor-pointer"
-                  >
-                    Back
-                  </button>
-                  <button 
-                    onClick={() => {
-                      if (paymentMethod === 'RAZORPAY') {
-                        handleRazorpayDeposit();
-                      } else {
-                        setDepositStep('upi-qr');
-                      }
-                    }}
-                    disabled={isProcessing}
-                    className="flex-1 btn-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isProcessing && paymentMethod === 'RAZORPAY' ? 'Initiating...' : 'Proceed to Pay'}
-                  </button>
-                </div>
               </div>
             )}
 
@@ -564,9 +378,7 @@ export default function WalletDashboard() {
                   </div>
 
                   <p className="text-textSecondary text-[11px] max-w-xs mx-auto mb-4">
-                    {paymentMethod === 'QR' 
-                      ? "Scan the QR code using Google Pay, PhonePe, Paytm, or any BHIM UPI app on your phone."
-                      : `Open your selected payment app (${paymentMethod}) and scan the QR code above or pay to the UPI ID below.`}
+                    Scan the QR code using Google Pay, PhonePe, Paytm, or any BHIM UPI app on your phone.
                   </p>
 
                   <div className="bg-background rounded-lg border border-white/10 p-2.5 flex items-center justify-between max-w-sm mx-auto mb-6">
@@ -610,7 +422,7 @@ export default function WalletDashboard() {
                     <div className="flex gap-3">
                       <button 
                         type="button"
-                        onClick={() => setDepositStep('payment-method')}
+                        onClick={() => setDepositStep('amount')}
                         className="flex-1 py-3 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 transition-colors text-sm cursor-pointer"
                       >
                         Back

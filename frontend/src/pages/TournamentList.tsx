@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { getAllTournaments, deleteTournament } from '../services/tournamentService';
-import { Trophy, X, Loader, Users, Gamepad2 } from 'lucide-react';
+import { Trophy, X, Users, Gamepad2 } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { createTeam } from '../services/teamService';
 import { registerForTournament, getRegisteredTeamsForParticipant, joinTournamentViaInvite, getMyRegisteredTournaments, registerSolo, getTournamentResults } from '../services/tournamentService';
 import { Copy, CheckCircle } from 'lucide-react';
@@ -497,7 +498,7 @@ export default function TournamentList() {
                           disabled={isRegistering || !teamName.trim()}
                           className="btn-primary w-full py-3 flex justify-center items-center gap-2 mt-4"
                         >
-                          {isRegistering ? <><Loader className="animate-spin" size={16} /> Creating...</> : (selectedTournament.entryFee > 0 ? `Pay ₹${selectedTournament.entryFee} & Register` : 'Create & Register')}
+                          {isRegistering ? <><LoadingSpinner size={16} /> Creating...</> : (selectedTournament.entryFee > 0 ? `Pay ₹${selectedTournament.entryFee} & Register` : 'Create & Register')}
                         </button>
                       </>
                     )}
@@ -524,7 +525,7 @@ export default function TournamentList() {
                       disabled={isRegistering || !inviteCode.trim()}
                       className="btn-primary w-full py-3 flex justify-center items-center gap-2 mt-4"
                     >
-                      {isRegistering ? <><Loader className="animate-spin" size={16} /> Verifying...</> : 'Join Tournament'}
+                      {isRegistering ? <><LoadingSpinner size={16} /> Verifying...</> : 'Join Tournament'}
                     </button>
                     <button onClick={() => setRegistrationMode('select')} className="text-xs text-textSecondary hover:text-white w-full text-center mt-2">Back</button>
                   </div>
@@ -585,7 +586,7 @@ export default function TournamentList() {
               </div>
             ) : participantsLoading ? (
               <div className="flex flex-col items-center justify-center py-10">
-                <Loader className="animate-spin text-primary mb-2" size={24} />
+                <LoadingSpinner size={28} className="mb-2" />
                 <p className="text-textSecondary text-sm">Verifying registration...</p>
               </div>
             ) : participantTeams.length === 0 ? (
@@ -642,7 +643,7 @@ export default function TournamentList() {
               </div>
             ) : resultsLoading ? (
               <div className="flex flex-col items-center justify-center py-20">
-                <Loader className="animate-spin text-primary mb-2" size={24} />
+                <LoadingSpinner size={28} className="mb-2" />
                 <p className="text-textSecondary text-sm">Fetching leaderboard...</p>
               </div>
             ) : tournamentResults.length === 0 ? (

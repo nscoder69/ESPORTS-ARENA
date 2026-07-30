@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { User, Gamepad2, Upload, Camera, Save, ArrowLeft, Loader } from 'lucide-react';
+import { User, Gamepad2, Upload, Camera, Save, ArrowLeft } from 'lucide-react';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { Link, useNavigate } from 'react-router-dom';
 import API, { getImageUrl } from '../services/api';
 
@@ -192,7 +193,7 @@ const EditProfile = () => {
               className="btn-primary w-full py-4 text-base mt-4 flex items-center justify-center gap-2"
             >
               {loading ? (
-                <><Loader className="animate-spin" size={18} /> Updating Profile...</>
+                <><LoadingSpinner size={18} /> Updating Profile...</>
               ) : (
                 <><Save size={18} /> Save Changes</>
               )}

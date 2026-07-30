@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { sendForgotPasswordOtp, resetPassword } from '../services/authService';
-import { Mail, Lock, Key, ArrowLeft, Check, X, Loader } from 'lucide-react';
+import { Mail, Lock, Key, ArrowLeft, Check, X } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -233,7 +234,7 @@ export default function ForgotPassword() {
             >
               {isLoading ? (
                 <>
-                  <Loader className="animate-spin" size={18} />
+                  <LoadingSpinner size={18} />
                   Resetting...
                 </>
               ) : 'Reset Password'}
