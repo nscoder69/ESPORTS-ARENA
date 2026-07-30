@@ -41,8 +41,10 @@ API.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     const message = error.response?.data?.message || '';
+    const reqUrl = error.config?.url || '';
 
-    if (status === 401 || status === 403) {
+    // Ignore 401/403 handling for /auth/ endpoints (login, register, forgot-password)
+    if ((status === 401 || status === 403) && !reqUrl.includes('/auth/')) {
       if (message.toLowerCase().includes('blocked') || message.toLowerCase().includes('locked')) {
         localStorage.setItem('userBlocked', 'true');
         window.dispatchEvent(new Event('userBlocked'));
@@ -51,7 +53,10 @@ API.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('userBlocked');
-      window.location.href = '/login';
+      
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
