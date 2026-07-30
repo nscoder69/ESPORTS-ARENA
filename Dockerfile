@@ -10,4 +10,5 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENV JAVA_OPTS="-XX:+UseContainerSupport -Xms180m -Xmx300m -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=64m -Xss512k -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

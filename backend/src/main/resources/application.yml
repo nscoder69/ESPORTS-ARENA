@@ -23,20 +23,20 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:Tejunitish@143}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
+      maximum-pool-size: 10
+      minimum-idle: 2
       idle-timeout: 300000
       connection-timeout: 20000
       max-lifetime: 1200000
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate # We use flyway for migrations
     show-sql: false
     properties:
       hibernate:
         format_sql: false
-        dialect: org.hibernate.dialect.MySQLDialect
         type:
           preferred_uuid_jdbc_type: VARCHAR
 
