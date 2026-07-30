@@ -30,6 +30,20 @@ public class AdminTestController {
         return ResponseEntity.ok("Successfully upgraded " + email + " to ROLE_ADMIN! Please log out and log back in to see changes.");
     }
 
+    @GetMapping("/make-super-admin/{email:.+}")
+    public ResponseEntity<String> makeSuperAdmin(@PathVariable String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Role superAdminRole = roleRepository.findByName("ROLE_SUPER_ADMIN")
+                .orElseThrow(() -> new RuntimeException("ROLE_SUPER_ADMIN not found"));
+
+        user.setRole(superAdminRole);
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Successfully upgraded " + email + " to ROLE_SUPER_ADMIN! Please log out and log back in to see changes.");
+    }
+
     @GetMapping("/remove-admin/{email:.+}")
     public ResponseEntity<String> removeAdmin(@PathVariable String email) {
         User user = userRepository.findByEmail(email)

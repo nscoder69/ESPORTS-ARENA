@@ -221,7 +221,7 @@ function App() {
                       <Link to="/support" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2.5 text-sm text-textSecondary hover:text-white hover:bg-white/5 transition-colors flex items-center justify-between">
                         Help & Support <HelpCircle size={14} />
                       </Link>
-                      {user?.role === 'ROLE_ADMIN' && (
+                      {(user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_SUPER_ADMIN') && (
                         <>
                           <div className="border-t border-white/10 my-1"></div>
                           <Link to="/admin/dashboard" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2.5 text-sm text-rose-400 font-medium hover:text-rose-300 hover:bg-rose-500/10 transition-colors">
