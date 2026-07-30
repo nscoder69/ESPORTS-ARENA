@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, ArrowLeft, Gamepad2, UserMinus, Crown, Trash2 } from 'lucide-react';
 import { getMyTeams, getTeamMembers, removeTeamMember, deleteTeam } from '../services/teamService';
+import { getImageUrl } from '../services/api';
 import logo from '../assets/obitoloo.png';
 
 export default function TeamDetails() {
@@ -121,7 +122,7 @@ export default function TeamDetails() {
         <div className="flex items-center gap-6 relative z-10">
           <div className="w-24 h-24 rounded-2xl bg-surfaceHighlight flex items-center justify-center border border-primary/20 text-primary">
             {team.logoUrl ? (
-              <img src={team.logoUrl} alt={team.name} className="w-full h-full object-cover rounded-2xl" />
+              <img src={getImageUrl(team.logoUrl)} alt={team.name} className="w-full h-full object-cover rounded-2xl" />
             ) : (
               <Shield size={48} />
             )}
@@ -169,7 +170,7 @@ export default function TeamDetails() {
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-background border border-white/10 flex items-center justify-center">
                 {member.avatarUrl ? (
-                  <img src={member.avatarUrl} alt={member.gameName} className="w-full h-full object-cover" />
+                  <img src={getImageUrl(member.avatarUrl)} alt={member.gameName} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-primary/40 to-primary/10 flex items-center justify-center text-white font-bold text-lg">
                     {member.gameName ? member.gameName.charAt(0).toUpperCase() : '?'}
