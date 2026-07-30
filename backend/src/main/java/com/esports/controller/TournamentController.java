@@ -14,7 +14,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/tournaments")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class TournamentController {
 
     private final TournamentService tournamentService;

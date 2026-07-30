@@ -12,7 +12,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/matches")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class MatchController {
 
     private final MatchService matchService;
