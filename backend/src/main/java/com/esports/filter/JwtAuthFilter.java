@@ -79,17 +79,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    private final java.util.concurrent.ConcurrentHashMap<String, java.time.Instant> lastActiveCache = new java.util.concurrent.ConcurrentHashMap<>();
+
     private void updateUserLastActive(String email) {
-        try {
-            userRepository.findByEmail(email).ifPresent(user -> {
-                java.time.LocalDateTime now = java.time.LocalDateTime.now();
-                if (user.getLastActiveAt() == null || user.getLastActiveAt().isBefore(now.minusMinutes(1))) {
-                    user.setLastActiveAt(now);
-                    userRepository.save(user);
-                }
-            });
-        } catch (Exception e) {
-            // Ignore exceptions to not block request processing
+        java.time.Instant now = java.time.Instant.now();
+        java.time.Instant lastUpdated = lastActiveCache.get(email);
+
+        // Only update DB at most once every 5 minutes per user
+        if (lastUpdated != null && lastUpdated.isAfter(now.minusSeconds(300))) {
+            return;
         }
+
+        lastActiveCache.put(email, now);
+
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                userRepository.findByEmail(email).ifPresent(user -> {
+                    java.time.LocalDateTime localNow = java.time.LocalDateTime.now();
+                    if (user.getLastActiveAt() == null || user.getLastActiveAt().isBefore(localNow.minusMinutes(5))) {
+                        user.setLastActiveAt(localNow);
+                        userRepository.save(user);
+                    }
+                });
+            } catch (Exception e) {
+                // Ignore exceptions to not block request processing
+            }
+        });
     }
 }

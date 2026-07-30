@@ -51,17 +51,22 @@ function App() {
   }, [token]);
 
   useEffect(() => {
-    fetchBalance();
+    if (!token) return;
+
+    // Run initial data fetching concurrently
+    Promise.allSettled([
+      getWalletBalance().then(w => setBalance(w.balance)),
+      getUserNotifications().then(data => setNotifications(data))
+    ]).catch(() => {});
 
     window.addEventListener('walletUpdated', fetchBalance);
-    return () => window.removeEventListener('walletUpdated', fetchBalance);
-  }, [fetchBalance]);
-
-  useEffect(() => {
-    fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, [fetchNotifications]);
+
+    return () => {
+      window.removeEventListener('walletUpdated', fetchBalance);
+      clearInterval(interval);
+    };
+  }, [token, fetchBalance, fetchNotifications]);
 
   useEffect(() => {
     const handleBlocked = () => setIsBlocked(true);

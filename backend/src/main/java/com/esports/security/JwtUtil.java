@@ -23,8 +23,18 @@ public class JwtUtil {
     @Value("${app.jwt.expiration}")
     private long jwtExpiration;
 
+    private SecretKey cachedKey;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        this.cachedKey = Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        if (cachedKey == null) {
+            cachedKey = Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        return cachedKey;
     }
 
     public String extractUsername(String token) {
