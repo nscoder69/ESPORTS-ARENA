@@ -62,10 +62,11 @@ const EditProfile = () => {
         formData.append('avatar', selectedFile);
       }
 
-      const response = await API.put('/users/profile', formData);
+      const response = await API.post('/users/profile', formData);
 
-      // Update local storage
-      const updatedUser = response.data;
+      // Update local storage preserving existing token
+      const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const updatedUser = { ...existingUser, ...response.data, token: existingUser.token || localStorage.getItem('token') };
       localStorage.setItem('user', JSON.stringify(updatedUser));
 
       setSuccess('Profile updated successfully!');
