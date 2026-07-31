@@ -46,7 +46,26 @@ const AdminDashboard = () => {
   const currentUser = userStr ? JSON.parse(userStr) : null;
   const isSuperAdmin = currentUser?.role === 'ROLE_SUPER_ADMIN';
 
-  const [adminView, setAdminView] = useState<'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'payment-settings' | 'access-control'>('tournaments');
+  const hasPermission = (permKey: string): boolean => {
+    if (isSuperAdmin) return true;
+    if (currentUser?.role !== 'ROLE_ADMIN') return false;
+    if (currentUser?.permissions !== undefined && currentUser?.permissions !== null) {
+      const perms = currentUser.permissions.split(',');
+      return perms.includes(permKey);
+    }
+    return true;
+  };
+
+  const getInitialAdminView = (): 'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'payment-settings' | 'access-control' => {
+    if (isSuperAdmin || hasPermission('MANAGE_TOURNAMENTS')) return 'tournaments';
+    if (hasPermission('MANAGE_USERS')) return 'users';
+    if (hasPermission('MANAGE_SUPPORT')) return 'support';
+    if (hasPermission('MANAGE_DEPOSITS')) return 'deposits';
+    if (hasPermission('MANAGE_WITHDRAWALS')) return 'withdrawals';
+    return 'tournaments';
+  };
+
+  const [adminView, setAdminView] = useState<'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'payment-settings' | 'access-control'>(getInitialAdminView);
   const [pendingDeposits, setPendingDeposits] = useState<any[]>([]);
   const [depositsLoading, setDepositsLoading] = useState(false);
   const [depositsError, setDepositsError] = useState('');
@@ -155,19 +174,19 @@ const AdminDashboard = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (adminView === 'users') {
+    if (adminView === 'users' && hasPermission('MANAGE_USERS')) {
       fetchUsers();
-    } else if (adminView === 'support') {
+    } else if (adminView === 'support' && hasPermission('MANAGE_SUPPORT')) {
       fetchSupportTickets();
-    } else if (adminView === 'deposits') {
+    } else if (adminView === 'deposits' && hasPermission('MANAGE_DEPOSITS')) {
       fetchPendingDeposits();
-    } else if (adminView === 'withdrawals') {
+    } else if (adminView === 'withdrawals' && hasPermission('MANAGE_WITHDRAWALS')) {
       fetchPendingWithdrawals();
-    } else if (adminView === 'payment-settings') {
+    } else if (adminView === 'payment-settings' && isSuperAdmin) {
       fetchPaymentSettings();
-    } else if (adminView === 'access-control') {
+    } else if (adminView === 'access-control' && isSuperAdmin) {
       fetchAdmins();
-    } else {
+    } else if (adminView === 'tournaments' && hasPermission('MANAGE_TOURNAMENTS')) {
       fetchTournaments();
     }
   }, [adminView]);
@@ -608,36 +627,46 @@ const AdminDashboard = () => {
 
           {/* View Toggle Tabs */}
           <div className="flex gap-4 mt-6 border-b border-white/10 pb-0 overflow-x-auto">
-            <button
-              onClick={() => setAdminView('tournaments')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'tournaments' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
-            >
-              Tournaments
-            </button>
-            <button
-              onClick={() => setAdminView('users')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'users' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
-            >
-              Users & Activity
-            </button>
-            <button
-              onClick={() => setAdminView('support')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'support' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
-            >
-              Support Tickets
-            </button>
-            <button
-              onClick={() => setAdminView('deposits')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'deposits' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
-            >
-              Pending Deposits
-            </button>
-            <button
-              onClick={() => setAdminView('withdrawals')}
-              className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'withdrawals' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
-            >
-              Pending Withdrawals
-            </button>
+            {hasPermission('MANAGE_TOURNAMENTS') && (
+              <button
+                onClick={() => setAdminView('tournaments')}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'tournaments' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              >
+                Tournaments
+              </button>
+            )}
+            {hasPermission('MANAGE_USERS') && (
+              <button
+                onClick={() => setAdminView('users')}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'users' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              >
+                Users & Activity
+              </button>
+            )}
+            {hasPermission('MANAGE_SUPPORT') && (
+              <button
+                onClick={() => setAdminView('support')}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'support' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              >
+                Support Tickets
+              </button>
+            )}
+            {hasPermission('MANAGE_DEPOSITS') && (
+              <button
+                onClick={() => setAdminView('deposits')}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'deposits' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              >
+                Pending Deposits
+              </button>
+            )}
+            {hasPermission('MANAGE_WITHDRAWALS') && (
+              <button
+                onClick={() => setAdminView('withdrawals')}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'withdrawals' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              >
+                Pending Withdrawals
+              </button>
+            )}
 
             {isSuperAdmin && (
               <>
@@ -659,7 +688,29 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {adminView === 'tournaments' ? (
+      {((adminView === 'tournaments' && !hasPermission('MANAGE_TOURNAMENTS')) ||
+        (adminView === 'users' && !hasPermission('MANAGE_USERS')) ||
+        (adminView === 'support' && !hasPermission('MANAGE_SUPPORT')) ||
+        (adminView === 'deposits' && !hasPermission('MANAGE_DEPOSITS')) ||
+        (adminView === 'withdrawals' && !hasPermission('MANAGE_WITHDRAWALS')) ||
+        (adminView === 'payment-settings' && !isSuperAdmin) ||
+        (adminView === 'access-control' && !isSuperAdmin)) ? (
+        <div className="flex-grow max-w-4xl mx-auto w-full px-6 py-16 flex flex-col items-center justify-center text-center">
+          <div className="glass-panel p-10 max-w-lg w-full border border-rose-500/20 bg-rose-500/5 shadow-2xl flex flex-col items-center">
+            <ShieldAlert size={48} className="text-rose-400 mb-4" />
+            <h3 className="text-2xl font-bold font-display text-white mb-2">Access Restricted</h3>
+            <p className="text-textSecondary text-sm mb-6">
+              You do not have permission to access the <strong>{adminView}</strong> module. Please contact the Super Admin to request feature permissions.
+            </p>
+            <button
+              onClick={() => setAdminView(getInitialAdminView())}
+              className="btn-primary py-2.5 px-6 font-bold text-xs"
+            >
+              Go to Allowed Module
+            </button>
+          </div>
+        </div>
+      ) : adminView === 'tournaments' ? (
         <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col md:flex-row gap-8">
 
           {/* Left Column: Tournament List */}

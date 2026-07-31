@@ -189,10 +189,26 @@ public class UserServiceImpl implements UserService {
 
     private void verifyAdmin(String email) {
         User admin = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
-        String role = admin.getRole().getName();
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Admin user not found"));
+        String role = admin.getRole() != null ? admin.getRole().getName() : null;
         if (!"ROLE_ADMIN".equals(role) && !"ROLE_SUPER_ADMIN".equals(role)) {
-            throw new RuntimeException("Unauthorized: Only admins can perform this action");
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Unauthorized: Only admins can perform this action");
+        }
+        if ("ROLE_ADMIN".equals(role)) {
+            verifyPermission(admin, "MANAGE_USERS");
+        }
+    }
+
+    private void verifyPermission(User admin, String requiredPermission) {
+        if ("ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
+            return;
+        }
+        String permissions = admin.getPermissions();
+        if (permissions != null && !permissions.trim().isEmpty()) {
+            java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
+            if (!permList.contains(requiredPermission)) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
+            }
         }
     }
 

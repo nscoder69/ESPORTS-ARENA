@@ -295,6 +295,9 @@ public class WalletServiceImpl implements WalletService {
         if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access: Admins only");
         }
+        if ("ROLE_ADMIN".equals(admin.getRole().getName())) {
+            verifyPermission(admin, "MANAGE_DEPOSITS");
+        }
 
         return transactionRepository.findByTransactionTypeAndStatusOrderByCreatedAtDesc(
                 com.esports.entity.TransactionType.DEPOSIT, com.esports.entity.TransactionStatus.PENDING)
@@ -310,6 +313,9 @@ public class WalletServiceImpl implements WalletService {
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
         if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access: Admins only");
+        }
+        if ("ROLE_ADMIN".equals(admin.getRole().getName())) {
+            verifyPermission(admin, "MANAGE_DEPOSITS");
         }
 
         Transaction transaction = transactionRepository.findById(transactionId)
@@ -366,6 +372,9 @@ public class WalletServiceImpl implements WalletService {
         if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access: Admins only");
         }
+        if ("ROLE_ADMIN".equals(admin.getRole().getName())) {
+            verifyPermission(admin, "MANAGE_WITHDRAWALS");
+        }
 
         return transactionRepository.findByTransactionTypeAndStatusOrderByCreatedAtDesc(
                 com.esports.entity.TransactionType.WITHDRAWAL, com.esports.entity.TransactionStatus.PENDING)
@@ -381,6 +390,9 @@ public class WalletServiceImpl implements WalletService {
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
         if (!"ROLE_ADMIN".equals(admin.getRole().getName()) && !"ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
             throw new RuntimeException("Unauthorized access: Admins only");
+        }
+        if ("ROLE_ADMIN".equals(admin.getRole().getName())) {
+            verifyPermission(admin, "MANAGE_WITHDRAWALS");
         }
 
         Transaction transaction = transactionRepository.findById(transactionId)
@@ -427,5 +439,18 @@ public class WalletServiceImpl implements WalletService {
 
         transactionRepository.save(transaction);
         return mapToWalletDto(wallet);
+    }
+
+    private void verifyPermission(User admin, String requiredPermission) {
+        if ("ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
+            return;
+        }
+        String permissions = admin.getPermissions();
+        if (permissions != null && !permissions.trim().isEmpty()) {
+            java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
+            if (!permList.contains(requiredPermission)) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
+            }
+        }
     }
 }
