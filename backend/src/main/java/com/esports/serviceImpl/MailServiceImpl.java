@@ -90,7 +90,7 @@ public class MailServiceImpl implements MailService {
                     + "<blockquote style=\"background: #161B2E; padding: 15px; border-left: 4px solid #00F0FF;\">" + messageText + "</blockquote>"
                     + "</div>";
 
-            if (sendViaBrevoHttpApi("r28223078@gmail.com", fullSubject, htmlContent)) {
+            if (sendViaBrevoHttpApi(fromEmail, fullSubject, htmlContent)) {
                 return;
             }
 
@@ -99,7 +99,7 @@ public class MailServiceImpl implements MailService {
                     MimeMessage mimeMessage = mailSender.createMimeMessage();
                     MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
                     helper.setFrom(fromEmail, "Esports Arena Support");
-                    helper.setTo("r28223078@gmail.com");
+                    helper.setTo(fromEmail);
                     helper.setSubject(fullSubject);
                     helper.setText(htmlContent, true);
 

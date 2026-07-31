@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { getAllTournaments, deleteTournament } from '../services/tournamentService';
-import { Trophy, X, Users, Gamepad2 } from 'lucide-react';
+import { Trophy, X, Gamepad2 } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { createTeam } from '../services/teamService';
@@ -9,6 +9,7 @@ import { registerForTournament, getRegisteredTeamsForParticipant, joinTournament
 import { Copy, CheckCircle } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import TournamentCard from '../components/TournamentCard';
+import ResultsModal from '../components/ResultsModal';
 import { getWalletBalance } from '../services/walletService';
 import { getImageUrl } from '../services/api';
 
@@ -226,11 +227,6 @@ export default function TournamentList() {
     return true;
   });
 
-  const isKillOnly = selectedTournament &&
-    (!selectedTournament.firstPrize || Number(selectedTournament.firstPrize) === 0) &&
-    (!selectedTournament.secondPrize || Number(selectedTournament.secondPrize) === 0) &&
-    (!selectedTournament.thirdPrize || Number(selectedTournament.thirdPrize) === 0);
-
   const upcomingTournaments = (filterType === 'Live' ? [] : filteredTournaments.filter(t => !t.matchTiming || new Date(t.matchTiming) >= new Date()))
     .filter(t => t.status !== 'Cancelled' && t.status !== 'Finished');
 
@@ -244,6 +240,8 @@ export default function TournamentList() {
       }
       return true;
     });
+
+  const finishedTournaments = filteredTournaments.filter(t => t.status === 'Finished');
 
   const handleDeleteTournament = async (tournament: any) => {
     if (window.confirm(`Are you sure you want to delete ${tournament.name}?`)) {
@@ -313,7 +311,7 @@ export default function TournamentList() {
             className="w-12 h-12 object-contain"
           />
         </div>
-      ) : (upcomingTournaments.length === 0 && liveTournaments.length === 0) ? (
+      ) : (upcomingTournaments.length === 0 && liveTournaments.length === 0 && finishedTournaments.length === 0) ? (
         <div className="text-center py-20 border border-dashed border-white/10 rounded-xl">
           <Trophy className="mx-auto text-borderDim mb-4" size={48} />
           <p className="text-textSecondary text-lg font-medium">No active tournaments</p>
@@ -347,6 +345,27 @@ export default function TournamentList() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {liveTournaments.map((tournament) => (
+                  <TournamentCard
+                    key={tournament.id}
+                    tournament={tournament}
+                    isUserRegistered={registeredTournamentIds.has(tournament.id)}
+                    onParticipantsClick={() => openParticipantsModal(tournament)}
+                    onResultClick={openResultsModal}
+                    onDeleteClick={user?.role === 'ROLE_ADMIN' ? handleDeleteTournament : undefined}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {finishedTournaments.length > 0 && (
+            <div>
+              <h3 className="text-xl font-bold font-display text-white mb-4 border-b border-white/10 pb-2 flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-primary" />
+                Finished Tournaments
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {finishedTournaments.map((tournament) => (
                   <TournamentCard
                     key={tournament.id}
                     tournament={tournament}
@@ -621,169 +640,14 @@ export default function TournamentList() {
       )}
 
       {/* Results / Leaderboard Modal */}
-      {isResultsModalOpen && selectedTournament && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="glass-panel max-w-xl w-full p-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar"
-          >
-            <button onClick={() => setIsResultsModalOpen(false)} className="absolute top-4 right-4 text-textSecondary hover:text-white">
-              <X size={20} />
-            </button>
-
-            <h3 className="text-xl font-bold font-display text-white mb-2 flex items-center gap-2">
-              <Trophy className="text-[#FFD700]" size={22} /> Tournament Leaderboard
-            </h3>
-            <p className="text-textSecondary text-sm mb-6">Final standings and performance review for <strong className="text-white">{selectedTournament.name}</strong></p>
-
-            {resultsError ? (
-              <div className="bg-rose-500/10 text-rose-400 text-sm p-4 rounded-lg border border-rose-500/20 text-center">
-                {resultsError}
-              </div>
-            ) : resultsLoading ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <LoadingSpinner size={28} className="mb-2" />
-                <p className="text-textSecondary text-sm">Fetching leaderboard...</p>
-              </div>
-            ) : tournamentResults.length === 0 ? (
-              <div className="text-center py-8 text-textSecondary text-sm">
-                No results have been submitted for this tournament yet.
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Podium for top 3 */}
-                {!isKillOnly && (
-                  <div className="grid grid-cols-3 gap-3 pt-4 pb-2 items-end text-center">
-                    {/* 2nd Place */}
-                    {tournamentResults.find(r => r.placement === 2) && (
-                      <div className="flex flex-col items-center">
-                        <div className="w-12 h-12 rounded bg-surfaceHighlight border border-[#C0C0C0]/30 overflow-hidden flex items-center justify-center relative">
-                          {tournamentResults.find(r => r.placement === 2).teamLogoUrl ? (
-                            <img src={getImageUrl(tournamentResults.find(r => r.placement === 2).teamLogoUrl)} alt="2nd logo" className="w-full h-full object-cover" />
-                          ) : (
-                            <Users size={18} className="text-textSecondary" />
-                          )}
-                        </div>
-                        <div className="bg-[#C0C0C0]/10 border border-[#C0C0C0]/20 rounded px-2 py-0.5 mt-2 text-[10px] font-bold text-[#C0C0C0] uppercase">
-                          2nd Place
-                        </div>
-                        <span className="text-xs font-bold text-white mt-1 truncate max-w-full">
-                          {tournamentResults.find(r => r.placement === 2).teamName}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* 1st Place */}
-                    {tournamentResults.find(r => r.placement === 1) && (
-                      <div className="flex flex-col items-center">
-                        <div className="w-16 h-16 rounded bg-surfaceHighlight border border-[#FFD700]/30 overflow-hidden flex items-center justify-center relative scale-110 -translate-y-2">
-                          {tournamentResults.find(r => r.placement === 1).teamLogoUrl ? (
-                            <img src={getImageUrl(tournamentResults.find(r => r.placement === 1).teamLogoUrl)} alt="1st logo" className="w-full h-full object-cover" />
-                          ) : (
-                            <Trophy size={24} className="text-[#FFD700]" />
-                          )}
-                        </div>
-                        <div className="bg-[#FFD700]/10 border border-[#FFD700]/20 rounded px-2.5 py-0.5 mt-1 text-[10px] font-bold text-[#FFD700] uppercase scale-110 -translate-y-1">
-                          Champion
-                        </div>
-                        <span className="text-sm font-bold text-white mt-1 truncate max-w-full scale-105">
-                          {tournamentResults.find(r => r.placement === 1).teamName}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* 3rd Place */}
-                    {tournamentResults.find(r => r.placement === 3) && (
-                      <div className="flex flex-col items-center">
-                        <div className="w-12 h-12 rounded bg-surfaceHighlight border border-[#CD7F32]/30 overflow-hidden flex items-center justify-center relative">
-                          {tournamentResults.find(r => r.placement === 3).teamLogoUrl ? (
-                            <img src={getImageUrl(tournamentResults.find(r => r.placement === 3).teamLogoUrl)} alt="3rd logo" className="w-full h-full object-cover" />
-                          ) : (
-                            <Users size={18} className="text-textSecondary" />
-                          )}
-                        </div>
-                        <div className="bg-[#CD7F32]/10 border border-[#CD7F32]/20 rounded px-2 py-0.5 mt-2 text-[10px] font-bold text-[#CD7F32] uppercase">
-                          3rd Place
-                        </div>
-                        <span className="text-xs font-bold text-white mt-1 truncate max-w-full">
-                          {tournamentResults.find(r => r.placement === 3).teamName}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Table details */}
-                <div className="border-t border-white/10 pt-4 overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-white/10 text-textSecondary text-xs uppercase tracking-wider">
-                        <th className="py-2.5 px-3">Rank</th>
-                        <th className="py-2.5 px-3">Team</th>
-                        <th className="py-2.5 px-3 text-center">Slot</th>
-                        <th className="py-2.5 px-3 text-center">Kills</th>
-                        <th className="py-2.5 px-3 text-right">Prize Won</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tournamentResults.map((res, index) => {
-                        let prize = 0;
-                        if (res.placement === 1 && selectedTournament.firstPrize) prize += selectedTournament.firstPrize;
-                        if (res.placement === 2 && selectedTournament.secondPrize) prize += selectedTournament.secondPrize;
-                        if (res.placement === 3 && selectedTournament.thirdPrize) prize += selectedTournament.thirdPrize;
-                        if (res.kills && selectedTournament.perKillPrize) prize += res.kills * selectedTournament.perKillPrize;
-
-                        return (
-                          <tr key={res.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                            <td className="py-3 px-3 font-display font-bold text-sm text-textSecondary">
-                              {res.placement ? (
-                                <span className={`px-2 py-0.5 rounded text-xs font-bold ${res.placement === 1 ? 'text-[#FFD700]' :
-                                  res.placement === 2 ? 'text-[#C0C0C0]' :
-                                    'text-[#CD7F32]'
-                                  }`}>
-                                  #{res.placement}
-                                </span>
-                              ) : (
-                                <span className="pl-2">#{index + 1}</span>
-                              )}
-                            </td>
-                            <td className="py-3 px-3">
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded bg-surfaceHighlight border border-white/5 overflow-hidden flex-shrink-0">
-                                  {res.teamLogoUrl ? (
-                                    <img src={getImageUrl(res.teamLogoUrl)} alt="logo" className="w-full h-full object-cover" />
-                                  ) : (
-                                    <Users size={12} className="text-textSecondary m-auto mt-1" />
-                                  )}
-                                </div>
-                                <span className="font-bold text-white text-sm">{res.teamName}</span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-3 text-center text-sm text-textSecondary">
-                              {res.slotNumber !== null && res.slotNumber !== undefined ? `Slot ${res.slotNumber}` : '-'}
-                            </td>
-                            <td className="py-3 px-3 text-center text-sm text-white">
-                              {res.kills || 0}
-                            </td>
-                            <td className="py-3 px-3 text-right font-bold text-sm text-primary">
-                              {prize > 0 ? `₹${prize.toFixed(2)}` : '₹0.00'}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            <button onClick={() => setIsResultsModalOpen(false)} className="btn-primary w-full mt-6">
-              Close Leaderboard
-            </button>
-          </motion.div>
-        </div>
-      )}
+      <ResultsModal
+        isOpen={isResultsModalOpen}
+        onClose={() => setIsResultsModalOpen(false)}
+        selectedTournament={selectedTournament}
+        tournamentResults={tournamentResults}
+        loading={resultsLoading}
+        error={resultsError}
+      />
     </div>
   );
 }

@@ -1,0 +1,15 @@
+# Logs
+*.log
+backend/springboot.log
+backend/test.log
+
+# Build outputs & dependencies
+backend/target/
+backend/temp_out.json
+frontend/dist/
+frontend/node_modules/
+frontend/test_deposit.js
+scratch/
+.DS_Store
+.idea/
+.vscode/

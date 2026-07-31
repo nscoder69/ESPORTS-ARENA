@@ -15,31 +15,33 @@ public class FileUploadService {
     private final String UPLOAD_DIR = "uploads/avatars/";
 
     public String saveAvatar(MultipartFile file) throws IOException {
-        if (file.isEmpty()) {
+        if (file == null || file.isEmpty()) {
             return null;
         }
 
-        // Create directory if it doesn't exist
-        Path uploadPath = Paths.get(UPLOAD_DIR);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
+        // Also save to disk if path is writable
+        try {
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String newFilename = UUID.randomUUID().toString() + extension;
+            Path filePath = uploadPath.resolve(newFilename);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception ignored) {}
+
+        // Convert to Base64 data URL for container persistent storage
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            contentType = "image/png";
         }
-
-        // Generate unique filename
-        String originalFilename = file.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
-
-        String newFilename = UUID.randomUUID().toString() + extension;
-        Path filePath = uploadPath.resolve(newFilename);
-
-        // Copy file to destination
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        // Return the relative URL path
-        return "/uploads/avatars/" + newFilename;
+        String base64Data = java.util.Base64.getEncoder().encodeToString(file.getBytes());
+        return "data:" + contentType + ";base64," + base64Data;
     }
 
     private final String QR_UPLOAD_DIR = "uploads/qr/";
@@ -49,22 +51,27 @@ public class FileUploadService {
             return null;
         }
 
-        Path uploadPath = Paths.get(QR_UPLOAD_DIR);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
+        try {
+            Path uploadPath = Paths.get(QR_UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            String originalFilename = file.getOriginalFilename();
+            String extension = ".png";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String newFilename = "qr_" + UUID.randomUUID().toString() + extension;
+            Path filePath = uploadPath.resolve(newFilename);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception ignored) {}
+
+        // Convert to Base64 data URL for container persistent storage
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            contentType = "image/png";
         }
-
-        String originalFilename = file.getOriginalFilename();
-        String extension = ".png";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
-
-        String newFilename = "qr_" + UUID.randomUUID().toString() + extension;
-        Path filePath = uploadPath.resolve(newFilename);
-
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return "/uploads/qr/" + newFilename;
+        String base64Data = java.util.Base64.getEncoder().encodeToString(file.getBytes());
+        return "data:" + contentType + ";base64," + base64Data;
     }
 }

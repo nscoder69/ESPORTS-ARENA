@@ -69,7 +69,7 @@ export default function Support() {
           <HelpCircle className="text-primary" size={32} /> Help & Support Portal
         </h1>
         <p className="text-textSecondary text-sm max-w-xl">
-          Submit any complaints, issues, or feedback. Support requests are automatically forwarded to <strong className="text-primary">r28223078@gmail.com</strong>. You will receive notifications in your account as soon as an administrator replies.
+          Submit any complaints, issues, or feedback. Support requests are automatically forwarded to <strong className="text-primary">esportsarena638@gmail.com</strong>. You will receive notifications in your account as soon as an administrator replies.
         </p>
       </div>
 
