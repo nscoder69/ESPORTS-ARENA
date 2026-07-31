@@ -7,12 +7,21 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> handleResponseStatusException(ResponseStatusException e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", e.getStatusCode().toString());
+        response.put("message", e.getReason() != null ? e.getReason() : e.getMessage());
+        return ResponseEntity.status(e.getStatusCode()).body(response);
+    }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Map<String, String>> handleAuthException(AuthenticationException e) {
@@ -68,6 +77,9 @@ public class GlobalExceptionHandler {
         Map<String, String> response = new HashMap<>();
         response.put("error", e.getClass().getSimpleName());
         response.put("message", e.getMessage() != null ? e.getMessage() : "Application logic error");
+        if (e.getMessage() != null && (e.getMessage().contains("Unauthorized") || e.getMessage().contains("Access Denied"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 

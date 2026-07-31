@@ -1,5 +1,6 @@
 package com.esports.serviceImpl;
 
+import com.esports.dto.SupportTicketDto;
 import com.esports.entity.SupportTicket;
 import com.esports.entity.User;
 import com.esports.repository.SupportTicketRepository;
@@ -8,10 +9,14 @@ import com.esports.service.MailService;
 import com.esports.service.NotificationService;
 import com.esports.service.SupportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,9 +29,9 @@ public class SupportServiceImpl implements SupportService {
 
     @Override
     @Transactional
-    public SupportTicket createTicket(String userEmail, String subject, String message) {
+    public SupportTicketDto createTicket(String userEmail, String subject, String message) {
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         SupportTicket ticket = new SupportTicket();
         ticket.setUser(user);
@@ -39,29 +44,35 @@ public class SupportServiceImpl implements SupportService {
         // Send complaint email to admin
         mailService.sendSupportReport(userEmail, subject, message);
 
-        return savedTicket;
+        return mapToDto(savedTicket);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SupportTicket> getUserTickets(String userEmail) {
-        return supportTicketRepository.findByUser_EmailOrderByCreatedAtDesc(userEmail);
+    public List<SupportTicketDto> getUserTickets(String userEmail) {
+        return supportTicketRepository.findByUser_EmailOrderByCreatedAtDesc(userEmail)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SupportTicket> getAllTickets(String adminEmail) {
+    public List<SupportTicketDto> getAllTickets(String adminEmail) {
         verifyAdmin(adminEmail);
-        return supportTicketRepository.findAllByOrderByCreatedAtDesc();
+        return supportTicketRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public SupportTicket replyToTicket(UUID ticketId, String reply, String adminEmail) {
+    public SupportTicketDto replyToTicket(UUID ticketId, String reply, String adminEmail) {
         verifyAdmin(adminEmail);
 
         SupportTicket ticket = supportTicketRepository.findById(ticketId)
-                .orElseThrow(() -> new RuntimeException("Support ticket not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Support ticket not found"));
 
         ticket.setReply(reply);
         ticket.setStatus("Resolved");
@@ -73,15 +84,33 @@ public class SupportServiceImpl implements SupportService {
         String notificationMessage = "An administrator has replied to your support ticket:\n\n" + reply;
         notificationService.createNotification(ticket.getUser(), notificationTitle, notificationMessage);
 
-        return updatedTicket;
+        return mapToDto(updatedTicket);
     }
 
     private void verifyAdmin(String email) {
-        User admin = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
-        String role = admin.getRole().getName();
-        if (!"ROLE_ADMIN".equals(role) && !"ROLE_SUPER_ADMIN".equals(role)) {
-            throw new RuntimeException("Unauthorized: Only admins can perform this action");
+        if (email == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
         }
+        User admin = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin user not found"));
+        String role = admin.getRole() != null ? admin.getRole().getName() : null;
+        if (!"ROLE_ADMIN".equals(role) && !"ROLE_SUPER_ADMIN".equals(role)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized: Only admins can perform this action");
+        }
+    }
+
+    private SupportTicketDto mapToDto(SupportTicket ticket) {
+        SupportTicketDto dto = new SupportTicketDto();
+        dto.setId(ticket.getId());
+        dto.setSubject(ticket.getSubject());
+        dto.setMessage(ticket.getMessage());
+        dto.setStatus(ticket.getStatus());
+        dto.setReply(ticket.getReply());
+        dto.setCreatedAt(ticket.getCreatedAt());
+        if (ticket.getUser() != null) {
+            dto.setUserEmail(ticket.getUser().getEmail());
+            dto.setUser(new SupportTicketDto.UserSummary(ticket.getUser().getEmail(), ticket.getUser().getGameName()));
+        }
+        return dto;
     }
 }
