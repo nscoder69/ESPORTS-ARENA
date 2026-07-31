@@ -768,16 +768,8 @@ public class TournamentServiceImpl implements TournamentService {
         boolean isAdmin = "ROLE_ADMIN".equals(role) || "ROLE_SUPER_ADMIN".equals(role);
 
         if (!isAdmin) {
-            // Check if user is registered for this tournament
-            List<TournamentRegistration> userRegs = registrationRepository.findByTournament_Id(tournamentId);
-            boolean isRegistered = userRegs.stream().anyMatch(reg -> {
-                if (reg.getTeam() == null) return false;
-                if (reg.getTeam().getCaptain() != null && reg.getTeam().getCaptain().getId().equals(user.getId())) {
-                    return true;
-                }
-                return teamMemberRepository.findByTeam_Id(reg.getTeam().getId())
-                        .stream().anyMatch(m -> m.getUser().getId().equals(user.getId()));
-            });
+            List<Tournament> userTournaments = tournamentRepository.findTournamentsByUserEmail(userEmail);
+            boolean isRegistered = userTournaments.stream().anyMatch(t -> t.getId().equals(tournamentId));
 
             if (!isRegistered) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only registered players can access Room ID and Password");

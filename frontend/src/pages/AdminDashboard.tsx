@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare, Shield, Plus, Key } from 'lucide-react';
+import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare, Shield, Plus, Key, Copy } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllTournaments, getRegistrationsForTournament, cancelTournament, rescheduleTournament, removeTeamFromTournament, updateTournamentResults, deleteTournament, getUserRegisteredTournaments, updateRoomCredentials } from '../services/tournamentService';
 import { getTeamMembers } from '../services/teamService';
@@ -41,6 +41,10 @@ const AdminDashboard = () => {
   const [inputRoomId, setInputRoomId] = useState('');
   const [inputRoomPassword, setInputRoomPassword] = useState('');
   const [savingRoomCredentials, setSavingRoomCredentials] = useState(false);
+
+  // Copy Status States
+  const [copiedTxId, setCopiedTxId] = useState<string | null>(null);
+  const [copiedUid, setCopiedUid] = useState<string | null>(null);
 
   const openRoomCredentialsModal = () => {
     if (!selectedTournament) return;
@@ -978,7 +982,22 @@ const AdminDashboard = () => {
                             <td className="py-4 px-4">
                               <div className="flex flex-col">
                                 <span className="text-sm font-bold text-white">{reg.captainGameName || 'Unnamed Player'}</span>
-                                <span className="text-xs text-primary font-semibold">UID: {reg.captainFreeFireUid || 'N/A'}</span>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-xs text-primary font-semibold font-mono">UID: {reg.captainFreeFireUid || 'N/A'}</span>
+                                  {reg.captainFreeFireUid && (
+                                    <button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(reg.captainFreeFireUid);
+                                        setCopiedUid(reg.id);
+                                        setTimeout(() => setCopiedUid(null), 2000);
+                                      }}
+                                      className="p-1 text-primary hover:text-white rounded hover:bg-primary/20 transition-all cursor-pointer"
+                                      title="Copy Free Fire UID"
+                                    >
+                                      {copiedUid === reg.id ? <CheckCircle size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                             </td>
                             <td className="py-4 px-4 text-sm text-textSecondary">
@@ -1412,7 +1431,24 @@ const AdminDashboard = () => {
                           <td className="py-4 px-4 font-semibold text-white">{deposit.userEmail}</td>
                           <td className="py-4 px-4 text-textSecondary">{deposit.username || 'N/A'}</td>
                           <td className="py-4 px-4 font-display font-bold text-emerald-400">₹{deposit.amount.toFixed(2)}</td>
-                          <td className="py-4 px-4 font-mono font-bold text-white tracking-wider select-all">{deposit.paymentReference}</td>
+                          <td className="py-4 px-4 font-mono font-bold text-white tracking-wider">
+                            <div className="flex items-center gap-2">
+                              <span>{deposit.paymentReference}</span>
+                              {deposit.paymentReference && (
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(deposit.paymentReference);
+                                    setCopiedTxId(deposit.id);
+                                    setTimeout(() => setCopiedTxId(null), 2000);
+                                  }}
+                                  className="p-1 text-primary hover:text-white rounded hover:bg-primary/20 transition-all cursor-pointer"
+                                  title="Copy UTR Reference"
+                                >
+                                  {copiedTxId === deposit.id ? <CheckCircle size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                                </button>
+                              )}
+                            </div>
+                          </td>
                           <td className="py-4 px-4 text-textSecondary text-xs">{date}</td>
                           <td className="py-4 px-4 text-right">
                             <div className="flex items-center justify-end gap-2">
@@ -1497,7 +1533,25 @@ const AdminDashboard = () => {
                           <td className="py-4 px-4 font-semibold text-white">{withdrawal.userEmail}</td>
                           <td className="py-4 px-4 text-textSecondary">{withdrawal.username || 'N/A'}</td>
                           <td className="py-4 px-4 font-display font-bold text-rose-400">₹{withdrawal.amount.toFixed(2)}</td>
-                          <td className="py-4 px-4 text-white font-medium select-all">{withdrawal.description}</td>
+                          <td className="py-4 px-4 text-white font-medium">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-sm">{withdrawal.description}</span>
+                              {withdrawal.description && (
+                                <button
+                                  onClick={() => {
+                                    const textToCopy = withdrawal.description.replace(/^Withdrawal request to\s*/i, '').trim();
+                                    navigator.clipboard.writeText(textToCopy);
+                                    setCopiedTxId(withdrawal.id);
+                                    setTimeout(() => setCopiedTxId(null), 2000);
+                                  }}
+                                  className="p-1 text-primary hover:text-white rounded hover:bg-primary/20 transition-all cursor-pointer flex-shrink-0"
+                                  title="Copy Payout UPI ID / Details"
+                                >
+                                  {copiedTxId === withdrawal.id ? <CheckCircle size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                                </button>
+                              )}
+                            </div>
+                          </td>
                           <td className="py-4 px-4 text-textSecondary text-xs">{date}</td>
                           <td className="py-4 px-4 text-right">
                             <div className="flex items-center justify-end gap-2">
@@ -1871,7 +1925,22 @@ const AdminDashboard = () => {
                       </div>
                       <div>
                         <div className="text-sm font-bold text-white">{member.gameName}</div>
-                        <div className="text-xs text-textSecondary">UID: {member.freeFireUid || 'N/A'}</div>
+                        <div className="flex items-center gap-1.5 text-xs text-textSecondary font-mono mt-0.5">
+                          <span>UID: {member.freeFireUid || 'N/A'}</span>
+                          {member.freeFireUid && (
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(member.freeFireUid);
+                                setCopiedUid(member.userId);
+                                setTimeout(() => setCopiedUid(null), 2000);
+                              }}
+                              className="p-0.5 text-primary hover:text-white rounded hover:bg-primary/20 transition-all cursor-pointer"
+                              title="Copy Free Fire UID"
+                            >
+                              {copiedUid === member.userId ? <CheckCircle size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded border ${member.memberRole === 'Captain' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-surfaceHighlight text-textSecondary border-white/10'}`}>
