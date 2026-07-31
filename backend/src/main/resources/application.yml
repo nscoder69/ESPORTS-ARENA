@@ -1,6 +1,11 @@
 spring:
   application:
     name: esports-platform
+
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 15MB
   
   mail:
     host: smtp.gmail.com

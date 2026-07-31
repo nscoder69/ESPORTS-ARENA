@@ -13,7 +13,7 @@ export const BACKEND_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
 
 export const getImageUrl = (url?: string | null): string => {
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
   return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
