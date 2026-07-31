@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare } from 'lucide-react';
+import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare, Shield, Plus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllTournaments, getRegistrationsForTournament, cancelTournament, rescheduleTournament, removeTeamFromTournament, updateTournamentResults, deleteTournament, getUserRegisteredTournaments } from '../services/tournamentService';
 import { getTeamMembers } from '../services/teamService';
@@ -58,6 +58,8 @@ const AdminDashboard = () => {
   const [usersError, setUsersError] = useState('');
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [regSearchQuery, setRegSearchQuery] = useState('');
+  const [isPromoteUserModalOpen, setIsPromoteUserModalOpen] = useState(false);
+  const [promoteSearchQuery, setPromoteSearchQuery] = useState('');
 
   const compressImageFile = (file: File, maxWidth = 600, quality = 0.85): Promise<File> => {
     return new Promise((resolve) => {
@@ -214,7 +216,7 @@ const AdminDashboard = () => {
 
   const handleOpenEditAdminModal = (user: any) => {
     setSelectedAdminUser(user);
-    setEditRole(user.role);
+    setEditRole(user.role === 'ROLE_SUPER_ADMIN' ? 'ROLE_SUPER_ADMIN' : 'ROLE_ADMIN');
     setEditPermissions(user.permissions ? user.permissions.split(',') : ['MANAGE_TOURNAMENTS', 'MANAGE_DEPOSITS', 'MANAGE_WITHDRAWALS', 'MANAGE_USERS', 'MANAGE_SUPPORT']);
   };
 
@@ -233,6 +235,7 @@ const AdminDashboard = () => {
       const permsStr = editPermissions.join(',');
       await updateUserRoleAndPermissions(selectedAdminUser.id, editRole, permsStr);
       fetchAdmins();
+      fetchUsers();
       setSelectedAdminUser(null);
       alert('Admin permissions updated successfully!');
     } catch (err: any) {
@@ -1079,6 +1082,15 @@ const AdminDashboard = () => {
                                 >
                                   <UserIcon size={14} />
                                 </button>
+                                {isSuperAdmin && (
+                                  <button
+                                    onClick={() => handleOpenEditAdminModal(u)}
+                                    className="p-1.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all cursor-pointer"
+                                    title="Configure Sub-Admin Access & Permissions"
+                                  >
+                                    <Shield size={14} />
+                                  </button>
+                                )}
                                 {u.role !== 'ROLE_ADMIN' && (
                                   <>
                                     {u.isBlocked ? (
@@ -1491,17 +1503,28 @@ const AdminDashboard = () => {
         </div>
       ) : (
         <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-white font-display font-bold text-xl">Sub-Admin & Access Permissions Directory</h3>
               <p className="text-textSecondary text-xs mt-1">Super Admin Control: Assign role levels (Super Admin / Sub-Admin / Player) and configure granular module accesses.</p>
             </div>
-            <button
-              onClick={fetchAdmins}
-              className="bg-surfaceHighlight hover:bg-white/10 text-white px-4 py-2 rounded-lg border border-white/10 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <RefreshCw size={14} /> Refresh List
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={async () => {
+                  await fetchUsers();
+                  setIsPromoteUserModalOpen(true);
+                }}
+                className="btn-primary text-xs py-2 px-4 flex items-center gap-2 cursor-pointer font-bold"
+              >
+                <Plus size={14} /> Promote Player to Sub-Admin
+              </button>
+              <button
+                onClick={fetchAdmins}
+                className="bg-surfaceHighlight hover:bg-white/10 text-white px-4 py-2 rounded-lg border border-white/10 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <RefreshCw size={14} /> Refresh List
+              </button>
+            </div>
           </div>
 
           {loadingAdmins ? (
@@ -1640,6 +1663,65 @@ const AdminDashboard = () => {
                   {savingAdminRole ? 'Saving...' : 'Save Admin Permissions'}
                 </button>
               </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Promote Player Picker Modal */}
+      {isPromoteUserModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel max-w-lg w-full p-6 relative">
+            <button
+              onClick={() => setIsPromoteUserModalOpen(false)}
+              className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-xl font-bold font-display text-white mb-1">Select Player to Promote</h3>
+            <p className="text-textSecondary text-xs mb-4">Choose a registered user to convert into Sub-Admin with custom module accesses.</p>
+
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-textSecondary" size={16} />
+              <input
+                type="text"
+                placeholder="Search user by email or name..."
+                className="input-field pl-10 py-2 text-sm bg-surface"
+                value={promoteSearchQuery}
+                onChange={e => setPromoteSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="max-h-64 overflow-y-auto space-y-2 custom-scrollbar pr-2 mb-4">
+              {usersList
+                .filter(u => {
+                  if (!promoteSearchQuery.trim()) return true;
+                  const q = promoteSearchQuery.toLowerCase();
+                  return u.email.toLowerCase().includes(q) || (u.gameName && u.gameName.toLowerCase().includes(q));
+                })
+                .map(u => (
+                  <div
+                    key={u.id}
+                    onClick={() => {
+                      setIsPromoteUserModalOpen(false);
+                      handleOpenEditAdminModal(u);
+                    }}
+                    className="flex items-center justify-between p-3 rounded-lg bg-surface border border-white/5 hover:border-primary/50 hover:bg-white/5 cursor-pointer transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-surfaceHighlight border border-white/10 flex items-center justify-center overflow-hidden">
+                        {u.avatarUrl ? <img src={getImageUrl(u.avatarUrl)} alt="Avatar" className="w-full h-full object-cover" /> : <UserIcon size={14} className="text-textSecondary" />}
+                      </div>
+                      <div>
+                        <span className="text-sm font-bold text-white block">{u.email}</span>
+                        <span className="text-xs text-textSecondary">{u.gameName || 'No Game Name'} | UID: {u.freeFireUid || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${u.role === 'ROLE_ADMIN' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : u.role === 'ROLE_SUPER_ADMIN' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-surfaceHighlight text-textSecondary border-white/10'}`}>
+                      {u.role === 'ROLE_ADMIN' ? 'Sub-Admin' : u.role === 'ROLE_SUPER_ADMIN' ? 'Super Admin' : 'Player'}
+                    </span>
+                  </div>
+                ))}
             </div>
           </motion.div>
         </div>
