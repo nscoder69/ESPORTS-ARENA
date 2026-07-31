@@ -342,12 +342,15 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional
     public void deleteTournament(UUID tournamentId, String adminEmail) {
         verifyAdmin(adminEmail);
         Tournament tournament = tournamentRepository.findById(tournamentId)
-                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Tournament not found"));
         
-        refundAllRegisteredTeams(tournament);
+        if (!"Finished".equalsIgnoreCase(tournament.getStatus()) && !"Cancelled".equalsIgnoreCase(tournament.getStatus())) {
+            refundAllRegisteredTeams(tournament);
+        }
         
         tournament.setIsDeleted(true);
         tournamentRepository.save(tournament);

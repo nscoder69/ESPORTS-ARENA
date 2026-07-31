@@ -820,16 +820,8 @@ const AdminDashboard = () => {
                 <div className="border-b border-white/10 pb-6 mb-6">
                   <div className="flex justify-between items-start mb-2">
                     <h2 className="text-2xl font-bold font-display text-white">{selectedTournament.name}</h2>
-                    <div className="flex gap-2">
-                      {selectedTournament.status === 'Finished' || selectedTournament.status === 'Cancelled' ? (
-                        <button
-                          onClick={() => handleDeleteTournament(selectedTournament.id)}
-                          disabled={actionLoading}
-                          className="text-xs font-semibold px-3 py-1.5 rounded bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 transition-colors flex items-center gap-1"
-                        >
-                          <Trash2 size={12} /> Clear History Record
-                        </button>
-                      ) : (
+                    <div className="flex gap-2 flex-wrap">
+                      {selectedTournament.status !== 'Finished' && selectedTournament.status !== 'Cancelled' && (
                         <>
                           <button
                             onClick={openRoomCredentialsModal}
@@ -841,26 +833,34 @@ const AdminDashboard = () => {
                           <button
                             onClick={() => openResultsModal()}
                             disabled={actionLoading}
-                            className="text-xs font-semibold px-3 py-1.5 rounded bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary transition-colors flex items-center gap-1"
+                            className="text-xs font-semibold px-3 py-1.5 rounded bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary transition-colors flex items-center gap-1 cursor-pointer"
                           >
                             <Trophy size={12} /> Update Results
                           </button>
                           <button
                             onClick={() => setRescheduleModalOpen(true)}
                             disabled={actionLoading}
-                            className="text-xs font-semibold px-3 py-1.5 rounded bg-surfaceHighlight hover:bg-surface border border-white/10 text-white transition-colors"
+                            className="text-xs font-semibold px-3 py-1.5 rounded bg-surfaceHighlight hover:bg-surface border border-white/10 text-white transition-colors cursor-pointer"
                           >
                             Reschedule
                           </button>
                           <button
                             onClick={handleCancelTournament}
                             disabled={actionLoading}
-                            className="text-xs font-semibold px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 transition-colors disabled:opacity-50"
+                            className="text-xs font-semibold px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 transition-colors disabled:opacity-50 cursor-pointer"
                           >
                             Cancel Tournament
                           </button>
                         </>
                       )}
+                      <button
+                        onClick={() => handleDeleteTournament(selectedTournament.id)}
+                        disabled={actionLoading}
+                        className="text-xs font-semibold px-3 py-1.5 rounded bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 transition-colors flex items-center gap-1 cursor-pointer"
+                        title="Delete tournament permanently"
+                      >
+                        <Trash2 size={12} /> Delete Tournament
+                      </button>
                     </div>
                   </div>
 

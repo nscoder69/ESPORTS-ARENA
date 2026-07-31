@@ -265,7 +265,12 @@ export default function TournamentList() {
       return true;
     });
 
-  const finishedTournaments = filteredTournaments.filter(t => t.status === 'Finished');
+  const finishedTournaments = filteredTournaments.filter(t => {
+    if (t.status !== 'Finished') return false;
+    if (!t.updatedAt) return true;
+    const elapsed = Date.now() - new Date(t.updatedAt).getTime();
+    return elapsed < 10 * 60 * 1000; // Disappear 10 minutes after tournament finishes
+  });
 
   const handleDeleteTournament = async (tournament: any) => {
     if (window.confirm(`Are you sure you want to delete ${tournament.name}?`)) {
@@ -355,7 +360,7 @@ export default function TournamentList() {
                     onParticipantsClick={() => openParticipantsModal(tournament)}
                     onResultClick={openResultsModal}
                     onRoomCredentialsClick={handleGetRoomCredentials}
-                    onDeleteClick={user?.role === 'ROLE_ADMIN' ? handleDeleteTournament : undefined}
+                    onDeleteClick={user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_SUPER_ADMIN' ? handleDeleteTournament : undefined}
                   />
                 ))}
               </div>
@@ -377,7 +382,7 @@ export default function TournamentList() {
                     onParticipantsClick={() => openParticipantsModal(tournament)}
                     onResultClick={openResultsModal}
                     onRoomCredentialsClick={handleGetRoomCredentials}
-                    onDeleteClick={user?.role === 'ROLE_ADMIN' ? handleDeleteTournament : undefined}
+                    onDeleteClick={user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_SUPER_ADMIN' ? handleDeleteTournament : undefined}
                   />
                 ))}
               </div>
@@ -399,7 +404,7 @@ export default function TournamentList() {
                     onParticipantsClick={() => openParticipantsModal(tournament)}
                     onResultClick={openResultsModal}
                     onRoomCredentialsClick={handleGetRoomCredentials}
-                    onDeleteClick={user?.role === 'ROLE_ADMIN' ? handleDeleteTournament : undefined}
+                    onDeleteClick={user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_SUPER_ADMIN' ? handleDeleteTournament : undefined}
                   />
                 ))}
               </div>

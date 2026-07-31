@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { History, Trophy, ChevronRight, Calendar, Map, CheckCircle } from 'lucide-react';
+import { History, Trophy, ChevronRight, Calendar, Map, CheckCircle, Key, Copy, Clock, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/obitoloo.png';
-import { getMyRegisteredTournaments, getTournamentResults } from '../services/tournamentService';
+import { getMyRegisteredTournaments, getTournamentResults, getRoomCredentials } from '../services/tournamentService';
 import ResultsModal from '../components/ResultsModal';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const MatchHistory = () => {
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,14 @@ const MatchHistory = () => {
   const [tournamentResults, setTournamentResults] = useState<any[]>([]);
   const [resultsLoading, setResultsLoading] = useState(false);
   const [resultsError, setResultsError] = useState('');
+
+  // Room Credentials Modal state
+  const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
+  const [roomData, setRoomData] = useState<any>(null);
+  const [roomLoading, setRoomLoading] = useState(false);
+  const [roomError, setRoomError] = useState('');
+  const [copiedId, setCopiedId] = useState(false);
+  const [copiedPwd, setCopiedPwd] = useState(false);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -45,6 +54,23 @@ const MatchHistory = () => {
       setResultsError(err.response?.data?.message || 'Failed to load tournament results.');
     } finally {
       setResultsLoading(false);
+    }
+  };
+
+  const openRoomModal = async (tournament: any) => {
+    setSelectedTournament(tournament);
+    setIsRoomModalOpen(true);
+    setRoomLoading(true);
+    setRoomError('');
+    setRoomData(null);
+
+    try {
+      const data = await getRoomCredentials(tournament.id);
+      setRoomData(data);
+    } catch (err: any) {
+      setRoomError(err.response?.data?.message || 'Failed to load room details.');
+    } finally {
+      setRoomLoading(false);
     }
   };
 
@@ -177,6 +203,12 @@ const MatchHistory = () => {
                       </div>
 
                       <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => openRoomModal(t)}
+                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Key size={14} /> Get ID & PWD
+                        </button>
                         <Link
                           to="/tournaments?mode=registered"
                           className="bg-surfaceHighlight border border-white/10 hover:bg-white/10 text-white font-semibold py-2 px-4 rounded-md text-xs transition-colors flex items-center gap-1"
@@ -201,6 +233,82 @@ const MatchHistory = () => {
           loading={resultsLoading}
           error={resultsError}
         />
+
+        {/* Room Credentials Modal */}
+        {isRoomModalOpen && selectedTournament && (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass-panel max-w-md w-full p-6 relative border border-emerald-500/20 shadow-2xl"
+            >
+              <button onClick={() => setIsRoomModalOpen(false)} className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer">
+                <X size={20} />
+              </button>
+
+              <div className="flex items-center gap-3 mb-2">
+                <Key size={24} className="text-emerald-400" />
+                <h3 className="text-xl font-bold font-display text-white">Free Fire Room Details</h3>
+              </div>
+              <p className="text-textSecondary text-xs mb-6">Tournament: <strong className="text-white">{selectedTournament.name}</strong></p>
+
+              {roomLoading ? (
+                <div className="flex flex-col items-center justify-center py-10">
+                  <LoadingSpinner size={28} className="mb-2" />
+                  <p className="text-textSecondary text-sm animate-pulse">Fetching Room Credentials...</p>
+                </div>
+              ) : roomError ? (
+                <div className="bg-rose-500/10 text-rose-400 text-sm p-4 rounded-xl border border-rose-500/20 text-center font-medium">
+                  {roomError}
+                </div>
+              ) : !(roomData?.isUpdated || roomData?.updated) ? (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 text-center text-amber-400">
+                  <Clock className="mx-auto mb-2 text-amber-400 animate-pulse" size={28} />
+                  <h4 className="text-sm font-bold uppercase tracking-wider mb-1">Room ID & Password Not Updated Yet</h4>
+                  <p className="text-xs text-textSecondary leading-relaxed">
+                    The Admin has not set the Free Fire Room ID and Password for this tournament yet. Please check back closer to the match start time!
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-surface border border-white/10 rounded-xl p-4">
+                    <label className="block text-textSecondary text-[10px] uppercase font-bold tracking-wider mb-1">Free Fire Room ID</label>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xl font-mono font-extrabold text-white tracking-widest">{roomData.roomId}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(roomData.roomId);
+                          setCopiedId(true);
+                          setTimeout(() => setCopiedId(false), 2000);
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        {copiedId ? <><CheckCircle size={14} className="text-emerald-400" /> Copied</> : <><Copy size={14} /> Copy ID</>}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="bg-surface border border-white/10 rounded-xl p-4">
+                    <label className="block text-textSecondary text-[10px] uppercase font-bold tracking-wider mb-1">Room Password</label>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xl font-mono font-extrabold text-white tracking-widest">{roomData.roomPassword}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(roomData.roomPassword);
+                          setCopiedPwd(true);
+                          setTimeout(() => setCopiedPwd(false), 2000);
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        {copiedPwd ? <><CheckCircle size={14} className="text-emerald-400" /> Copied</> : <><Copy size={14} /> Copy Password</>}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );
