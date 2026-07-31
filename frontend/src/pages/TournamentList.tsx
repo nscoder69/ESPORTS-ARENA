@@ -623,8 +623,13 @@ export default function TournamentList() {
                         <Trophy size={14} className="text-textSecondary" />
                       )}
                     </div>
-                    <div className="flex-grow">
-                      <span className="text-white font-bold text-sm block">{team.name}</span>
+                    <div className="flex-grow min-w-0">
+                      <span className="text-white font-bold text-sm block truncate">{team.name}</span>
+                      {(team.captainGameName || team.captainFreeFireUid) && (
+                        <span className="text-xs text-primary font-semibold block truncate">
+                          {team.captainGameName || 'Player'} {team.captainFreeFireUid ? `(UID: ${team.captainFreeFireUid})` : ''}
+                        </span>
+                      )}
                     </div>
                     {team.slotNumber && (
                       <div className="flex-shrink-0 bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-xs font-bold font-display">

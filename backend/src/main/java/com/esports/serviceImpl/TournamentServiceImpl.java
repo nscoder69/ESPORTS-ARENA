@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.esports.dto.TournamentRegistrationDto;
+import com.esports.dto.TeamMemberDto;
 import com.esports.dto.TournamentResultUpdateDto;
 import com.esports.entity.Team;
 import com.esports.entity.TournamentRegistration;
@@ -680,11 +681,27 @@ public class TournamentServiceImpl implements TournamentService {
         dto.setTeamLogoUrl(registration.getTeam().getLogoUrl());
         dto.setCaptainEmail(registration.getTeam().getCaptain().getEmail());
         dto.setCaptainGameName(registration.getTeam().getCaptain().getGameName());
+        dto.setCaptainFreeFireUid(registration.getTeam().getCaptain().getFreeFireUid());
         dto.setRegisteredAt(registration.getRegisteredAt());
         dto.setSlotNumber(registration.getSlotNumber());
         dto.setPlacement(registration.getPlacement());
         dto.setKills(registration.getKills());
         dto.setStatus(registration.getStatus());
+
+        if (registration.getTeam() != null) {
+            List<TeamMemberDto> members = teamMemberRepository.findByTeam_Id(registration.getTeam().getId()).stream().map(member -> {
+                TeamMemberDto memberDto = new TeamMemberDto();
+                memberDto.setUserId(member.getUser().getId());
+                memberDto.setGameName(member.getUser().getGameName());
+                memberDto.setFreeFireUid(member.getUser().getFreeFireUid());
+                memberDto.setAvatarUrl(member.getUser().getAvatarUrl());
+                memberDto.setMemberRole(member.getMemberRole());
+                memberDto.setJoinedAt(member.getJoinedAt());
+                return memberDto;
+            }).collect(Collectors.toList());
+            dto.setMembers(members);
+        }
+
         return dto;
     }
 }

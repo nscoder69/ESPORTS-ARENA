@@ -57,6 +57,7 @@ const AdminDashboard = () => {
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState('');
   const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [regSearchQuery, setRegSearchQuery] = useState('');
 
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
   const [supportLoading, setSupportLoading] = useState(false);
@@ -743,11 +744,21 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                   <h3 className="text-lg font-bold font-display text-white flex items-center gap-2">
                     <Users className="text-primary" size={20} />
-                    Registered Teams ({registrations.length})
+                    Registered Teams / Players ({registrations.length})
                   </h3>
+                  <div className="relative w-full sm:w-72">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-textSecondary" size={16} />
+                    <input
+                      type="text"
+                      placeholder="Search player, UID, or team..."
+                      className="input-field pl-10 py-1.5 text-xs bg-surface"
+                      value={regSearchQuery}
+                      onChange={e => setRegSearchQuery(e.target.value)}
+                    />
+                  </div>
                 </div>
 
                 {loadingRegistrations ? (
@@ -771,7 +782,7 @@ const AdminDashboard = () => {
                       <thead>
                         <tr className="border-b border-white/10 text-textSecondary text-xs uppercase tracking-wider">
                           <th className="py-3 px-4">Team</th>
-                          <th className="py-3 px-4">Captain</th>
+                          <th className="py-3 px-4">Captain / Player</th>
                           <th className="py-3 px-4">Registered Date</th>
                           <th className="py-3 px-4 text-center">Rank</th>
                           <th className="py-3 px-4 text-center">Kills</th>
@@ -779,7 +790,20 @@ const AdminDashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {registrations.map((reg) => (
+                        {registrations
+                          .filter((reg) => {
+                            if (!regSearchQuery.trim()) return true;
+                            const q = regSearchQuery.toLowerCase().trim();
+                            const teamMatch = reg.teamName && reg.teamName.toLowerCase().includes(q);
+                            const captainNameMatch = reg.captainGameName && reg.captainGameName.toLowerCase().includes(q);
+                            const captainUidMatch = reg.captainFreeFireUid && reg.captainFreeFireUid.toLowerCase().includes(q);
+                            const memberMatch = reg.members && reg.members.some((m: any) =>
+                              (m.gameName && m.gameName.toLowerCase().includes(q)) ||
+                              (m.freeFireUid && m.freeFireUid.toLowerCase().includes(q))
+                            );
+                            return teamMatch || captainNameMatch || captainUidMatch || memberMatch;
+                          })
+                          .map((reg) => (
                           <tr key={reg.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-3">
@@ -795,8 +819,8 @@ const AdminDashboard = () => {
                             </td>
                             <td className="py-4 px-4">
                               <div className="flex flex-col">
-                                <span className="text-sm text-white">{reg.captainGameName}</span>
-                                <span className="text-xs text-textSecondary">{reg.captainEmail}</span>
+                                <span className="text-sm font-bold text-white">{reg.captainGameName || 'Unnamed Player'}</span>
+                                <span className="text-xs text-primary font-semibold">UID: {reg.captainFreeFireUid || 'N/A'}</span>
                               </div>
                             </td>
                             <td className="py-4 px-4 text-sm text-textSecondary">
