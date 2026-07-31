@@ -479,6 +479,8 @@ public class TournamentServiceImpl implements TournamentService {
         dto.setRegisteredCount((int) registrationRepository.countByTournament_Id(t.getId()));
         dto.setMaxCapacity(getMaxCapacityForMode(t.getGameMode()));
         dto.setUpdatedAt(t.getUpdatedAt());
+        dto.setRoomId(t.getRoomId());
+        dto.setRoomPassword(t.getRoomPassword());
         return dto;
     }
 

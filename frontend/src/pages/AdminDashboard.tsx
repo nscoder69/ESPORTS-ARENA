@@ -1534,23 +1534,115 @@ const AdminDashboard = () => {
                           <td className="py-4 px-4 text-textSecondary">{withdrawal.username || 'N/A'}</td>
                           <td className="py-4 px-4 font-display font-bold text-rose-400">₹{withdrawal.amount.toFixed(2)}</td>
                           <td className="py-4 px-4 text-white font-medium">
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-sm">{withdrawal.description}</span>
-                              {withdrawal.description && (
-                                <button
-                                  onClick={() => {
-                                    const textToCopy = withdrawal.description.replace(/^Withdrawal request to\s*/i, '').trim();
-                                    navigator.clipboard.writeText(textToCopy);
-                                    setCopiedTxId(withdrawal.id);
-                                    setTimeout(() => setCopiedTxId(null), 2000);
-                                  }}
-                                  className="p-1 text-primary hover:text-white rounded hover:bg-primary/20 transition-all cursor-pointer flex-shrink-0"
-                                  title="Copy Payout UPI ID / Details"
-                                >
-                                  {copiedTxId === withdrawal.id ? <CheckCircle size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                                </button>
-                              )}
-                            </div>
+                            {(() => {
+                              const desc = withdrawal.description || '';
+                              const upiMatch = desc.match(/UPI:\s*([^\s|]+)/i);
+                              const accMatch = desc.match(/Bank A\/C:\s*([^|]+)/i);
+                              const holderMatch = desc.match(/Holder:\s*([^|]+)/i);
+                              const ifscMatch = desc.match(/IFSC:\s*([^|]+)/i);
+
+                              if (upiMatch) {
+                                const upiId = upiMatch[1].trim();
+                                return (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-textSecondary uppercase font-bold">UPI ID:</span>
+                                    <span className="font-mono text-sm font-bold text-white bg-surface px-2.5 py-1 rounded border border-white/10">{upiId}</span>
+                                    <button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(upiId);
+                                        setCopiedTxId(withdrawal.id + '_upi');
+                                        setTimeout(() => setCopiedTxId(null), 2000);
+                                      }}
+                                      className="p-1.5 text-primary hover:text-white rounded bg-primary/10 hover:bg-primary/20 transition-all cursor-pointer flex items-center gap-1 text-xs font-semibold"
+                                      title="Copy UPI ID"
+                                    >
+                                      {copiedTxId === (withdrawal.id + '_upi') ? <><CheckCircle size={14} className="text-emerald-400" /> Copied UPI</> : <><Copy size={14} /> Copy UPI ID</>}
+                                    </button>
+                                  </div>
+                                );
+                              }
+
+                              if (accMatch || holderMatch || ifscMatch) {
+                                const accNo = accMatch ? accMatch[1].trim() : '';
+                                const holder = holderMatch ? holderMatch[1].trim() : '';
+                                const ifsc = ifscMatch ? ifscMatch[1].trim() : '';
+
+                                return (
+                                  <div className="flex flex-col gap-1.5 py-1">
+                                    {accNo && (
+                                      <div className="flex items-center gap-2 text-xs">
+                                        <span className="text-textSecondary font-semibold uppercase text-[10px] w-16">A/C No:</span>
+                                        <span className="font-mono text-white font-bold">{accNo}</span>
+                                        <button
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(accNo);
+                                            setCopiedTxId(withdrawal.id + '_acc');
+                                            setTimeout(() => setCopiedTxId(null), 2000);
+                                          }}
+                                          className="p-1 text-primary hover:text-white rounded hover:bg-primary/20 transition-all cursor-pointer"
+                                          title="Copy Account Number"
+                                        >
+                                          {copiedTxId === (withdrawal.id + '_acc') ? <CheckCircle size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                                        </button>
+                                      </div>
+                                    )}
+                                    {holder && (
+                                      <div className="flex items-center gap-2 text-xs">
+                                        <span className="text-textSecondary font-semibold uppercase text-[10px] w-16">Holder:</span>
+                                        <span className="text-white font-semibold">{holder}</span>
+                                        <button
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(holder);
+                                            setCopiedTxId(withdrawal.id + '_holder');
+                                            setTimeout(() => setCopiedTxId(null), 2000);
+                                          }}
+                                          className="p-1 text-primary hover:text-white rounded hover:bg-primary/20 transition-all cursor-pointer"
+                                          title="Copy Account Holder Name"
+                                        >
+                                          {copiedTxId === (withdrawal.id + '_holder') ? <CheckCircle size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                                        </button>
+                                      </div>
+                                    )}
+                                    {ifsc && (
+                                      <div className="flex items-center gap-2 text-xs">
+                                        <span className="text-textSecondary font-semibold uppercase text-[10px] w-16">IFSC:</span>
+                                        <span className="font-mono text-amber-400 font-bold">{ifsc}</span>
+                                        <button
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(ifsc);
+                                            setCopiedTxId(withdrawal.id + '_ifsc');
+                                            setTimeout(() => setCopiedTxId(null), 2000);
+                                          }}
+                                          className="p-1 text-primary hover:text-white rounded hover:bg-primary/20 transition-all cursor-pointer"
+                                          title="Copy IFSC Code"
+                                        >
+                                          {copiedTxId === (withdrawal.id + '_ifsc') ? <CheckCircle size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <span className="font-mono text-sm">{desc}</span>
+                                  {desc && (
+                                    <button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(desc);
+                                        setCopiedTxId(withdrawal.id);
+                                        setTimeout(() => setCopiedTxId(null), 2000);
+                                      }}
+                                      className="p-1 text-primary hover:text-white rounded hover:bg-primary/20 transition-all cursor-pointer"
+                                      title="Copy Payout Details"
+                                    >
+                                      {copiedTxId === withdrawal.id ? <CheckCircle size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            })()}
                           </td>
                           <td className="py-4 px-4 text-textSecondary text-xs">{date}</td>
                           <td className="py-4 px-4 text-right">

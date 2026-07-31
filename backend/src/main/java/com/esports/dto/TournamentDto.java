@@ -24,4 +24,6 @@ public class TournamentDto {
     private Integer registeredCount;
     private Integer maxCapacity;
     private LocalDateTime updatedAt;
+    private String roomId;
+    private String roomPassword;
 }

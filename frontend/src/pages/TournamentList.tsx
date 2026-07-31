@@ -698,7 +698,7 @@ export default function TournamentList() {
               <div className="bg-rose-500/10 text-rose-400 text-sm p-4 rounded-xl border border-rose-500/20 text-center font-medium">
                 {roomCredentialsError}
               </div>
-            ) : !roomCredentialsData?.isUpdated ? (
+            ) : !(roomCredentialsData?.isUpdated || roomCredentialsData?.updated) ? (
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 text-center text-amber-400">
                 <Clock className="mx-auto mb-2 text-amber-400 animate-pulse" size={28} />
                 <h4 className="text-sm font-bold uppercase tracking-wider mb-1">Room ID & Password Not Updated Yet</h4>
