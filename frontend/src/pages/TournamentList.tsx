@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { getAllTournaments, deleteTournament } from '../services/tournamentService';
-import { Trophy, X, Gamepad2 } from 'lucide-react';
+import { Trophy, X, Gamepad2, Key, Clock, Copy, CheckCircle } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { createTeam } from '../services/teamService';
-import { registerForTournament, getRegisteredTeamsForParticipant, joinTournamentViaInvite, getMyRegisteredTournaments, registerSolo, getTournamentResults } from '../services/tournamentService';
-import { Copy, CheckCircle } from 'lucide-react';
+import { registerForTournament, getRegisteredTeamsForParticipant, joinTournamentViaInvite, getMyRegisteredTournaments, registerSolo, getTournamentResults, getRoomCredentials } from '../services/tournamentService';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import TournamentCard from '../components/TournamentCard';
 import ResultsModal from '../components/ResultsModal';
@@ -65,6 +64,31 @@ export default function TournamentList() {
   const [resultsLoading, setResultsLoading] = useState(false);
   const [tournamentResults, setTournamentResults] = useState<any[]>([]);
   const [resultsError, setResultsError] = useState('');
+
+  // Room Credentials Modal State
+  const [isRoomCredentialsModalOpen, setIsRoomCredentialsModalOpen] = useState(false);
+  const [roomCredentialsData, setRoomCredentialsData] = useState<any>(null);
+  const [loadingRoomCredentials, setLoadingRoomCredentials] = useState(false);
+  const [roomCredentialsError, setRoomCredentialsError] = useState('');
+  const [copiedField, setCopiedField] = useState<'id' | 'pwd' | null>(null);
+
+  const handleGetRoomCredentials = async (tournament: any) => {
+    setSelectedTournament(tournament);
+    setIsRoomCredentialsModalOpen(true);
+    setLoadingRoomCredentials(true);
+    setRoomCredentialsError('');
+    setRoomCredentialsData(null);
+    setCopiedField(null);
+
+    try {
+      const data = await getRoomCredentials(tournament.id);
+      setRoomCredentialsData(data);
+    } catch (err: any) {
+      setRoomCredentialsError(err.response?.data?.message || 'Failed to retrieve Room ID and Password.');
+    } finally {
+      setLoadingRoomCredentials(false);
+    }
+  };
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -330,6 +354,7 @@ export default function TournamentList() {
                     onRegisterClick={() => openRegisterModal(tournament)}
                     onParticipantsClick={() => openParticipantsModal(tournament)}
                     onResultClick={openResultsModal}
+                    onRoomCredentialsClick={handleGetRoomCredentials}
                     onDeleteClick={user?.role === 'ROLE_ADMIN' ? handleDeleteTournament : undefined}
                   />
                 ))}
@@ -351,6 +376,7 @@ export default function TournamentList() {
                     isUserRegistered={registeredTournamentIds.has(tournament.id)}
                     onParticipantsClick={() => openParticipantsModal(tournament)}
                     onResultClick={openResultsModal}
+                    onRoomCredentialsClick={handleGetRoomCredentials}
                     onDeleteClick={user?.role === 'ROLE_ADMIN' ? handleDeleteTournament : undefined}
                   />
                 ))}
@@ -372,6 +398,7 @@ export default function TournamentList() {
                     isUserRegistered={registeredTournamentIds.has(tournament.id)}
                     onParticipantsClick={() => openParticipantsModal(tournament)}
                     onResultClick={openResultsModal}
+                    onRoomCredentialsClick={handleGetRoomCredentials}
                     onDeleteClick={user?.role === 'ROLE_ADMIN' ? handleDeleteTournament : undefined}
                   />
                 ))}
@@ -638,6 +665,86 @@ export default function TournamentList() {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Free Fire Room Credentials Modal */}
+      {isRoomCredentialsModalOpen && selectedTournament && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="glass-panel max-w-md w-full p-6 relative border border-emerald-500/20 shadow-2xl"
+          >
+            <button onClick={() => setIsRoomCredentialsModalOpen(false)} className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer">
+              <X size={20} />
+            </button>
+
+            <div className="flex items-center gap-3 mb-2">
+              <Key size={24} className="text-emerald-400" />
+              <h3 className="text-xl font-bold font-display text-white">Free Fire Room Details</h3>
+            </div>
+            <p className="text-textSecondary text-xs mb-6">Tournament: <strong className="text-white">{selectedTournament.name}</strong></p>
+
+            {loadingRoomCredentials ? (
+              <div className="flex flex-col items-center justify-center py-10">
+                <LoadingSpinner size={28} className="mb-2" />
+                <p className="text-textSecondary text-sm animate-pulse">Fetching Room Credentials...</p>
+              </div>
+            ) : roomCredentialsError ? (
+              <div className="bg-rose-500/10 text-rose-400 text-sm p-4 rounded-xl border border-rose-500/20 text-center font-medium">
+                {roomCredentialsError}
+              </div>
+            ) : !roomCredentialsData?.isUpdated ? (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 text-center text-amber-400">
+                <Clock className="mx-auto mb-2 text-amber-400 animate-pulse" size={28} />
+                <h4 className="text-sm font-bold uppercase tracking-wider mb-1">Room ID & Password Not Updated Yet</h4>
+                <p className="text-xs text-textSecondary leading-relaxed">
+                  The Admin has not set the Free Fire Room ID and Password for this tournament yet. Please check back closer to the match start time!
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-surface border border-white/10 rounded-xl p-4">
+                  <label className="block text-textSecondary text-[10px] uppercase font-bold tracking-wider mb-1">Free Fire Room ID</label>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xl font-mono font-extrabold text-white tracking-widest">{roomCredentialsData.roomId}</span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(roomCredentialsData.roomId);
+                        setCopiedField('id');
+                        setTimeout(() => setCopiedField(null), 2000);
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {copiedField === 'id' ? <><CheckCircle size={14} /> Copied!</> : <><Copy size={14} /> Copy ID</>}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-surface border border-white/10 rounded-xl p-4">
+                  <label className="block text-textSecondary text-[10px] uppercase font-bold tracking-wider mb-1">Room Password</label>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xl font-mono font-extrabold text-primary tracking-widest">{roomCredentialsData.roomPassword}</span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(roomCredentialsData.roomPassword);
+                        setCopiedField('pwd');
+                        setTimeout(() => setCopiedField(null), 2000);
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {copiedField === 'pwd' ? <><CheckCircle size={14} /> Copied!</> : <><Copy size={14} /> Copy Password</>}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-3 text-center text-[11px] text-textSecondary">
+                  💡 Open Free Fire ➔ Select Custom Room ➔ Enter Room ID & Password to join match!
+                </div>
               </div>
             )}
           </motion.div>

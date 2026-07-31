@@ -23,12 +23,17 @@ import com.esports.entity.TournamentRegistration;
 import com.esports.repository.TeamRepository;
 import com.esports.repository.TeamMemberRepository;
 import com.esports.repository.TournamentRegistrationRepository;
+import com.esports.repository.WalletRepository;
+import com.esports.repository.TransactionRepository;
 import com.esports.entity.Wallet;
 import com.esports.entity.Transaction;
 import com.esports.entity.TransactionType;
 import com.esports.entity.TransactionStatus;
-import com.esports.repository.WalletRepository;
-import com.esports.repository.TransactionRepository;
+import com.esports.dto.RoomCredentialsDto;
+import com.esports.dto.RoomUpdateDto;
+import com.esports.service.NotificationService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -42,6 +47,7 @@ public class TournamentServiceImpl implements TournamentService {
     private final TournamentRegistrationRepository registrationRepository;
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
+    private final NotificationService notificationService;
 
     @Override
     public TournamentDto createTournament(TournamentDto tournamentDto, String userEmail) {
@@ -719,5 +725,78 @@ public class TournamentServiceImpl implements TournamentService {
         }
 
         return dto;
+    }
+
+    @Override
+    @Transactional
+    public TournamentDto updateRoomCredentials(UUID tournamentId, RoomUpdateDto updateDto, String adminEmail) {
+        verifyAdmin(adminEmail);
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tournament not found"));
+
+        tournament.setRoomId(updateDto.getRoomId());
+        tournament.setRoomPassword(updateDto.getRoomPassword());
+        Tournament saved = tournamentRepository.save(tournament);
+
+        // Notify all registered players
+        List<TournamentRegistration> registrations = registrationRepository.findByTournament_Id(tournamentId);
+        String title = "Room Details Updated: " + tournament.getName();
+        String msg = "Room ID and Password for tournament '" + tournament.getName() + "' have been updated by Admin.\nRoom ID: " 
+                + updateDto.getRoomId() + "\nPassword: " + updateDto.getRoomPassword();
+
+        for (TournamentRegistration reg : registrations) {
+            try {
+                if (reg.getTeam() != null && reg.getTeam().getCaptain() != null) {
+                    notificationService.createNotification(reg.getTeam().getCaptain(), title, msg);
+                }
+            } catch (Exception ignored) {}
+        }
+
+        return mapToTournamentDto(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RoomCredentialsDto getRoomCredentials(UUID tournamentId, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tournament not found"));
+
+        String role = user.getRole() != null ? user.getRole().getName() : "";
+        boolean isAdmin = "ROLE_ADMIN".equals(role) || "ROLE_SUPER_ADMIN".equals(role);
+
+        if (!isAdmin) {
+            // Check if user is registered for this tournament
+            List<TournamentRegistration> userRegs = registrationRepository.findByTournament_Id(tournamentId);
+            boolean isRegistered = userRegs.stream().anyMatch(reg -> {
+                if (reg.getTeam() == null) return false;
+                if (reg.getTeam().getCaptain() != null && reg.getTeam().getCaptain().getId().equals(user.getId())) {
+                    return true;
+                }
+                return teamMemberRepository.findByTeam_Id(reg.getTeam().getId())
+                        .stream().anyMatch(m -> m.getUser().getId().equals(user.getId()));
+            });
+
+            if (!isRegistered) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only registered players can access Room ID and Password");
+            }
+        }
+
+        boolean isUpdated = tournament.getRoomId() != null && !tournament.getRoomId().trim().isEmpty();
+        if (!isUpdated) {
+            return RoomCredentialsDto.builder()
+                    .isUpdated(false)
+                    .message("Room ID and Password have not been updated by the Admin yet. Please check back closer to match time.")
+                    .build();
+        }
+
+        return RoomCredentialsDto.builder()
+                .roomId(tournament.getRoomId())
+                .roomPassword(tournament.getRoomPassword())
+                .isUpdated(true)
+                .message("Room details retrieved successfully.")
+                .build();
     }
 }

@@ -75,3 +75,13 @@ export const getUserRegisteredTournaments = async (userId: string) => {
   const response = await API.get(`/tournaments/user/${userId}/registered`);
   return response.data;
 };
+
+export const updateRoomCredentials = async (tournamentId: string, roomId: string, roomPassword: string) => {
+  const response = await API.put(`/tournaments/${tournamentId}/room-credentials`, { roomId, roomPassword });
+  return response.data;
+};
+
+export const getRoomCredentials = async (tournamentId: string) => {
+  const response = await API.get(`/tournaments/${tournamentId}/room-credentials`);
+  return response.data;
+};

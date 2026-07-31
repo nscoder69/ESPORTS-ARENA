@@ -54,4 +54,10 @@ public class Tournament extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id")
     private User organizer;
+
+    @Column(name = "room_id", length = 100)
+    private String roomId;
+
+    @Column(name = "room_password", length = 100)
+    private String roomPassword;
 }

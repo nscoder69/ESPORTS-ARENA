@@ -178,4 +178,25 @@ public class TournamentController {
             return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
         }
     }
+
+    @PutMapping("/{tournamentId}/room-credentials")
+    public ResponseEntity<?> updateRoomCredentials(
+            @PathVariable UUID tournamentId,
+            @RequestBody com.esports.dto.RoomUpdateDto updateDto,
+            Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(401).body(java.util.Map.of("message", "Authentication required"));
+        }
+        return ResponseEntity.ok(tournamentService.updateRoomCredentials(tournamentId, updateDto, authentication.getName()));
+    }
+
+    @GetMapping("/{tournamentId}/room-credentials")
+    public ResponseEntity<?> getRoomCredentials(
+            @PathVariable UUID tournamentId,
+            Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(401).body(java.util.Map.of("message", "Authentication required"));
+        }
+        return ResponseEntity.ok(tournamentService.getRoomCredentials(tournamentId, authentication.getName()));
+    }
 }

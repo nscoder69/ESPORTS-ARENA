@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Trophy, Map, Clock, Users, ArrowRight, Trash2, CheckCircle } from 'lucide-react';
+import { Trophy, Map, Clock, Users, ArrowRight, Trash2, Key } from 'lucide-react';
 import fullmapBg from '../assets/fullmap.webp';
 import clashsquadBg from '../assets/clashsquad.jpg';
 
@@ -9,11 +9,12 @@ interface TournamentCardProps {
   onParticipantsClick?: (tournament: any) => void;
   onDeleteClick?: (tournament: any) => void;
   onResultClick?: (tournament: any) => void;
+  onRoomCredentialsClick?: (tournament: any) => void;
   onClick?: (tournament: any) => void;
   isUserRegistered?: boolean;
 }
 
-export default function TournamentCard({ tournament, onRegisterClick, onParticipantsClick, onDeleteClick, onResultClick, onClick, isUserRegistered }: TournamentCardProps) {
+export default function TournamentCard({ tournament, onRegisterClick, onParticipantsClick, onDeleteClick, onResultClick, onRoomCredentialsClick, onClick, isUserRegistered }: TournamentCardProps) {
   const isRegistrationClosed = tournament.registrationClosingTime ? new Date(tournament.registrationClosingTime) < new Date() : false;
 
   return (
@@ -164,10 +165,14 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
               {onRegisterClick ? (
                 isUserRegistered ? (
                   <button
-                    disabled
-                    className="w-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs flex items-center justify-center gap-1 cursor-default"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onRoomCredentialsClick) onRoomCredentialsClick(tournament);
+                    }}
+                    className="w-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 font-bold py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs flex items-center justify-center gap-1 cursor-pointer transition-all shadow-md"
+                    title="Click to view Free Fire Room ID & Password"
                   >
-                    <CheckCircle className="w-3.5 h-3.5" /> Registered
+                    <Key className="w-3.5 h-3.5" /> Get ID & PWD
                   </button>
                 ) : (
                   <button

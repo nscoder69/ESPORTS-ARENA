@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare, Shield, Plus } from 'lucide-react';
+import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare, Shield, Plus, Key } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAllTournaments, getRegistrationsForTournament, cancelTournament, rescheduleTournament, removeTeamFromTournament, updateTournamentResults, deleteTournament, getUserRegisteredTournaments } from '../services/tournamentService';
+import { getAllTournaments, getRegistrationsForTournament, cancelTournament, rescheduleTournament, removeTeamFromTournament, updateTournamentResults, deleteTournament, getUserRegisteredTournaments, updateRoomCredentials } from '../services/tournamentService';
 import { getTeamMembers } from '../services/teamService';
 import { getAllUsers, blockUser, unblockUser, deleteUser } from '../services/authService';
 import { getAdminSupportTickets, replyToSupportTicket } from '../services/supportService';
@@ -35,6 +35,36 @@ const AdminDashboard = () => {
   const [secondPlaceTeamId, setSecondPlaceTeamId] = useState('');
   const [thirdPlaceTeamId, setThirdPlaceTeamId] = useState('');
   const [teamKills, setTeamKills] = useState<{ [key: string]: number }>({});
+
+  // Room Credentials Modal State
+  const [roomModalOpen, setRoomModalOpen] = useState(false);
+  const [inputRoomId, setInputRoomId] = useState('');
+  const [inputRoomPassword, setInputRoomPassword] = useState('');
+  const [savingRoomCredentials, setSavingRoomCredentials] = useState(false);
+
+  const openRoomCredentialsModal = () => {
+    if (!selectedTournament) return;
+    setInputRoomId(selectedTournament.roomId || '');
+    setInputRoomPassword(selectedTournament.roomPassword || '');
+    setRoomModalOpen(true);
+  };
+
+  const handleSaveRoomCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTournament) return;
+    setSavingRoomCredentials(true);
+    try {
+      const updated = await updateRoomCredentials(selectedTournament.id, inputRoomId, inputRoomPassword);
+      setSelectedTournament(updated);
+      setRoomModalOpen(false);
+      alert("Room ID and Password updated successfully and sent to registered players!");
+      fetchTournaments();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to update Room credentials");
+    } finally {
+      setSavingRoomCredentials(false);
+    }
+  };
 
   // Action status state
   const [actionLoading, setActionLoading] = useState(false);
@@ -798,6 +828,13 @@ const AdminDashboard = () => {
                       ) : (
                         <>
                           <button
+                            onClick={openRoomCredentialsModal}
+                            disabled={actionLoading}
+                            className="text-xs font-semibold px-3 py-1.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            <Key size={12} /> Set Room ID & PWD
+                          </button>
+                          <button
                             onClick={() => openResultsModal()}
                             disabled={actionLoading}
                             className="text-xs font-semibold px-3 py-1.5 rounded bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary transition-colors flex items-center gap-1"
@@ -822,6 +859,20 @@ const AdminDashboard = () => {
                       )}
                     </div>
                   </div>
+
+                  {selectedTournament.roomId && (
+                    <div className="mb-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                        <Key size={14} /> Active Room Credentials Set:
+                        <span className="font-mono text-white font-bold ml-1">ID: {selectedTournament.roomId}</span>
+                        <span className="text-white/40">|</span>
+                        <span className="font-mono text-primary font-bold">PWD: {selectedTournament.roomPassword}</span>
+                      </div>
+                      <button onClick={openRoomCredentialsModal} className="text-emerald-400 hover:text-white font-bold underline cursor-pointer text-[11px]">
+                        Edit Credentials
+                      </button>
+                    </div>
+                  )}
 
                   {actionError && (
                     <div className="mb-4 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2 rounded">
@@ -2215,6 +2266,62 @@ const AdminDashboard = () => {
                 </div>
               </div>
             )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Room Credentials Modal */}
+      {roomModalOpen && selectedTournament && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel max-w-md w-full p-6 relative border border-emerald-500/20 shadow-2xl">
+            <button onClick={() => setRoomModalOpen(false)} className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer"><X size={20} /></button>
+            <h3 className="text-xl font-bold font-display text-white mb-1 flex items-center gap-2">
+              <Key className="text-emerald-400" size={20} /> Update Room ID & Password
+            </h3>
+            <p className="text-textSecondary text-xs mb-6">Set Free Fire custom room credentials for <span className="text-white font-bold">{selectedTournament.name}</span>. Submitting will notify all registered players.</p>
+
+            <form onSubmit={handleSaveRoomCredentials} className="space-y-4">
+              <div>
+                <label className="block text-textSecondary text-xs font-semibold uppercase tracking-wider mb-2">Free Fire Room ID *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 84920481"
+                  className="input-field w-full font-mono text-base"
+                  value={inputRoomId}
+                  onChange={e => setInputRoomId(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-textSecondary text-xs font-semibold uppercase tracking-wider mb-2">Room Password *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 1234"
+                  className="input-field w-full font-mono text-base"
+                  value={inputRoomPassword}
+                  onChange={e => setInputRoomPassword(e.target.value)}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setRoomModalOpen(false)}
+                  className="flex-1 py-3 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 transition-colors text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingRoomCredentials || !inputRoomId.trim() || !inputRoomPassword.trim()}
+                  className="flex-1 btn-primary py-3 font-semibold text-xs cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  {savingRoomCredentials ? 'Saving & Notifying...' : 'Save & Share with Players'}
+                </button>
+              </div>
+            </form>
           </motion.div>
         </div>
       )}

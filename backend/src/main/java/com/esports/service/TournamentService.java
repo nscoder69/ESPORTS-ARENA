@@ -1,5 +1,7 @@
 package com.esports.service;
 
+import com.esports.dto.RoomCredentialsDto;
+import com.esports.dto.RoomUpdateDto;
 import com.esports.dto.TournamentDto;
 import com.esports.dto.TournamentRegistrationDto;
 import java.util.List;
@@ -24,4 +26,8 @@ public interface TournamentService {
     
     TournamentDto updateTournamentResults(UUID tournamentId, com.esports.dto.TournamentResultUpdateDto resultDto, String adminEmail);
     List<TournamentRegistrationDto> getTournamentResults(UUID tournamentId);
+
+    // Room ID & Password Controls
+    TournamentDto updateRoomCredentials(UUID tournamentId, RoomUpdateDto updateDto, String adminEmail);
+    RoomCredentialsDto getRoomCredentials(UUID tournamentId, String userEmail);
 }
