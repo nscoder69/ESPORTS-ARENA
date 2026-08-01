@@ -30,10 +30,18 @@ public class AdminTestController {
         return ResponseEntity.ok("Successfully upgraded " + email + " to ROLE_ADMIN! Please log out and log back in to see changes.");
     }
 
-    @GetMapping("/make-super-admin/{email:.+}")
-    public ResponseEntity<String> makeSuperAdmin(@PathVariable String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+    @GetMapping({"/make-super-admin", "/make-super-admin/{email:.+}"})
+    public ResponseEntity<String> makeSuperAdmin(
+            @PathVariable(value = "email", required = false) String pathEmail,
+            @RequestParam(value = "email", required = false) String paramEmail) {
+        String email = (pathEmail != null && !pathEmail.trim().isEmpty()) ? pathEmail : paramEmail;
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Please specify email parameter e.g. /api/v1/test/make-super-admin?email=your-email@gmail.com");
+        }
+        final String targetEmail = email.trim().toLowerCase();
+
+        User user = userRepository.findByEmail(targetEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + targetEmail));
 
         Role superAdminRole = roleRepository.findByName("ROLE_SUPER_ADMIN")
                 .orElseGet(() -> {

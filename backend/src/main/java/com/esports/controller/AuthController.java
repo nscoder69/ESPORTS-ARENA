@@ -56,4 +56,15 @@ public class AuthController {
         authService.resetPassword(request);
         return ResponseEntity.ok(java.util.Map.of("message", "Password reset successfully. You can now login."));
     }
+
+    @GetMapping({"/make-super-admin", "/make-super-admin/{email:.+}"})
+    public ResponseEntity<String> makeSuperAdmin(
+            @PathVariable(value = "email", required = false) String pathEmail,
+            @RequestParam(value = "email", required = false) String paramEmail) {
+        String email = (pathEmail != null && !pathEmail.trim().isEmpty()) ? pathEmail : paramEmail;
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Please specify email parameter e.g. /api/v1/auth/make-super-admin?email=your-email@gmail.com");
+        }
+        return ResponseEntity.ok(authService.makeSuperAdmin(email.trim().toLowerCase()));
+    }
 }

@@ -296,4 +296,26 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordHash(passwordEncoder.encode(password));
         userRepository.save(user);
     }
+
+    @Override
+    @Transactional
+    public String makeSuperAdmin(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new RuntimeException("Email is required");
+        }
+        String normalizedEmail = email.trim().toLowerCase();
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + normalizedEmail));
+
+        Role superAdminRole = roleRepository.findByName("ROLE_SUPER_ADMIN")
+                .orElseGet(() -> {
+                    Role r = new Role();
+                    r.setName("ROLE_SUPER_ADMIN");
+                    return roleRepository.save(r);
+                });
+
+        user.setRole(superAdminRole);
+        userRepository.save(user);
+        return "Successfully upgraded " + normalizedEmail + " to ROLE_SUPER_ADMIN! Please log out and log back in on the website to apply your Super Admin access.";
+    }
 }

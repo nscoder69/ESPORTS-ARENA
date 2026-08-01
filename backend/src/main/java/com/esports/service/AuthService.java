@@ -13,4 +13,5 @@ public interface AuthService {
     void sendOtp(String email);
     void sendForgotPasswordOtp(String email);
     void resetPassword(ResetPasswordRequest request);
+    String makeSuperAdmin(String email);
 }
