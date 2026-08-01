@@ -107,15 +107,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Target user not found"));
 
         if (request.getRole() != null && !request.getRole().trim().isEmpty()) {
-            String roleName = request.getRole().trim().toUpperCase();
-            if (!roleName.startsWith("ROLE_")) {
-                roleName = "ROLE_" + roleName;
-            }
+            String rawRole = request.getRole().trim().toUpperCase();
+            final String targetRoleName = rawRole.startsWith("ROLE_") ? rawRole : "ROLE_" + rawRole;
 
-            com.esports.entity.Role role = roleRepository.findByName(roleName)
+            com.esports.entity.Role role = roleRepository.findByName(targetRoleName)
                     .orElseGet(() -> {
                         com.esports.entity.Role r = new com.esports.entity.Role();
-                        r.setName(roleName);
+                        r.setName(targetRoleName);
                         return roleRepository.save(r);
                     });
 
