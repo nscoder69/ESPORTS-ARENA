@@ -166,13 +166,25 @@ export default function TournamentList() {
     setModalError('');
     try {
       const newTeam = await createTeam({ name: teamName });
-      await registerForTournament(selectedTournament.id, newTeam.id);
-
-      setCreatedInviteCode(newTeam.inviteCode);
-      setModalSuccess('Successfully created team and registered!');
-      setRegistrationMode('success');
-      setRegisteredTournamentIds(prev => new Set(prev).add(selectedTournament.id));
-      window.dispatchEvent(new Event('walletUpdated'));
+      try {
+        await registerForTournament(selectedTournament.id, newTeam.id);
+        setCreatedInviteCode(newTeam.inviteCode);
+        setModalSuccess('Successfully created team and registered!');
+        setRegistrationMode('success');
+        setRegisteredTournamentIds(prev => new Set(prev).add(selectedTournament.id));
+        window.dispatchEvent(new Event('walletUpdated'));
+      } catch (regErr: any) {
+        const errMsg = regErr.response?.data?.message || '';
+        if (errMsg.toLowerCase().includes('already registered') || errMsg.toLowerCase().includes('already a member')) {
+          setCreatedInviteCode(newTeam.inviteCode);
+          setModalSuccess('Successfully created team and registered!');
+          setRegistrationMode('success');
+          setRegisteredTournamentIds(prev => new Set(prev).add(selectedTournament.id));
+          window.dispatchEvent(new Event('walletUpdated'));
+        } else {
+          throw regErr;
+        }
+      }
     } catch (err: any) {
       setModalError(err.response?.data?.message || 'Failed to register.');
     } finally {

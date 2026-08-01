@@ -128,8 +128,20 @@ public class TournamentServiceImpl implements TournamentService {
             }
         }
 
+        // Check if team or captain is already registered for this tournament
         if (registrationRepository.existsByTournament_IdAndTeam_Id(tournamentId, teamId)) {
-            throw new RuntimeException("Team is already registered for this tournament");
+            TournamentRegistration existingReg = registrationRepository.findByTournament_IdAndTeam_Id(tournamentId, teamId).orElse(null);
+            if (existingReg != null) {
+                return mapToRegistrationDto(existingReg);
+            }
+        }
+
+        List<TournamentRegistration> existingTournamentRegs = registrationRepository.findByTournament_Id(tournamentId);
+        for (TournamentRegistration reg : existingTournamentRegs) {
+            boolean isMember = teamMemberRepository.findByTeam_IdAndUser_Id(reg.getTeam().getId(), captain.getId()).isPresent();
+            if (isMember) {
+                return mapToRegistrationDto(reg);
+            }
         }
 
         long memberCount = teamMemberRepository.findByTeam_Id(team.getId()).size();
@@ -191,6 +203,15 @@ public class TournamentServiceImpl implements TournamentService {
 
         if (!"Full Map - Solo".equalsIgnoreCase(tournament.getGameMode())) {
             throw new RuntimeException("This tournament is not a Solo mode tournament");
+        }
+
+        // Return existing registration if player is already registered
+        List<TournamentRegistration> existingSoloRegs = registrationRepository.findByTournament_Id(tournamentId);
+        for (TournamentRegistration reg : existingSoloRegs) {
+            boolean isMember = teamMemberRepository.findByTeam_IdAndUser_Id(reg.getTeam().getId(), player.getId()).isPresent();
+            if (isMember) {
+                return mapToRegistrationDto(reg);
+            }
         }
 
         int assignedSlot = assignSlotAndValidateCapacity(tournament, 1);
