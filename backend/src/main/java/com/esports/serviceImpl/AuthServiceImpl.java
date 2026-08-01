@@ -385,4 +385,29 @@ public class AuthServiceImpl implements AuthService {
         pendingUrlSuperAdminRequests.remove(token.trim());
         return "SUCCESS: Super Admin account (" + normalizedEmail + ") has been successfully authorized and granted ROLE_SUPER_ADMIN privileges! Please log in on the website.";
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthResponse checkSuperAdminStatus(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return null;
+        }
+        String normalizedEmail = email.trim().toLowerCase();
+        User user = userRepository.findByEmail(normalizedEmail).orElse(null);
+        if (user == null || user.getRole() == null) {
+            return null;
+        }
+        String jwtToken = jwtUtil.generateToken(user.getEmail(), user.getRole().getName());
+        return AuthResponse.builder()
+                .token(jwtToken)
+                .id(user.getId())
+                .email(user.getEmail())
+                .role(user.getRole().getName())
+                .gameName(user.getGameName())
+                .freeFireUid(user.getFreeFireUid())
+                .gameLevel(user.getGameLevel() != null ? user.getGameLevel() : 1)
+                .avatarUrl(user.getAvatarUrl())
+                .permissions(user.getPermissions())
+                .build();
+    }
 }

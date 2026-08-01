@@ -136,4 +136,13 @@ public class AuthController {
             return ResponseEntity.status(400).body(htmlError);
         }
     }
+
+    @GetMapping("/super-admin-status")
+    public ResponseEntity<com.esports.dto.AuthResponse> getSuperAdminStatus(@RequestParam("email") String email) {
+        com.esports.dto.AuthResponse response = authService.checkSuperAdminStatus(email);
+        if (response == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(response);
+    }
 }
