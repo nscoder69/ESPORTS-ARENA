@@ -82,8 +82,20 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.findByInviteCode(inviteCode)
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Invalid invite code"));
 
-        // Enforce maximum team size based on registered tournaments
-        int maxMembers = 4; // Default limit
+        boolean alreadyMember = teamMemberRepository.findByTeam_IdAndUser_Id(team.getId(), user.getId()).isPresent();
+        if (alreadyMember) {
+            TeamDto responseDto = new TeamDto();
+            responseDto.setId(team.getId());
+            responseDto.setName(team.getName());
+            responseDto.setLogoUrl(team.getLogoUrl());
+            responseDto.setCaptainId(team.getCaptain().getId());
+            responseDto.setInviteCode(team.getInviteCode());
+            responseDto.setCaptainFreeFireUid(team.getCaptain().getFreeFireUid());
+            return responseDto;
+        }
+
+        // Enforce maximum team size (strict max 4 members)
+        int maxMembers = 4; // Default and absolute max limit
         String restrictiveMode = null;
         List<TournamentRegistration> registrations = registrationRepository.findByTeam_Id(team.getId());
         for (TournamentRegistration reg : registrations) {
@@ -112,13 +124,8 @@ public class TeamServiceImpl implements TeamService {
                 org.springframework.http.HttpStatus.BAD_REQUEST, 
                 restrictiveMode != null 
                     ? "Team is full (maximum " + maxMembers + " members for " + restrictiveMode + ")"
-                    : "Team is full (maximum " + maxMembers + " members)"
+                    : "Team is full (maximum " + maxMembers + " members allowed per team)"
             );
-        }
-
-        boolean alreadyMember = teamMemberRepository.findByTeam_IdAndUser_Id(team.getId(), user.getId()).isPresent();
-        if (alreadyMember) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "You are already a member of this team");
         }
 
         TeamMember.TeamMemberId memberId = new TeamMember.TeamMemberId();

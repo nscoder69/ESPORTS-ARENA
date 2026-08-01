@@ -147,9 +147,10 @@ export default function CreateTeam() {
                         <span className="text-white font-mono text-sm block truncate pr-8">{team.id.substring(0, 8)}</span>
                         <button 
                           onClick={() => { navigator.clipboard.writeText(team.id); setCopiedId(team.id); setTimeout(() => setCopiedId(null), 2000); }}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-textSecondary hover:text-white bg-background/80 rounded opacity-0 group-hover:opacity-100 transition-all"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-textSecondary hover:text-white bg-background/80 rounded transition-all cursor-pointer"
+                          title="Copy Team ID"
                         >
-                          {copiedId === team.id ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                          {copiedId === team.id ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                         </button>
                       </div>
                       <div className="bg-primary/10 p-3 rounded-lg border border-primary/20 relative group">
@@ -159,9 +160,10 @@ export default function CreateTeam() {
                         <span className="text-white font-mono text-sm block tracking-widest">{team.inviteCode}</span>
                         <button 
                           onClick={() => { navigator.clipboard.writeText(team.inviteCode); setCopiedId(team.inviteCode); setTimeout(() => setCopiedId(null), 2000); }}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-textSecondary hover:text-white bg-background/80 rounded opacity-0 group-hover:opacity-100 transition-all"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-primary hover:text-white bg-background/80 rounded transition-all cursor-pointer"
+                          title="Copy Invite Code"
                         >
-                          {copiedId === team.inviteCode ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                          {copiedId === team.inviteCode ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                         </button>
                       </div>
                     </div>

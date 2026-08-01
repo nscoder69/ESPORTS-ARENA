@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, ArrowLeft, Gamepad2, UserMinus, Crown, Trash2 } from 'lucide-react';
+import { Shield, ArrowLeft, Gamepad2, UserMinus, Crown, Trash2, Copy, Check, Key, Hash } from 'lucide-react';
 import { getMyTeams, getTeamMembers, removeTeamMember, deleteTeam } from '../services/teamService';
 import { getImageUrl } from '../services/api';
 import logo from '../assets/obitoloo.png';
@@ -12,6 +12,7 @@ export default function TeamDetails() {
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -127,13 +128,65 @@ export default function TeamDetails() {
               <Shield size={48} />
             )}
           </div>
-          <div>
+          <div className="flex-grow">
             <h1 className="text-3xl font-bold font-display text-white mb-2">{team.name}</h1>
-            <div className="flex items-center gap-4 text-sm">
-              <span className="bg-primary/20 text-primary px-3 py-1 rounded-full font-semibold uppercase tracking-wider text-[10px]">
-                {members.length}/4 Members
+            <div className="flex flex-wrap items-center gap-3 text-sm mb-4">
+              <span className={`px-3 py-1 rounded-full font-bold uppercase tracking-wider text-[10px] border ${
+                members.length >= 4 ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-primary/20 text-primary border-primary/30'
+              }`}>
+                {members.length}/4 Members (Max 4 Players)
               </span>
-              <span className="text-textSecondary">Team ID: <span className="font-mono text-white">{team.id.substring(0, 8)}</span></span>
+            </div>
+
+            {/* Team Shareable Credentials Block */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+              {/* Invite Code */}
+              <div className="bg-primary/10 border border-primary/30 p-3 rounded-xl flex items-center justify-between">
+                <div>
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-primary uppercase tracking-wider">
+                    <Key size={12} /> Team Invite Code (Share with Teammates)
+                  </span>
+                  <span className="text-white font-mono text-base font-bold tracking-widest block mt-0.5">
+                    {team.inviteCode || 'N/A'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(team.inviteCode);
+                    setCopiedField('inviteCode');
+                    setTimeout(() => setCopiedField(null), 2000);
+                  }}
+                  className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Copy Invite Code"
+                >
+                  {copiedField === 'inviteCode' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  <span>{copiedField === 'inviteCode' ? 'Copied!' : 'Copy Code'}</span>
+                </button>
+              </div>
+
+              {/* Team ID */}
+              <div className="bg-surfaceHighlight/30 border border-white/10 p-3 rounded-xl flex items-center justify-between">
+                <div>
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-textSecondary uppercase tracking-wider">
+                    <Hash size={12} /> Team ID
+                  </span>
+                  <span className="text-white font-mono text-xs font-bold block mt-1 truncate max-w-[150px]">
+                    {team.id}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(team.id);
+                    setCopiedField('teamId');
+                    setTimeout(() => setCopiedField(null), 2000);
+                  }}
+                  className="px-3 py-1.5 bg-surfaceHighlight hover:bg-white/10 border border-white/10 text-textSecondary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Copy Team ID"
+                >
+                  {copiedField === 'teamId' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  <span>{copiedField === 'teamId' ? 'Copied!' : 'Copy ID'}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
