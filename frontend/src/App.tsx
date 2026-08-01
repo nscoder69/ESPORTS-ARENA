@@ -22,6 +22,7 @@ const MatchHistory = React.lazy(() => import('./pages/MatchHistory'));
 const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
 const Support = React.lazy(() => import('./pages/Support'));
 const WalletDashboard = React.lazy(() => import('./pages/WalletDashboard'));
+const MakeSuperAdminPage = React.lazy(() => import('./pages/MakeSuperAdminPage'));
 
 function App() {
   const [balance, setBalance] = useState<number | null>(null);
@@ -330,6 +331,8 @@ function App() {
               <Route path="/profile/history" element={<MatchHistory />} />
               <Route path="/wallet" element={<WalletDashboard />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/make-super-admin" element={<MakeSuperAdminPage />} />
+              <Route path="/make-super-admin/*" element={<MakeSuperAdminPage />} />
             </Routes>
           </Suspense>
         </main>

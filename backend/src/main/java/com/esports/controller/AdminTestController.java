@@ -32,12 +32,12 @@ public class AdminTestController {
 
     private final com.esports.service.AuthService authService;
 
-    @GetMapping({"/make-super-admin", "/make-super-admin/{email:.+}"})
+    @GetMapping({"/make-super-admin", "/make-super-admin/{email:.+}", "/make-super-admin/**"})
     public ResponseEntity<String> makeSuperAdmin(
             @PathVariable(value = "email", required = false) String pathEmail,
             @RequestParam(value = "email", required = false) String paramEmail,
             jakarta.servlet.http.HttpServletRequest request) {
-        String email = (pathEmail != null && !pathEmail.trim().isEmpty()) ? pathEmail : paramEmail;
+        String email = extractEmail(pathEmail, paramEmail, request);
         if (email == null || email.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Please specify email parameter e.g. /api/v1/test/make-super-admin?email=your-email@gmail.com");
         }
@@ -45,6 +45,27 @@ public class AdminTestController {
         String baseUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromContextPath(request).build().toUriString();
 
         return ResponseEntity.ok(authService.makeSuperAdmin(targetEmail, baseUrl));
+    }
+
+    private String extractEmail(String pathEmail, String paramEmail, jakarta.servlet.http.HttpServletRequest request) {
+        if (paramEmail != null && !paramEmail.trim().isEmpty()) {
+            return paramEmail.trim();
+        }
+        if (pathEmail != null && !pathEmail.trim().isEmpty()) {
+            return pathEmail.trim();
+        }
+        String uri = request.getRequestURI();
+        int idx = uri.indexOf("/make-super-admin/");
+        if (idx != -1) {
+            String remaining = uri.substring(idx + "/make-super-admin/".length());
+            try {
+                remaining = java.net.URLDecoder.decode(remaining, java.nio.charset.StandardCharsets.UTF_8.name());
+            } catch (Exception ignored) {}
+            if (!remaining.trim().isEmpty()) {
+                return remaining.trim();
+            }
+        }
+        return null;
     }
 
     @GetMapping("/remove-admin/{email:.+}")
