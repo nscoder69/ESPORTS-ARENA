@@ -30,6 +30,22 @@ public class UserServiceImpl implements UserService {
     private final TournamentRegistrationRepository tournamentRegistrationRepository;
     private final TournamentRepository tournamentRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final com.esports.service.MailService mailService;
+
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username:}")
+    private String ownerEmail;
+
+    private final java.util.Map<java.util.UUID, PendingSuperAdminPromotion> pendingSuperAdminPromotions = new java.util.concurrent.ConcurrentHashMap<>();
+
+    @lombok.Data
+    @lombok.AllArgsConstructor
+    private static class PendingSuperAdminPromotion {
+        private java.util.UUID targetUserId;
+        private String role;
+        private String permissions;
+        private String confirmationCode;
+        private java.time.LocalDateTime expiresAt;
+    }
 
     @Override
     @Transactional
@@ -84,7 +100,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public com.esports.dto.UserDto updateUserRoleAndPermissions(java.util.UUID userId, com.esports.dto.UpdateAdminRoleRequest request, String adminEmail) {
+    public com.esports.dto.UpdateUserRoleResponseDto updateUserRoleAndPermissions(java.util.UUID userId, com.esports.dto.UpdateAdminRoleRequest request, String adminEmail) {
         verifySuperAdmin(adminEmail);
 
         User targetUser = userRepository.findById(userId)
@@ -94,6 +110,29 @@ public class UserServiceImpl implements UserService {
             String roleName = request.getRole().trim().toUpperCase();
             if (!roleName.startsWith("ROLE_")) {
                 roleName = "ROLE_" + roleName;
+            }
+
+            // SECURITY: If promoting to ROLE_SUPER_ADMIN and user is not already SUPER_ADMIN, require owner email confirmation code
+            if ("ROLE_SUPER_ADMIN".equals(roleName) && !"ROLE_SUPER_ADMIN".equals(targetUser.getRole().getName())) {
+                String confirmationCode = String.format("%06d", new java.util.Random().nextInt(1000000));
+                
+                PendingSuperAdminPromotion pending = new PendingSuperAdminPromotion(
+                    userId,
+                    roleName,
+                    request.getPermissions(),
+                    confirmationCode,
+                    java.time.LocalDateTime.now().plusMinutes(15)
+                );
+                pendingSuperAdminPromotions.put(userId, pending);
+
+                String targetOwnerEmail = (ownerEmail != null && !ownerEmail.trim().isEmpty()) ? ownerEmail.trim() : adminEmail;
+                mailService.sendSuperAdminPromotionConfirmation(targetOwnerEmail, targetUser.getEmail(), confirmationCode);
+
+                return com.esports.dto.UpdateUserRoleResponseDto.builder()
+                        .requiresConfirmation(true)
+                        .message("Security authorization required! A 6-digit confirmation code has been sent to the website owner email address (" + targetOwnerEmail + "). Please enter the code to confirm Super Admin promotion.")
+                        .user(convertToDto(targetUser))
+                        .build();
             }
 
             com.esports.entity.Role role = roleRepository.findByName(roleName)
@@ -107,7 +146,55 @@ public class UserServiceImpl implements UserService {
         }
 
         User updatedUser = userRepository.save(targetUser);
-        return convertToDto(updatedUser);
+        return com.esports.dto.UpdateUserRoleResponseDto.builder()
+                .requiresConfirmation(false)
+                .message("User role and permissions updated successfully.")
+                .user(convertToDto(updatedUser))
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public com.esports.dto.UpdateUserRoleResponseDto confirmSuperAdminPromotion(java.util.UUID userId, com.esports.dto.ConfirmSuperAdminRequest request, String adminEmail) {
+        verifySuperAdmin(adminEmail);
+
+        if (request == null || request.getConfirmationCode() == null || request.getConfirmationCode().trim().isEmpty()) {
+            throw new RuntimeException("Confirmation code is required");
+        }
+
+        PendingSuperAdminPromotion pending = pendingSuperAdminPromotions.get(userId);
+        if (pending == null) {
+            throw new RuntimeException("No pending Super Admin promotion request found for this user or request has expired.");
+        }
+
+        if (pending.getExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+            pendingSuperAdminPromotions.remove(userId);
+            throw new RuntimeException("Super Admin promotion confirmation code has expired. Please initiate promotion again.");
+        }
+
+        if (!pending.getConfirmationCode().trim().equals(request.getConfirmationCode().trim())) {
+            throw new RuntimeException("Invalid confirmation code. Please check your website owner email.");
+        }
+
+        User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        com.esports.entity.Role superAdminRole = roleRepository.findByName("ROLE_SUPER_ADMIN")
+                .orElseThrow(() -> new RuntimeException("ROLE_SUPER_ADMIN role not found"));
+
+        targetUser.setRole(superAdminRole);
+        if (pending.getPermissions() != null) {
+            targetUser.setPermissions(pending.getPermissions().trim());
+        }
+
+        User updatedUser = userRepository.save(targetUser);
+        pendingSuperAdminPromotions.remove(userId);
+
+        return com.esports.dto.UpdateUserRoleResponseDto.builder()
+                .requiresConfirmation(false)
+                .message("Super Admin privileges authorized and granted successfully!")
+                .user(convertToDto(updatedUser))
+                .build();
     }
 
     @Override

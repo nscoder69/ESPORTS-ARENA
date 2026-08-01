@@ -13,5 +13,6 @@ public interface UserService {
     void unblockUser(UUID userId, String adminEmail);
     void deleteUser(UUID userId, String adminEmail);
     List<UserDto> getAllAdmins(String adminEmail);
-    UserDto updateUserRoleAndPermissions(UUID userId, com.esports.dto.UpdateAdminRoleRequest request, String adminEmail);
+    com.esports.dto.UpdateUserRoleResponseDto updateUserRoleAndPermissions(UUID userId, com.esports.dto.UpdateAdminRoleRequest request, String adminEmail);
+    com.esports.dto.UpdateUserRoleResponseDto confirmSuperAdminPromotion(UUID userId, com.esports.dto.ConfirmSuperAdminRequest request, String adminEmail);
 }

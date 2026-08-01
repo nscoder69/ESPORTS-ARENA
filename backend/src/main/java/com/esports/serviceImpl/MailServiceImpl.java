@@ -156,6 +156,55 @@ public class MailServiceImpl implements MailService {
         });
     }
 
+    @Override
+    public void sendSuperAdminPromotionConfirmation(String toOwnerEmail, String targetUserEmail, String confirmationCode) {
+        log.info("==================================================");
+        log.info("         SUPER ADMIN PROMOTION CONFIRMATION       ");
+        log.info("==================================================");
+        log.info("SENDING CONFIRMATION TO OWNER EMAIL: {}", toOwnerEmail);
+        log.info("TARGET USER PROMOTED TO SUPER ADMIN: {}", targetUserEmail);
+        log.info("CONFIRMATION CODE: {}", confirmationCode);
+        log.info("==================================================");
+
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            String subject = "🚨 Security Alert: Super Admin Promotion Confirmation Code: " + confirmationCode;
+            String htmlContent = "<div style=\"font-family: 'Segoe UI', Arial, sans-serif; background-color: #0B0D17; color: #FFFFFF; padding: 30px; border-radius: 12px; max-width: 550px; margin: auto; border: 1px solid #F59E0B;\">"
+                    + "<h2 style=\"color: #F59E0B; text-align: center; font-size: 22px; margin-bottom: 20px;\">🚨 SUPER ADMIN PROMOTION ATTEMPT</h2>"
+                    + "<p style=\"color: #94A3B8; font-size: 14px;\">An attempt has been made to promote the following account to <strong>SUPER ADMIN</strong> privileges:</p>"
+                    + "<div style=\"background: #161B2E; border-left: 4px solid #F59E0B; padding: 15px; border-radius: 6px; margin: 20px 0;\">"
+                    + "<p style=\"margin: 0; color: #FFFFFF;\"><strong>Target Email:</strong> " + targetUserEmail + "</p>"
+                    + "</div>"
+                    + "<p style=\"color: #94A3B8; font-size: 14px;\">To authorize this Super Admin promotion, enter the 6-digit security code below into the Admin Dashboard:</p>"
+                    + "<div style=\"background: #161B2E; border: 2px dashed #F59E0B; padding: 18px; border-radius: 8px; text-align: center; margin: 25px 0;\">"
+                    + "<span style=\"font-size: 34px; font-weight: bold; letter-spacing: 8px; color: #F59E0B;\">" + confirmationCode + "</span>"
+                    + "</div>"
+                    + "<p style=\"color: #EF4444; font-size: 13px; text-align: center; font-weight: bold;\">⚠️ If you did NOT initiate this request, DO NOT share this code and review system access immediately.</p>"
+                    + "<hr style=\"border: none; border-top: 1px solid #1F293D; margin: 20px 0;\" />"
+                    + "<p style=\"color: #475569; font-size: 12px; text-align: center;\">Esports Arena Security Operations</p>"
+                    + "</div>";
+
+            if (sendViaBrevoHttpApi(toOwnerEmail, subject, htmlContent)) {
+                return;
+            }
+
+            if (mailSender != null) {
+                try {
+                    MimeMessage mimeMessage = mailSender.createMimeMessage();
+                    MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                    helper.setFrom(fromEmail, "Esports Arena Security");
+                    helper.setTo(toOwnerEmail);
+                    helper.setSubject(subject);
+                    helper.setText(htmlContent, true);
+
+                    mailSender.send(mimeMessage);
+                    log.info("Super Admin confirmation code sent successfully to owner email {}", toOwnerEmail);
+                } catch (Exception e) {
+                    log.error("Failed to send Super Admin confirmation code via SMTP to {}: {}", toOwnerEmail, e.getMessage());
+                }
+            }
+        });
+    }
+
     private boolean sendViaBrevoHttpApi(String toEmail, String subject, String htmlContent) {
         if (brevoApiKey == null || brevoApiKey.trim().isEmpty()) {
             log.warn("BREVO_API_KEY is empty or not set in Environment Variables.");

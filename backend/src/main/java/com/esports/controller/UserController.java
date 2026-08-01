@@ -51,11 +51,19 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/role")
-    public ResponseEntity<com.esports.dto.UserDto> updateUserRoleAndPermissions(
+    public ResponseEntity<com.esports.dto.UpdateUserRoleResponseDto> updateUserRoleAndPermissions(
             @PathVariable java.util.UUID userId,
             @RequestBody com.esports.dto.UpdateAdminRoleRequest request,
             Authentication authentication) {
         return ResponseEntity.ok(userService.updateUserRoleAndPermissions(userId, request, authentication.getName()));
+    }
+
+    @PostMapping("/{userId}/confirm-super-admin")
+    public ResponseEntity<com.esports.dto.UpdateUserRoleResponseDto> confirmSuperAdminPromotion(
+            @PathVariable java.util.UUID userId,
+            @RequestBody com.esports.dto.ConfirmSuperAdminRequest request,
+            Authentication authentication) {
+        return ResponseEntity.ok(userService.confirmSuperAdminPromotion(userId, request, authentication.getName()));
     }
 
     @PutMapping("/{userId}/block")

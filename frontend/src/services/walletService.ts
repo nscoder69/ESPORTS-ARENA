@@ -121,3 +121,8 @@ export const updateUserRoleAndPermissions = async (userId: string, role: string,
     const response = await api.put(`/users/${userId}/role`, { role, permissions });
     return response.data;
 };
+
+export const confirmSuperAdminPromotion = async (userId: string, confirmationCode: string): Promise<any> => {
+    const response = await api.post(`/users/${userId}/confirm-super-admin`, { confirmationCode });
+    return response.data;
+};

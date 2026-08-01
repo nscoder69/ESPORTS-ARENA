@@ -6,7 +6,7 @@ import { getAllTournaments, getRegistrationsForTournament, cancelTournament, res
 import { getTeamMembers } from '../services/teamService';
 import { getAllUsers, blockUser, unblockUser, deleteUser } from '../services/authService';
 import { getAdminSupportTickets, replyToSupportTicket } from '../services/supportService';
-import { getUserTransactionHistory, getUserWalletBalance, getPendingDeposits, verifyPendingDeposit, getPendingWithdrawals, verifyPendingWithdrawal, getPublicPaymentSettings, updatePaymentSettings, getAllAdmins, updateUserRoleAndPermissions } from '../services/walletService';
+import { getUserTransactionHistory, getUserWalletBalance, getPendingDeposits, verifyPendingDeposit, getPendingWithdrawals, verifyPendingWithdrawal, getPublicPaymentSettings, updatePaymentSettings, getAllAdmins, updateUserRoleAndPermissions, confirmSuperAdminPromotion } from '../services/walletService';
 import logo from '../assets/obitoloo.png';
 import qrImageDefault from '../assets/QR.jpeg';
 import { getImageUrl } from '../services/api';
@@ -113,6 +113,14 @@ const AdminDashboard = () => {
   const [regSearchQuery, setRegSearchQuery] = useState('');
   const [isPromoteUserModalOpen, setIsPromoteUserModalOpen] = useState(false);
   const [promoteSearchQuery, setPromoteSearchQuery] = useState('');
+
+  // Super Admin Security Confirmation modal state
+  const [isSuperAdminConfirmModalOpen, setIsSuperAdminConfirmModalOpen] = useState(false);
+  const [superAdminConfirmUser, setSuperAdminConfirmUser] = useState<any>(null);
+  const [superAdminConfirmMsg, setSuperAdminConfirmMsg] = useState('');
+  const [inputConfirmationCode, setInputConfirmationCode] = useState('');
+  const [confirmingSuperAdmin, setConfirmingSuperAdmin] = useState(false);
+  const [confirmError, setConfirmError] = useState('');
 
   const compressImageFile = (file: File, maxWidth = 600, quality = 0.85): Promise<File> => {
     return new Promise((resolve) => {
@@ -286,15 +294,42 @@ const AdminDashboard = () => {
     setSavingAdminRole(true);
     try {
       const permsStr = editPermissions.join(',');
-      await updateUserRoleAndPermissions(selectedAdminUser.id, editRole, permsStr);
-      fetchAdmins();
-      fetchUsers();
-      setSelectedAdminUser(null);
-      alert('Admin permissions updated successfully!');
+      const res = await updateUserRoleAndPermissions(selectedAdminUser.id, editRole, permsStr);
+      if (res?.requiresConfirmation) {
+        setSuperAdminConfirmUser(selectedAdminUser);
+        setSuperAdminConfirmMsg(res.message);
+        setIsSuperAdminConfirmModalOpen(true);
+        setSelectedAdminUser(null);
+      } else {
+        fetchAdmins();
+        fetchUsers();
+        setSelectedAdminUser(null);
+        alert('Admin permissions updated successfully!');
+      }
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to update admin permissions');
     } finally {
       setSavingAdminRole(false);
+    }
+  };
+
+  const handleConfirmSuperAdminPromotion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!superAdminConfirmUser || !inputConfirmationCode.trim()) return;
+    setConfirmingSuperAdmin(true);
+    setConfirmError('');
+    try {
+      const res = await confirmSuperAdminPromotion(superAdminConfirmUser.id, inputConfirmationCode.trim());
+      alert(res.message || 'Super Admin privileges authorized and granted successfully!');
+      setIsSuperAdminConfirmModalOpen(false);
+      setSuperAdminConfirmUser(null);
+      setInputConfirmationCode('');
+      fetchAdmins();
+      fetchUsers();
+    } catch (err: any) {
+      setConfirmError(err.response?.data?.message || 'Failed to authorize Super Admin. Please verify the code.');
+    } finally {
+      setConfirmingSuperAdmin(false);
     }
   };
 
@@ -2480,6 +2515,78 @@ const AdminDashboard = () => {
                   className="flex-1 btn-primary py-3 font-semibold text-xs cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
                   {savingRoomCredentials ? 'Saving & Notifying...' : 'Save & Share with Players'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Super Admin Security Confirmation Modal */}
+      {isSuperAdminConfirmModalOpen && superAdminConfirmUser && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel max-w-md w-full p-6 relative border border-amber-500/30 shadow-2xl">
+            <button 
+              onClick={() => {
+                setIsSuperAdminConfirmModalOpen(false);
+                setSuperAdminConfirmUser(null);
+                setInputConfirmationCode('');
+                setConfirmError('');
+              }} 
+              className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-xl font-bold font-display text-amber-400 mb-1 flex items-center gap-2">
+              <ShieldAlert className="text-amber-400" size={22} /> Super Admin Security Authorization
+            </h3>
+            <p className="text-textSecondary text-xs mb-4">
+              Promoting user <strong className="text-white">{superAdminConfirmUser.email}</strong> to Super Admin requires website owner authorization to prevent hacking.
+            </p>
+
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3.5 mb-5 text-xs text-amber-300">
+              {superAdminConfirmMsg || "A 6-digit confirmation code has been sent to the official website admin email address."}
+            </div>
+
+            {confirmError && (
+              <div className="mb-4 p-3 rounded-lg text-xs bg-rose-500/10 border border-rose-500/30 text-rose-400 font-medium">
+                {confirmError}
+              </div>
+            )}
+
+            <form onSubmit={handleConfirmSuperAdminPromotion} className="space-y-4">
+              <div>
+                <label className="block text-textSecondary text-xs font-semibold uppercase tracking-wider mb-2">Enter 6-Digit Owner Confirmation Code *</label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  placeholder="e.g. 849204"
+                  className="input-field w-full font-mono text-center tracking-[8px] text-2xl py-3 font-bold text-amber-400"
+                  value={inputConfirmationCode}
+                  onChange={e => setInputConfirmationCode(e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSuperAdminConfirmModalOpen(false);
+                    setSuperAdminConfirmUser(null);
+                    setInputConfirmationCode('');
+                    setConfirmError('');
+                  }}
+                  className="flex-1 py-3 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 transition-colors text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={confirmingSuperAdmin || inputConfirmationCode.length !== 6}
+                  className="flex-1 btn-primary py-3 font-semibold text-xs cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold"
+                >
+                  {confirmingSuperAdmin ? 'Verifying...' : 'Authorize & Grant Super Admin'}
                 </button>
               </div>
             </form>
