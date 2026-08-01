@@ -91,10 +91,19 @@ public class AuthController {
         return null;
     }
 
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
+
     @GetMapping(value = "/confirm-super-admin-link", produces = org.springframework.http.MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> confirmSuperAdminLink(@RequestParam("token") String token) {
         try {
             String resultMessage = authService.confirmSuperAdminViaToken(token);
+            String targetFrontend = (frontendUrl != null && !frontendUrl.trim().isEmpty()) ? frontendUrl.trim() : "http://localhost:5173";
+            if (targetFrontend.endsWith("/")) {
+                targetFrontend = targetFrontend.substring(0, targetFrontend.length() - 1);
+            }
+            String dashboardUrl = targetFrontend + "/admin/dashboard";
+
             String htmlResponse = "<!DOCTYPE html><html><head><title>Super Admin Confirmation</title>"
                     + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
                     + "<style>"
@@ -106,7 +115,7 @@ public class AuthController {
                     + ".btn { background: linear-gradient(90deg, #00F0FF, #00A8FF); color: #000000; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 8px; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(0,240,255,0.4); margin-top: 10px; }"
                     + "</style>"
                     + "<script>"
-                    + "setTimeout(function() { window.location.href = 'http://localhost:5173/admin/dashboard'; }, 3000);"
+                    + "setTimeout(function() { window.location.href = '" + dashboardUrl + "'; }, 3000);"
                     + "</script>"
                     + "</head><body>"
                     + "<div class=\"card\">"
@@ -115,7 +124,7 @@ public class AuthController {
                     + "<h1>Super Admin Privileges Activated!</h1>"
                     + "<p>" + resultMessage + "</p>"
                     + "<p style=\"font-size:13px; color:#64748B;\">Redirecting to Super Admin Dashboard in 3 seconds...</p>"
-                    + "<a href=\"http://localhost:5173/admin/dashboard\" class=\"btn\">OPEN SUPER ADMIN DASHBOARD</a>"
+                    + "<a href=\"" + dashboardUrl + "\" class=\"btn\">OPEN SUPER ADMIN DASHBOARD</a>"
                     + "</div></body></html>";
             return ResponseEntity.ok(htmlResponse);
         } catch (Exception e) {
