@@ -409,7 +409,13 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional
     public com.esports.dto.TeamDto joinTournamentViaInvite(UUID tournamentId, String inviteCode, String userEmail) {
+        if (inviteCode == null || inviteCode.trim().isEmpty()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Invite code is required");
+        }
+        String cleanCode = inviteCode.trim().toUpperCase();
+
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "User not found"));
 
@@ -422,23 +428,9 @@ public class TournamentServiceImpl implements TournamentService {
             );
         }
 
-        Team team = teamRepository.findByInviteCode(inviteCode)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Invalid invite code"));
+        Team team = teamRepository.findByInviteCode(cleanCode)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Invalid invite code: " + cleanCode));
 
-        // Verify team is registered for this tournament
-        java.util.Optional<TournamentRegistration> registration = registrationRepository.findByTournament_IdAndTeam_Id(tournamentId, team.getId());
-        if (registration.isEmpty()) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Team is not registered for this tournament");
-        }
-
-        Tournament tournament = registration.get().getTournament();
-        int minReqLevel = (tournament.getMinLevel() != null) ? tournament.getMinLevel() : 1;
-        if (user.getGameLevel() < minReqLevel) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.BAD_REQUEST,
-                "Your In-Game Level (Level " + user.getGameLevel() + ") does not meet the minimum required Level " + minReqLevel + " for this tournament."
-            );
-        }
         boolean alreadyMember = teamMemberRepository.findByTeam_IdAndUser_Id(team.getId(), user.getId()).isPresent();
         if (alreadyMember) {
             com.esports.dto.TeamDto responseDto = new com.esports.dto.TeamDto();
@@ -451,26 +443,37 @@ public class TournamentServiceImpl implements TournamentService {
             return responseDto;
         }
 
-        String mode = tournament.getGameMode();
-        int maxMembers = 4; // Default to 4
-        if (mode != null) {
-            if (mode.equalsIgnoreCase("Full Map - Solo") || mode.equalsIgnoreCase("SOLO")) {
-                maxMembers = 1;
-            } else if (mode.equalsIgnoreCase("Full Map - Duo") || mode.equalsIgnoreCase("DUO")) {
-                maxMembers = 2;
-            } else if (mode.equalsIgnoreCase("Full Map - Squad") || mode.equalsIgnoreCase("SQUAD")) {
-                maxMembers = 4;
-            } else if (mode.equalsIgnoreCase("Clash Squad") || mode.equalsIgnoreCase("CLASH_SQUAD")) {
-                maxMembers = 4;
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
+        if (tournament != null) {
+            int minReqLevel = (tournament.getMinLevel() != null) ? tournament.getMinLevel() : 1;
+            if (user.getGameLevel() < minReqLevel) {
+                throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST,
+                    "Your In-Game Level (Level " + user.getGameLevel() + ") does not meet the minimum required Level " + minReqLevel + " for this tournament."
+                );
             }
-        }
 
-        long memberCount = teamMemberRepository.findByTeam_Id(team.getId()).size();
-        if (memberCount >= maxMembers) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.BAD_REQUEST, 
-                "Team is full (maximum " + maxMembers + " members for " + (mode != null ? mode : "this mode") + ")"
-            );
+            String mode = tournament.getGameMode();
+            int maxMembers = 4;
+            if (mode != null) {
+                if (mode.equalsIgnoreCase("Full Map - Solo") || mode.equalsIgnoreCase("SOLO")) {
+                    maxMembers = 1;
+                } else if (mode.equalsIgnoreCase("Full Map - Duo") || mode.equalsIgnoreCase("DUO")) {
+                    maxMembers = 2;
+                } else if (mode.equalsIgnoreCase("Full Map - Squad") || mode.equalsIgnoreCase("SQUAD")) {
+                    maxMembers = 4;
+                } else if (mode.equalsIgnoreCase("Clash Squad") || mode.equalsIgnoreCase("CLASH_SQUAD")) {
+                    maxMembers = 4;
+                }
+            }
+
+            long memberCount = teamMemberRepository.findByTeam_Id(team.getId()).size();
+            if (memberCount >= maxMembers) {
+                throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, 
+                    "Team is full (maximum " + maxMembers + " members for " + (mode != null ? mode : "this mode") + ")"
+                );
+            }
         }
 
         com.esports.entity.TeamMember.TeamMemberId memberId = new com.esports.entity.TeamMember.TeamMemberId();

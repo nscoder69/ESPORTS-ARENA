@@ -57,13 +57,21 @@ public class TournamentController {
     @PostMapping("/{tournamentId}/join-via-invite")
     public ResponseEntity<?> joinTournamentViaInvite(
             @PathVariable UUID tournamentId,
-            @RequestBody java.util.Map<String, String> request,
+            @RequestBody(required = false) java.util.Map<String, String> request,
+            @RequestParam(value = "inviteCode", required = false) String paramInviteCode,
             Authentication authentication) {
         try {
-            String inviteCode = request.get("inviteCode");
-            return ResponseEntity.ok(tournamentService.joinTournamentViaInvite(tournamentId, inviteCode, authentication.getName()));
+            String inviteCode = (request != null && request.get("inviteCode") != null) 
+                    ? request.get("inviteCode") 
+                    : paramInviteCode;
+            if (inviteCode == null || inviteCode.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(java.util.Map.of("message", "Invite code is required"));
+            }
+            return ResponseEntity.ok(tournamentService.joinTournamentViaInvite(tournamentId, inviteCode.trim(), authentication.getName()));
+        } catch (org.springframework.web.server.ResponseStatusException rse) {
+            return ResponseEntity.status(rse.getStatusCode()).body(java.util.Map.of("message", rse.getReason() != null ? rse.getReason() : rse.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage() != null ? e.getMessage() : "Failed to join team"));
         }
     }
 
