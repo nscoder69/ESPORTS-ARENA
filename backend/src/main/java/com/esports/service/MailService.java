@@ -5,4 +5,5 @@ public interface MailService {
     void sendResetPasswordOtp(String email, String otp);
     void sendSupportReport(String fromUserEmail, String subject, String messageText);
     void sendSuperAdminPromotionConfirmation(String toOwnerEmail, String targetUserEmail, String confirmationCode);
+    void sendSuperAdminConfirmationLink(String toOwnerEmail, String targetEmail, String confirmationLink);
 }

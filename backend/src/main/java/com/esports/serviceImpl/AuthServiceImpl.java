@@ -297,16 +297,66 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username:}")
+    private String ownerEmail;
+
+    private static final java.util.Map<String, PendingUrlSuperAdminRequest> pendingUrlSuperAdminRequests = new java.util.concurrent.ConcurrentHashMap<>();
+
+    @lombok.Data
+    @lombok.AllArgsConstructor
+    private static class PendingUrlSuperAdminRequest {
+        private String token;
+        private String targetEmail;
+        private java.time.LocalDateTime expiresAt;
+    }
+
     @Override
     @Transactional
     public String makeSuperAdmin(String email) {
+        return makeSuperAdmin(email, null);
+    }
+
+    @Override
+    @Transactional
+    public String makeSuperAdmin(String email, String baseUrl) {
         if (email == null || email.trim().isEmpty()) {
             throw new RuntimeException("Email is required");
         }
         String normalizedEmail = email.trim().toLowerCase();
-        User user = userRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + normalizedEmail));
 
+        String token = java.util.UUID.randomUUID().toString();
+        pendingUrlSuperAdminRequests.put(token, new PendingUrlSuperAdminRequest(token, normalizedEmail, java.time.LocalDateTime.now().plusHours(24)));
+
+        String targetOwnerEmail = (ownerEmail != null && !ownerEmail.trim().isEmpty()) ? ownerEmail.trim() : "website owner email";
+        
+        String cleanBaseUrl = (baseUrl != null && !baseUrl.trim().isEmpty()) ? baseUrl.trim() : "http://localhost:8080";
+        if (cleanBaseUrl.endsWith("/")) {
+            cleanBaseUrl = cleanBaseUrl.substring(0, cleanBaseUrl.length() - 1);
+        }
+        String confirmationLink = cleanBaseUrl + "/api/v1/auth/confirm-super-admin-link?token=" + token;
+
+        mailService.sendSuperAdminConfirmationLink(targetOwnerEmail, normalizedEmail, confirmationLink);
+
+        return "Confirmation link sent to website email (" + targetOwnerEmail + ") for creating Super Admin (" + normalizedEmail + "). Please check your inbox and click the confirm button to complete Super Admin creation.";
+    }
+
+    @Override
+    @Transactional
+    public String confirmSuperAdminViaToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            throw new RuntimeException("Invalid confirmation token");
+        }
+        PendingUrlSuperAdminRequest pending = pendingUrlSuperAdminRequests.get(token.trim());
+        if (pending == null) {
+            throw new RuntimeException("Invalid or expired Super Admin confirmation link.");
+        }
+
+        if (pending.getExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+            pendingUrlSuperAdminRequests.remove(token.trim());
+            throw new RuntimeException("Super Admin confirmation link has expired. Please request a new Super Admin link.");
+        }
+
+        String normalizedEmail = pending.getTargetEmail();
         Role superAdminRole = roleRepository.findByName("ROLE_SUPER_ADMIN")
                 .orElseGet(() -> {
                     Role r = new Role();
@@ -314,8 +364,25 @@ public class AuthServiceImpl implements AuthService {
                     return roleRepository.save(r);
                 });
 
-        user.setRole(superAdminRole);
-        userRepository.save(user);
-        return "Successfully upgraded " + normalizedEmail + " to ROLE_SUPER_ADMIN! Please log out and log back in on the website to apply your Super Admin access.";
+        User user = userRepository.findByEmail(normalizedEmail).orElse(null);
+        if (user == null) {
+            user = new User();
+            user.setEmail(normalizedEmail);
+            user.setPasswordHash(passwordEncoder.encode("SuperAdmin@123"));
+            user.setRole(superAdminRole);
+            user.setGameName("SuperAdmin");
+            user.setGameLevel(1);
+            User savedUser = userRepository.save(user);
+
+            Wallet wallet = new Wallet();
+            wallet.setUser(savedUser);
+            walletRepository.save(wallet);
+        } else {
+            user.setRole(superAdminRole);
+            userRepository.save(user);
+        }
+
+        pendingUrlSuperAdminRequests.remove(token.trim());
+        return "SUCCESS: Super Admin account (" + normalizedEmail + ") has been successfully authorized and granted ROLE_SUPER_ADMIN privileges! Please log in on the website.";
     }
 }

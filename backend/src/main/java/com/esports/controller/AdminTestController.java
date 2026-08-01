@@ -30,30 +30,21 @@ public class AdminTestController {
         return ResponseEntity.ok("Successfully upgraded " + email + " to ROLE_ADMIN! Please log out and log back in to see changes.");
     }
 
+    private final com.esports.service.AuthService authService;
+
     @GetMapping({"/make-super-admin", "/make-super-admin/{email:.+}"})
     public ResponseEntity<String> makeSuperAdmin(
             @PathVariable(value = "email", required = false) String pathEmail,
-            @RequestParam(value = "email", required = false) String paramEmail) {
+            @RequestParam(value = "email", required = false) String paramEmail,
+            jakarta.servlet.http.HttpServletRequest request) {
         String email = (pathEmail != null && !pathEmail.trim().isEmpty()) ? pathEmail : paramEmail;
         if (email == null || email.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Please specify email parameter e.g. /api/v1/test/make-super-admin?email=your-email@gmail.com");
         }
         final String targetEmail = email.trim().toLowerCase();
+        String baseUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromContextPath(request).build().toUriString();
 
-        User user = userRepository.findByEmail(targetEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + targetEmail));
-
-        Role superAdminRole = roleRepository.findByName("ROLE_SUPER_ADMIN")
-                .orElseGet(() -> {
-                    Role r = new Role();
-                    r.setName("ROLE_SUPER_ADMIN");
-                    return roleRepository.save(r);
-                });
-
-        user.setRole(superAdminRole);
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Successfully upgraded " + email + " to ROLE_SUPER_ADMIN! Please log out and log back in on the website to apply your Super Admin access.");
+        return ResponseEntity.ok(authService.makeSuperAdmin(targetEmail, baseUrl));
     }
 
     @GetMapping("/remove-admin/{email:.+}")

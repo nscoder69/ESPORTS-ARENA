@@ -201,8 +201,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void blockUser(java.util.UUID userId, String adminEmail) {
         verifyAdmin(adminEmail);
+        User admin = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Admin user not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        if ("ROLE_SUPER_ADMIN".equals(user.getRole() != null ? user.getRole().getName() : null) && !"ROLE_SUPER_ADMIN".equals(admin.getRole() != null ? admin.getRole().getName() : null)) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Unauthorized: Sub-admin has no authority to block a Super Admin");
+        }
         user.setIsBlocked(true);
         userRepository.save(user);
     }
@@ -211,8 +216,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void unblockUser(java.util.UUID userId, String adminEmail) {
         verifyAdmin(adminEmail);
+        User admin = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Admin user not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        if ("ROLE_SUPER_ADMIN".equals(user.getRole() != null ? user.getRole().getName() : null) && !"ROLE_SUPER_ADMIN".equals(admin.getRole() != null ? admin.getRole().getName() : null)) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Unauthorized: Sub-admin has no authority to unblock a Super Admin");
+        }
         user.setIsBlocked(false);
         userRepository.save(user);
     }
@@ -221,8 +231,16 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUser(java.util.UUID userId, String adminEmail) {
         verifyAdmin(adminEmail);
+        User admin = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Admin user not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if ("ROLE_SUPER_ADMIN".equals(user.getRole() != null ? user.getRole().getName() : null)) {
+            if (!"ROLE_SUPER_ADMIN".equals(admin.getRole() != null ? admin.getRole().getName() : null)) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Unauthorized: Sub-admin has no authority to delete a Super Admin");
+            }
+        }
 
         // 1. Delete chat messages
         chatMessageRepository.deleteByUserId(userId);

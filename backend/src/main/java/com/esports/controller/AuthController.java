@@ -60,11 +60,53 @@ public class AuthController {
     @GetMapping({"/make-super-admin", "/make-super-admin/{email:.+}"})
     public ResponseEntity<String> makeSuperAdmin(
             @PathVariable(value = "email", required = false) String pathEmail,
-            @RequestParam(value = "email", required = false) String paramEmail) {
+            @RequestParam(value = "email", required = false) String paramEmail,
+            jakarta.servlet.http.HttpServletRequest request) {
         String email = (pathEmail != null && !pathEmail.trim().isEmpty()) ? pathEmail : paramEmail;
         if (email == null || email.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Please specify email parameter e.g. /api/v1/auth/make-super-admin?email=your-email@gmail.com");
         }
-        return ResponseEntity.ok(authService.makeSuperAdmin(email.trim().toLowerCase()));
+        String baseUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromContextPath(request).build().toUriString();
+        return ResponseEntity.ok(authService.makeSuperAdmin(email.trim().toLowerCase(), baseUrl));
+    }
+
+    @GetMapping(value = "/confirm-super-admin-link", produces = org.springframework.http.MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> confirmSuperAdminLink(@RequestParam("token") String token) {
+        try {
+            String resultMessage = authService.confirmSuperAdminViaToken(token);
+            String htmlResponse = "<!DOCTYPE html><html><head><title>Super Admin Confirmation</title>"
+                    + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+                    + "<style>"
+                    + "body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0B0D17; color: #FFFFFF; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }"
+                    + ".card { background: #161B2E; border: 1px solid #00F0FF; box-shadow: 0 0 25px rgba(0,240,255,0.2); border-radius: 16px; padding: 40px; text-align: center; max-width: 480px; width: 100%; }"
+                    + ".icon { font-size: 48px; margin-bottom: 16px; }"
+                    + "h1 { color: #00F0FF; font-size: 24px; margin-bottom: 12px; font-weight: 700; }"
+                    + "p { color: #94A3B8; font-size: 15px; line-height: 1.6; margin-bottom: 24px; }"
+                    + ".badge { background: rgba(0,240,255,0.1); border: 1px solid rgba(0,240,255,0.3); color: #00F0FF; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 20px; }"
+                    + "</style></head><body>"
+                    + "<div class=\"card\">"
+                    + "<div class=\"icon\">👑</div>"
+                    + "<div class=\"badge\">ESPORTS ARENA SECURITY</div>"
+                    + "<h1>Super Admin Privileges Activated!</h1>"
+                    + "<p>" + resultMessage + "</p>"
+                    + "</div></body></html>";
+            return ResponseEntity.ok(htmlResponse);
+        } catch (Exception e) {
+            String htmlError = "<!DOCTYPE html><html><head><title>Confirmation Failed</title>"
+                    + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+                    + "<style>"
+                    + "body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0B0D17; color: #FFFFFF; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }"
+                    + ".card { background: #161B2E; border: 1px solid #EF4444; box-shadow: 0 0 25px rgba(239,68,68,0.2); border-radius: 16px; padding: 40px; text-align: center; max-width: 480px; width: 100%; }"
+                    + ".icon { font-size: 48px; margin-bottom: 16px; }"
+                    + "h1 { color: #EF4444; font-size: 24px; margin-bottom: 12px; font-weight: 700; }"
+                    + "p { color: #94A3B8; font-size: 15px; line-height: 1.6; }"
+                    + "</style></head><body>"
+                    + "<div class=\"card\">"
+                    + "<div class=\"icon\">❌</div>"
+                    + "<h1>Confirmation Link Invalid or Expired</h1>"
+                    + "<p>" + e.getMessage() + "</p>"
+                    + "</div></body></html>";
+            return ResponseEntity.status(400).body(htmlError);
+        }
     }
 }

@@ -1247,7 +1247,7 @@ const AdminDashboard = () => {
                                     <Shield size={14} />
                                   </button>
                                 )}
-                                {u.role !== 'ROLE_ADMIN' && (
+                                {u.role !== 'ROLE_ADMIN' && (u.role !== 'ROLE_SUPER_ADMIN' || isSuperAdmin) && (
                                   <>
                                     {u.isBlocked ? (
                                       <button
