@@ -12,5 +12,6 @@ public class RegisterRequest {
     private String password;
     private String gameName;
     private String freeFireUid;
+    private Integer gameLevel;
     private String otp;
 }

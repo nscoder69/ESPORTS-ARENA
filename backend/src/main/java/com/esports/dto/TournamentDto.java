@@ -26,4 +26,5 @@ public class TournamentDto {
     private LocalDateTime updatedAt;
     private String roomId;
     private String roomPassword;
+    private Integer minLevel;
 }

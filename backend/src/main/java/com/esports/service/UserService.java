@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    User updateProfile(String email, String gameName, String freeFireUid, MultipartFile avatar);
+    User updateProfile(String email, String gameName, String freeFireUid, Integer gameLevel, MultipartFile avatar);
     List<UserDto> getAllUsers(String adminEmail);
     void blockUser(UUID userId, String adminEmail);
     void unblockUser(UUID userId, String adminEmail);

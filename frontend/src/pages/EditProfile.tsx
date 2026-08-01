@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { User, Gamepad2, Upload, Camera, Save, ArrowLeft } from 'lucide-react';
+import { User, Gamepad2, Upload, Camera, Save, ArrowLeft, Shield } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Link, useNavigate } from 'react-router-dom';
 import API, { getImageUrl } from '../services/api';
@@ -16,6 +16,7 @@ const EditProfile = () => {
   const [userData, setUserData] = useState<any>(null);
   const [gameName, setGameName] = useState('');
   const [freeFireUid, setFreeFireUid] = useState('');
+  const [gameLevel, setGameLevel] = useState<number | string>(1);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -26,6 +27,7 @@ const EditProfile = () => {
       setUserData(user);
       setGameName(user.gameName || '');
       setFreeFireUid(user.freeFireUid || '');
+      setGameLevel(user.gameLevel !== undefined && user.gameLevel !== null ? user.gameLevel : 1);
       if (user.avatarUrl) {
         setAvatarPreview(getImageUrl(user.avatarUrl));
       }
@@ -112,6 +114,7 @@ const EditProfile = () => {
       const formData = new FormData();
       formData.append('gameName', gameName);
       formData.append('freeFireUid', freeFireUid);
+      formData.append('gameLevel', String(gameLevel || 1));
       if (selectedFile) {
         formData.append('avatar', selectedFile);
       }
@@ -231,6 +234,25 @@ const EditProfile = () => {
                   value={freeFireUid}
                   onChange={(e) => setFreeFireUid(e.target.value)}
                   placeholder="e.g. 1234567890"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">In-Game Level (Free Fire Level)</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-amber-400">
+                  <Shield size={16} />
+                </div>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  className="input-field pl-10"
+                  value={gameLevel}
+                  onChange={(e) => setGameLevel(e.target.value)}
+                  placeholder="e.g. 45"
+                  required
                 />
               </div>
             </div>

@@ -1,0 +1,2 @@
+ALTER TABLE users ADD COLUMN game_level INT DEFAULT 1;
+ALTER TABLE tournaments ADD COLUMN min_level INT DEFAULT 1;

@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User updateProfile(String email, String gameName, String freeFireUid, MultipartFile avatar) {
+    public User updateProfile(String email, String gameName, String freeFireUid, Integer gameLevel, MultipartFile avatar) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -42,6 +42,9 @@ public class UserServiceImpl implements UserService {
         }
         if (freeFireUid != null) {
             user.setFreeFireUid(freeFireUid);
+        }
+        if (gameLevel != null) {
+            user.setGameLevel(gameLevel);
         }
 
         if (avatar != null && !avatar.isEmpty()) {
@@ -179,6 +182,7 @@ public class UserServiceImpl implements UserService {
         dto.setRole(u.getRole().getName());
         dto.setGameName(u.getGameName());
         dto.setFreeFireUid(u.getFreeFireUid());
+        dto.setGameLevel(u.getGameLevel() != null ? u.getGameLevel() : 1);
         dto.setAvatarUrl(u.getAvatarUrl());
         dto.setCreatedAt(u.getCreatedAt());
         dto.setLastActiveAt(u.getLastActiveAt());

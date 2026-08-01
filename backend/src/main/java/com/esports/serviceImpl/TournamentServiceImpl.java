@@ -67,6 +67,7 @@ public class TournamentServiceImpl implements TournamentService {
 
         tournament.setGameMap(tournamentDto.getGameMap());
         tournament.setGameMode(tournamentDto.getGameMode());
+        tournament.setMinLevel(tournamentDto.getMinLevel() != null ? tournamentDto.getMinLevel() : 1);
         tournament.setMatchTiming(tournamentDto.getMatchTiming());
         tournament.setRegistrationClosingTime(tournamentDto.getRegistrationClosingTime());
         tournament.setOrganizer(organizer);
@@ -91,12 +92,18 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (captain.getGameName() == null || captain.getGameName().trim().isEmpty() ||
-            captain.getFreeFireUid() == null || captain.getFreeFireUid().trim().isEmpty()) {
-            throw new RuntimeException("Please update your In-Game Name and Free Fire UID in your profile before registering.");
+            captain.getFreeFireUid() == null || captain.getFreeFireUid().trim().isEmpty() ||
+            captain.getGameLevel() == null) {
+            throw new RuntimeException("Please update your In-Game Name, Free Fire UID, and Level in your profile before registering.");
         }
 
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
+
+        int minReqLevel = (tournament.getMinLevel() != null) ? tournament.getMinLevel() : 1;
+        if (captain.getGameLevel() < minReqLevel) {
+            throw new RuntimeException("Your In-Game Level (Level " + captain.getGameLevel() + ") does not meet the minimum required Level " + minReqLevel + " for this tournament.");
+        }
 
         if (tournament.getRegistrationClosingTime() != null && java.time.LocalDateTime.now().isAfter(tournament.getRegistrationClosingTime())) {
             throw new RuntimeException("Registration for this tournament is closed");
@@ -108,6 +115,17 @@ public class TournamentServiceImpl implements TournamentService {
         // Only captain can register the team
         if (!team.getCaptain().getId().equals(captain.getId())) {
             throw new RuntimeException("Only the team captain can register for tournaments");
+        }
+
+        // Validate all team members meet minimum level requirement
+        List<com.esports.entity.TeamMember> members = teamMemberRepository.findByTeam_Id(team.getId());
+        for (com.esports.entity.TeamMember member : members) {
+            User mUser = member.getUser();
+            if (mUser.getGameLevel() == null || mUser.getGameLevel() < minReqLevel) {
+                throw new RuntimeException("Team member '" + (mUser.getGameName() != null ? mUser.getGameName() : mUser.getEmail()) + 
+                    "' (Level " + (mUser.getGameLevel() != null ? mUser.getGameLevel() : 0) + 
+                    ") does not meet the minimum required Level " + minReqLevel + " for this tournament.");
+            }
         }
 
         if (registrationRepository.existsByTournament_IdAndTeam_Id(tournamentId, teamId)) {
@@ -375,10 +393,11 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "User not found"));
 
         if (user.getGameName() == null || user.getGameName().trim().isEmpty() ||
-            user.getFreeFireUid() == null || user.getFreeFireUid().trim().isEmpty()) {
+            user.getFreeFireUid() == null || user.getFreeFireUid().trim().isEmpty() ||
+            user.getGameLevel() == null) {
             throw new org.springframework.web.server.ResponseStatusException(
                 org.springframework.http.HttpStatus.BAD_REQUEST,
-                "Please update your In-Game Name and Free Fire UID in your profile before joining."
+                "Please update your In-Game Name, Free Fire UID, and Level in your profile before joining."
             );
         }
 
@@ -391,8 +410,14 @@ public class TournamentServiceImpl implements TournamentService {
             throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Team is not registered for this tournament");
         }
 
-        // Enforce maximum team size based on tournament game mode
         Tournament tournament = registration.get().getTournament();
+        int minReqLevel = (tournament.getMinLevel() != null) ? tournament.getMinLevel() : 1;
+        if (user.getGameLevel() < minReqLevel) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST,
+                "Your In-Game Level (Level " + user.getGameLevel() + ") does not meet the minimum required Level " + minReqLevel + " for this tournament."
+            );
+        }
         String mode = tournament.getGameMode();
         int maxMembers = 4; // Default to 4
         if (mode != null) {
@@ -484,6 +509,7 @@ public class TournamentServiceImpl implements TournamentService {
         dto.setUpdatedAt(t.getUpdatedAt());
         dto.setRoomId(t.getRoomId());
         dto.setRoomPassword(t.getRoomPassword());
+        dto.setMinLevel(t.getMinLevel() != null ? t.getMinLevel() : 1);
         return dto;
     }
 

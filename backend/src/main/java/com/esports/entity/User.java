@@ -31,6 +31,9 @@ public class User extends BaseEntity {
     @Column(name = "game_name", length = 100)
     private String gameName;
 
+    @Column(name = "game_level")
+    private Integer gameLevel = 1;
+
     @Column(name = "avatar_url")
     private String avatarUrl;
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Calendar, Map, Users, IndianRupee, ShieldAlert, ArrowLeft } from 'lucide-react';
+import { Trophy, Calendar, Map, Users, IndianRupee, ShieldAlert, ArrowLeft, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createTournament } from '../services/tournamentService';
 
@@ -17,6 +17,7 @@ const AdminTournamentCreate = () => {
     prizePool: '',
     gameMap: 'BERMUDA',
     gameMode: 'Clash Squad',
+    minLevel: '1',
     matchTiming: '',
     registrationClosingTime: '',
     perKillPrize: '',
@@ -44,6 +45,7 @@ const AdminTournamentCreate = () => {
         ...formData,
         entryFee: parseFloat(formData.entryFee),
         prizePool: parseFloat(formData.prizePool),
+        minLevel: parseInt(formData.minLevel) || 1,
         perKillPrize: formData.perKillPrize ? parseFloat(formData.perKillPrize) : undefined,
         firstPrize: formData.firstPrize ? parseFloat(formData.firstPrize) : undefined,
         secondPrize: formData.secondPrize ? parseFloat(formData.secondPrize) : undefined,
@@ -183,6 +185,26 @@ const AdminTournamentCreate = () => {
                       <option value="Full Map - Solo">Full Map - Solo</option>
                     </optgroup>
                   </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Minimum Level Required *</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-amber-400">
+                    <Shield size={16} />
+                  </div>
+                  <input 
+                    type="number" 
+                    name="minLevel"
+                    min="1"
+                    max="100"
+                    className="input-field pl-10"
+                    value={formData.minLevel}
+                    onChange={handleChange}
+                    required
+                    placeholder="e.g. 20"
+                  />
                 </div>
               </div>
             </div>

@@ -60,4 +60,7 @@ public class Tournament extends BaseEntity {
 
     @Column(name = "room_password", length = 100)
     private String roomPassword;
+
+    @Column(name = "min_level")
+    private Integer minLevel = 1;
 }

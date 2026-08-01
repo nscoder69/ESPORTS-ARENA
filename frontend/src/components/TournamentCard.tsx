@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Trophy, Map, Clock, Users, ArrowRight, Trash2, Key } from 'lucide-react';
+import { Trophy, Map, Clock, Users, ArrowRight, Trash2, Key, Shield } from 'lucide-react';
 import fullmapBg from '../assets/fullmap.webp';
 import clashsquadBg from '../assets/clashsquad.jpg';
 
@@ -89,6 +89,9 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
           </div>
           <div className="flex items-center gap-1 sm:gap-1.5">
             <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" /> <span>{tournament.gameMode}</span>
+          </div>
+          <div className="flex items-center gap-1 sm:gap-1.5 text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+            <Shield className="w-3 h-3 flex-shrink-0" /> <span>Min Lvl: {tournament.minLevel || 1}</span>
           </div>
         </div>
 

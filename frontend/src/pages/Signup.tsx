@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser, sendOtp } from '../services/authService';
-import { User, Mail, Lock, Gamepad2, Upload, X, Key, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Gamepad2, Upload, X, Key, Eye, EyeOff, Shield } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
 
 export default function Signup() {
@@ -11,6 +11,7 @@ export default function Signup() {
     password: '',
     gameName: '',
     freeFireUid: '',
+    gameLevel: '1',
     otp: '',
     avatar: null as File | null
   });
@@ -324,6 +325,26 @@ export default function Signup() {
                     value={formData.freeFireUid}
                     onChange={handleChange}
                     placeholder="e.g. 1234567890"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="signup-level" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">In-Game Level (Free Fire Level)</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-amber-400">
+                    <Shield size={16} />
+                  </div>
+                  <input 
+                    id="signup-level"
+                    type="number"
+                    min="1"
+                    max="100" 
+                    name="gameLevel"
+                    autoComplete="off"
+                    className="input-field pl-10"
+                    value={formData.gameLevel}
+                    onChange={handleChange}
+                    placeholder="e.g. 45"
                   />
                 </div>
               </div>

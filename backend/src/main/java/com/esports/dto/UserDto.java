@@ -11,6 +11,7 @@ public class UserDto {
     private String role;
     private String gameName;
     private String freeFireUid;
+    private Integer gameLevel;
     private String avatarUrl;
     private LocalDateTime createdAt;
     private LocalDateTime lastActiveAt;

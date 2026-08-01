@@ -102,6 +102,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(userRole);
         user.setGameName(request.getGameName());
         user.setFreeFireUid(request.getFreeFireUid());
+        user.setGameLevel(request.getGameLevel() != null ? request.getGameLevel() : 1);
 
         if (avatar != null && !avatar.isEmpty()) {
             try {
@@ -128,6 +129,7 @@ public class AuthServiceImpl implements AuthService {
                 .role(userRole.getName())
                 .gameName(savedUser.getGameName())
                 .freeFireUid(savedUser.getFreeFireUid())
+                .gameLevel(savedUser.getGameLevel())
                 .avatarUrl(savedUser.getAvatarUrl())
                 .permissions(savedUser.getPermissions())
                 .build();
@@ -163,6 +165,7 @@ public class AuthServiceImpl implements AuthService {
                 .role(user.getRole().getName())
                 .gameName(user.getGameName())
                 .freeFireUid(user.getFreeFireUid())
+                .gameLevel(user.getGameLevel() != null ? user.getGameLevel() : 1)
                 .avatarUrl(user.getAvatarUrl())
                 .permissions(user.getPermissions())
                 .build();

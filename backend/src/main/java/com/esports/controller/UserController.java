@@ -20,19 +20,19 @@ public class UserController {
     public ResponseEntity<AuthResponse> updateProfile(
             @RequestParam(value = "gameName", required = false) String gameName,
             @RequestParam(value = "freeFireUid", required = false) String freeFireUid,
+            @RequestParam(value = "gameLevel", required = false) Integer gameLevel,
             @RequestParam(value = "avatar", required = false) MultipartFile avatar,
             Authentication authentication) {
 
-        User updatedUser = userService.updateProfile(authentication.getName(), gameName, freeFireUid, avatar);
+        User updatedUser = userService.updateProfile(authentication.getName(), gameName, freeFireUid, gameLevel, avatar);
 
-        // We return the same structure as AuthResponse (minus the token, or we can just omit token)
-        // Actually, returning the updated user details is enough. The frontend expects the new user object.
         AuthResponse response = AuthResponse.builder()
                 .id(updatedUser.getId())
                 .email(updatedUser.getEmail())
                 .role(updatedUser.getRole().getName())
                 .gameName(updatedUser.getGameName())
                 .freeFireUid(updatedUser.getFreeFireUid())
+                .gameLevel(updatedUser.getGameLevel())
                 .avatarUrl(updatedUser.getAvatarUrl())
                 .permissions(updatedUser.getPermissions())
                 .build();
