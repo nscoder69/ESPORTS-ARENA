@@ -9,6 +9,7 @@ import { registerForTournament, getRegisteredTeamsForParticipant, joinTournament
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import TournamentCard from '../components/TournamentCard';
 import ResultsModal from '../components/ResultsModal';
+import TeamMembersModal from '../components/TeamMembersModal';
 import { getWalletBalance } from '../services/walletService';
 import { getImageUrl } from '../services/api';
 
@@ -71,6 +72,20 @@ export default function TournamentList() {
   const [loadingRoomCredentials, setLoadingRoomCredentials] = useState(false);
   const [roomCredentialsError, setRoomCredentialsError] = useState('');
   const [copiedField, setCopiedField] = useState<'id' | 'pwd' | null>(null);
+
+  // Team Members Modal State
+  const [isTeamMembersModalOpen, setIsTeamMembersModalOpen] = useState(false);
+  const [teamMembersModalData, setTeamMembersModalData] = useState<{ id: string; name: string } | null>(null);
+
+  const handleOpenTeamMembers = (tournament: any) => {
+    if (tournament.registeredTeamId) {
+      setTeamMembersModalData({
+        id: tournament.registeredTeamId,
+        name: tournament.registeredTeamName || tournament.name
+      });
+      setIsTeamMembersModalOpen(true);
+    }
+  };
 
   const handleGetRoomCredentials = async (tournament: any) => {
     setSelectedTournament(tournament);
@@ -372,6 +387,7 @@ export default function TournamentList() {
                     onParticipantsClick={() => openParticipantsModal(tournament)}
                     onResultClick={openResultsModal}
                     onRoomCredentialsClick={handleGetRoomCredentials}
+                    onTeamMembersClick={handleOpenTeamMembers}
                     onDeleteClick={user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_SUPER_ADMIN' ? handleDeleteTournament : undefined}
                   />
                 ))}
@@ -776,6 +792,14 @@ export default function TournamentList() {
         tournamentResults={tournamentResults}
         loading={resultsLoading}
         error={resultsError}
+      />
+
+      {/* Team Members Modal */}
+      <TeamMembersModal
+        isOpen={isTeamMembersModalOpen}
+        onClose={() => setIsTeamMembersModalOpen(false)}
+        teamId={teamMembersModalData?.id}
+        teamName={teamMembersModalData?.name}
       />
     </div>
   );

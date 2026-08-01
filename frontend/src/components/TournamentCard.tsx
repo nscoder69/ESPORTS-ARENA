@@ -10,11 +10,12 @@ interface TournamentCardProps {
   onDeleteClick?: (tournament: any) => void;
   onResultClick?: (tournament: any) => void;
   onRoomCredentialsClick?: (tournament: any) => void;
+  onTeamMembersClick?: (tournament: any) => void;
   onClick?: (tournament: any) => void;
   isUserRegistered?: boolean;
 }
 
-export default function TournamentCard({ tournament, onRegisterClick, onParticipantsClick, onDeleteClick, onResultClick, onRoomCredentialsClick, onClick, isUserRegistered }: TournamentCardProps) {
+export default function TournamentCard({ tournament, onRegisterClick, onParticipantsClick, onDeleteClick, onResultClick, onRoomCredentialsClick, onTeamMembersClick, onClick, isUserRegistered }: TournamentCardProps) {
   const isRegistrationClosed = tournament.registrationClosingTime ? new Date(tournament.registrationClosingTime) < new Date() : false;
 
   return (
@@ -167,16 +168,30 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
               )}
               {onRegisterClick ? (
                 isUserRegistered ? (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onRoomCredentialsClick) onRoomCredentialsClick(tournament);
-                    }}
-                    className="w-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 font-bold py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs flex items-center justify-center gap-1 cursor-pointer transition-all shadow-md"
-                    title="Click to view Free Fire Room ID & Password"
-                  >
-                    <Key className="w-3.5 h-3.5" /> Get ID & PWD
-                  </button>
+                  <div className="w-full flex items-center gap-1.5 col-span-2">
+                    {onTeamMembersClick && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onTeamMembersClick(tournament);
+                        }}
+                        className="w-1/2 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary font-bold py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs flex items-center justify-center gap-1 cursor-pointer transition-all"
+                        title="View Team Members joined"
+                      >
+                        <Users className="w-3.5 h-3.5" /> Team Roster
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onRoomCredentialsClick) onRoomCredentialsClick(tournament);
+                      }}
+                      className={`${onTeamMembersClick ? 'w-1/2' : 'w-full'} bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 font-bold py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs flex items-center justify-center gap-1 cursor-pointer transition-all shadow-md`}
+                      title="Click to view Free Fire Room ID & Password"
+                    >
+                      <Key className="w-3.5 h-3.5" /> Get ID & PWD
+                    </button>
+                  </div>
                 ) : (
                   <button
                     onClick={(e) => {

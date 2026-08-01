@@ -1,16 +1,31 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { History, Trophy, ChevronRight, Calendar, Map, CheckCircle, Key, Copy, Clock, X, Shield, Check } from 'lucide-react';
+import { History, Trophy, ChevronRight, Calendar, Map, CheckCircle, Key, Copy, Clock, X, Shield, Check, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/obitoloo.png';
 import { getMyRegisteredTournaments, getTournamentResults, getRoomCredentials } from '../services/tournamentService';
 import ResultsModal from '../components/ResultsModal';
+import TeamMembersModal from '../components/TeamMembersModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const MatchHistory = () => {
   const [loading, setLoading] = useState(true);
   const [tournaments, setTournaments] = useState<any[]>([]);
   const [copiedInviteCode, setCopiedInviteCode] = useState<string | null>(null);
+
+  // Team Members Modal state
+  const [isTeamMembersModalOpen, setIsTeamMembersModalOpen] = useState(false);
+  const [teamMembersModalData, setTeamMembersModalData] = useState<{ id: string; name: string } | null>(null);
+
+  const handleOpenTeamMembers = (tournament: any) => {
+    if (tournament.registeredTeamId) {
+      setTeamMembersModalData({
+        id: tournament.registeredTeamId,
+        name: tournament.registeredTeamName || tournament.name
+      });
+      setIsTeamMembersModalOpen(true);
+    }
+  };
 
   // Results Modal state
   const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
@@ -161,27 +176,38 @@ const MatchHistory = () => {
                               <Shield size={14} className="text-primary" />
                               <span className="text-white">{t.registeredTeamName}</span>
                             </div>
-                            {t.registeredTeamInviteCode && (
-                              <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20">
-                                <Key size={12} className="text-primary" />
-                                <span className="text-[10px] text-textSecondary uppercase font-bold">Invite Code:</span>
-                                <span className="font-mono text-white text-[11px] font-bold tracking-wider">
-                                  {t.registeredTeamInviteCode}
-                                </span>
+                            <div className="flex items-center gap-2">
+                              {t.registeredTeamId && (
                                 <button
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(t.registeredTeamInviteCode);
-                                    setCopiedInviteCode(t.registeredTeamInviteCode);
-                                    setTimeout(() => setCopiedInviteCode(null), 2000);
-                                  }}
-                                  className="ml-1 p-1 text-primary hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-[10px] font-bold"
-                                  title="Copy Invite Code"
+                                  onClick={() => handleOpenTeamMembers(t)}
+                                  className="bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
+                                  title="View Team Members"
                                 >
-                                  {copiedInviteCode === t.registeredTeamInviteCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-                                  <span>{copiedInviteCode === t.registeredTeamInviteCode ? 'Copied' : 'Copy'}</span>
+                                  <Users size={12} /> Team Roster
                                 </button>
-                              </div>
-                            )}
+                              )}
+                              {t.registeredTeamInviteCode && (
+                                <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20">
+                                  <Key size={12} className="text-primary" />
+                                  <span className="text-[10px] text-textSecondary uppercase font-bold">Invite Code:</span>
+                                  <span className="font-mono text-white text-[11px] font-bold tracking-wider">
+                                    {t.registeredTeamInviteCode}
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(t.registeredTeamInviteCode);
+                                      setCopiedInviteCode(t.registeredTeamInviteCode);
+                                      setTimeout(() => setCopiedInviteCode(null), 2000);
+                                    }}
+                                    className="ml-1 p-1 text-primary hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-[10px] font-bold"
+                                    title="Copy Invite Code"
+                                  >
+                                    {copiedInviteCode === t.registeredTeamInviteCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                                    <span>{copiedInviteCode === t.registeredTeamInviteCode ? 'Copied' : 'Copy'}</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -240,27 +266,38 @@ const MatchHistory = () => {
                               <Shield size={14} className="text-primary" />
                               <span className="text-white">{t.registeredTeamName}</span>
                             </div>
-                            {t.registeredTeamInviteCode && (
-                              <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20">
-                                <Key size={12} className="text-primary" />
-                                <span className="text-[10px] text-textSecondary uppercase font-bold">Invite Code:</span>
-                                <span className="font-mono text-white text-[11px] font-bold tracking-wider">
-                                  {t.registeredTeamInviteCode}
-                                </span>
+                            <div className="flex items-center gap-2">
+                              {t.registeredTeamId && (
                                 <button
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(t.registeredTeamInviteCode);
-                                    setCopiedInviteCode(t.registeredTeamInviteCode);
-                                    setTimeout(() => setCopiedInviteCode(null), 2000);
-                                  }}
-                                  className="ml-1 p-1 text-primary hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-[10px] font-bold"
-                                  title="Copy Invite Code"
+                                  onClick={() => handleOpenTeamMembers(t)}
+                                  className="bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
+                                  title="View Team Members"
                                 >
-                                  {copiedInviteCode === t.registeredTeamInviteCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-                                  <span>{copiedInviteCode === t.registeredTeamInviteCode ? 'Copied' : 'Copy'}</span>
+                                  <Users size={12} /> Team Roster
                                 </button>
-                              </div>
-                            )}
+                              )}
+                              {t.registeredTeamInviteCode && (
+                                <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20">
+                                  <Key size={12} className="text-primary" />
+                                  <span className="text-[10px] text-textSecondary uppercase font-bold">Invite Code:</span>
+                                  <span className="font-mono text-white text-[11px] font-bold tracking-wider">
+                                    {t.registeredTeamInviteCode}
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(t.registeredTeamInviteCode);
+                                      setCopiedInviteCode(t.registeredTeamInviteCode);
+                                      setTimeout(() => setCopiedInviteCode(null), 2000);
+                                    }}
+                                    className="ml-1 p-1 text-primary hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-[10px] font-bold"
+                                    title="Copy Invite Code"
+                                  >
+                                    {copiedInviteCode === t.registeredTeamInviteCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                                    <span>{copiedInviteCode === t.registeredTeamInviteCode ? 'Copied' : 'Copy'}</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -372,6 +409,14 @@ const MatchHistory = () => {
             </motion.div>
           </div>
         )}
+
+        {/* Team Members Modal */}
+        <TeamMembersModal
+          isOpen={isTeamMembersModalOpen}
+          onClose={() => setIsTeamMembersModalOpen(false)}
+          teamId={teamMembersModalData?.id}
+          teamName={teamMembersModalData?.name}
+        />
       </div>
     </div>
   );
