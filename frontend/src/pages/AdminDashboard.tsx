@@ -222,12 +222,12 @@ const AdminDashboard = () => {
   const [savingAdminRole, setSavingAdminRole] = useState(false);
 
   useEffect(() => {
-    if (!userStr || (JSON.parse(userStr).role !== 'ROLE_ADMIN' && JSON.parse(userStr).role !== 'ROLE_SUPER_ADMIN')) {
+    if (!currentUser || (currentUser.role !== 'ROLE_ADMIN' && currentUser.role !== 'ROLE_SUPER_ADMIN')) {
       navigate('/');
       return;
     }
     fetchTournaments();
-  }, [navigate]);
+  }, [currentUser, navigate]);
 
   useEffect(() => {
     if (adminView === 'users' && hasPermission('MANAGE_USERS')) {
