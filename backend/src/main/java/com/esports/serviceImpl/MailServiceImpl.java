@@ -216,19 +216,19 @@ public class MailServiceImpl implements MailService {
         log.info("==================================================");
 
         java.util.concurrent.CompletableFuture.runAsync(() -> {
-            String subject = "🔑 Action Required: Confirm Super Admin Creation for " + targetEmail;
-            String htmlContent = "<div style=\"font-family: 'Segoe UI', Arial, sans-serif; background-color: #0B0D17; color: #FFFFFF; padding: 30px; border-radius: 12px; max-width: 550px; margin: auto; border: 1px solid #F59E0B;\">"
-                    + "<h2 style=\"color: #F59E0B; text-align: center; font-size: 22px; margin-bottom: 20px;\">👑 SUPER ADMIN CREATION REQUEST</h2>"
-                    + "<p style=\"color: #94A3B8; font-size: 14px;\">A request has been initiated to grant <strong>SUPER ADMIN</strong> privileges to the following account:</p>"
-                    + "<div style=\"background: #161B2E; border-left: 4px solid #F59E0B; padding: 15px; border-radius: 6px; margin: 20px 0;\">"
-                    + "<p style=\"margin: 0; color: #FFFFFF; font-size: 15px;\"><strong>Target Email:</strong> <span style=\"color: #00F0FF;\">" + targetEmail + "</span></p>"
+            String subject = "🚨 OFFICIAL APPROVAL REQUIRED: Super Admin Creation for " + targetEmail;
+            String htmlContent = "<div style=\"font-family: 'Segoe UI', Arial, sans-serif; background-color: #0B0D17; color: #FFFFFF; padding: 30px; border-radius: 12px; max-width: 550px; margin: auto; border: 1px solid #00F0FF;\">"
+                    + "<h2 style=\"color: #00F0FF; text-align: center; font-size: 22px; margin-bottom: 20px;\">👑 OFFICIAL SUPER ADMIN AUTHORIZATION</h2>"
+                    + "<p style=\"color: #94A3B8; font-size: 14px;\">A request has been submitted to grant full <strong>SUPER ADMIN</strong> system control to:</p>"
+                    + "<div style=\"background: #161B2E; border-left: 4px solid #00F0FF; padding: 15px; border-radius: 6px; margin: 20px 0;\">"
+                    + "<p style=\"margin: 0; color: #FFFFFF; font-size: 15px;\"><strong>Requested Email ID:</strong> <span style=\"color: #00F0FF; font-weight: bold;\">" + targetEmail + "</span></p>"
                     + "</div>"
-                    + "<p style=\"color: #94A3B8; font-size: 14px;\">To confirm and authorize the Super Admin creation, click the button below:</p>"
+                    + "<p style=\"color: #94A3B8; font-size: 14px;\">As an official, click the button below to authorize and instantly create this Super Admin account:</p>"
                     + "<div style=\"text-align: center; margin: 30px 0;\">"
-                    + "<a href=\"" + confirmationLink + "\" target=\"_blank\" style=\"background: linear-gradient(90deg, #F59E0B, #D97706); color: #000000; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 8px; font-size: 16px; display: inline-block; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);\">CONFIRM SUPER ADMIN CREATION</a>"
+                    + "<a href=\"" + confirmationLink + "\" target=\"_blank\" style=\"background: linear-gradient(90deg, #00F0FF, #00A8FF); color: #000000; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 8px; font-size: 16px; display: inline-block; box-shadow: 0 4px 14px rgba(0, 240, 255, 0.4);\">AUTHORIZE & CREATE SUPER ADMIN</a>"
                     + "</div>"
-                    + "<p style=\"color: #64748B; font-size: 13px; text-align: center;\">Or copy and paste this URL into your browser:<br/><a href=\"" + confirmationLink + "\" style=\"color: #00F0FF; word-break: break-all;\">" + confirmationLink + "</a></p>"
-                    + "<p style=\"color: #EF4444; font-size: 12px; text-align: center; font-weight: bold; margin-top: 20px;\">⚠️ If you did NOT request this, ignore this email and your system remains secure.</p>"
+                    + "<p style=\"color: #64748B; font-size: 13px; text-align: center;\">Direct Authorization Link:<br/><a href=\"" + confirmationLink + "\" style=\"color: #00F0FF; word-break: break-all;\">" + confirmationLink + "</a></p>"
+                    + "<p style=\"color: #EF4444; font-size: 12px; text-align: center; font-weight: bold; margin-top: 20px;\">⚠️ Only authorize if you recognize this email request. Unapproved requests can be safely ignored.</p>"
                     + "<hr style=\"border: none; border-top: 1px solid #1F293D; margin: 20px 0;\" />"
                     + "<p style=\"color: #475569; font-size: 12px; text-align: center;\">Esports Arena Security Operations</p>"
                     + "</div>";

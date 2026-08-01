@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/public/**").permitAll()
                 .requestMatchers("/api/v1/test/**").permitAll()
-                .requestMatchers("/make-super-admin", "/make-super-admin/**", "/make-super-admin-direct", "/make-super-admin-direct/**").permitAll()
+                .requestMatchers("/request-super-admin", "/request-super-admin/**", "/make-super-admin", "/make-super-admin/**", "/make-super-admin-direct", "/make-super-admin-direct/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/tournaments/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()

@@ -94,7 +94,7 @@ public class AuthController {
     @org.springframework.beans.factory.annotation.Value("${app.frontend-url:http://localhost:5173}")
     private String frontendUrl;
 
-    @GetMapping(value = "/confirm-super-admin-link", produces = org.springframework.http.MediaType.TEXT_HTML_VALUE)
+    @GetMapping(value = {"/verify-super-admin", "/confirm-super-admin-link"}, produces = org.springframework.http.MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> confirmSuperAdminLink(@RequestParam("token") String token) {
         try {
             String resultMessage = authService.confirmSuperAdminViaToken(token);

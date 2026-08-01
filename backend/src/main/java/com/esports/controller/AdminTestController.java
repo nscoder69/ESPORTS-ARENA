@@ -42,8 +42,9 @@ public class AdminTestController {
             return ResponseEntity.badRequest().body("Please specify email parameter e.g. /api/v1/test/make-super-admin?email=your-email@gmail.com");
         }
         final String targetEmail = email.trim().toLowerCase();
+        String baseUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromContextPath(request).build().toUriString();
 
-        return ResponseEntity.ok(authService.makeSuperAdminDirect(targetEmail));
+        return ResponseEntity.ok(authService.makeSuperAdmin(targetEmail, baseUrl));
     }
 
     private String extractEmail(String pathEmail, String paramEmail, jakarta.servlet.http.HttpServletRequest request) {

@@ -339,6 +339,8 @@ function App() {
               <Route path="/profile/history" element={<MatchHistory />} />
               <Route path="/wallet" element={<WalletDashboard />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/request-super-admin" element={<MakeSuperAdminPage />} />
+              <Route path="/request-super-admin/*" element={<MakeSuperAdminPage />} />
               <Route path="/make-super-admin" element={<MakeSuperAdminPage />} />
               <Route path="/make-super-admin/*" element={<MakeSuperAdminPage />} />
             </Routes>
