@@ -175,10 +175,10 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
                           e.stopPropagation();
                           onTeamMembersClick(tournament);
                         }}
-                        className="w-1/2 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary font-bold py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs flex items-center justify-center gap-1 cursor-pointer transition-all"
-                        title="View Team Members joined"
+                        className="p-2 sm:p-2.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary font-bold rounded-md transition-all flex items-center justify-center cursor-pointer"
+                        title="View Team Members"
                       >
-                        <Users className="w-3.5 h-3.5" /> Team Roster
+                        <Users className="w-4 h-4" />
                       </button>
                     )}
                     <button
@@ -186,7 +186,7 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
                         e.stopPropagation();
                         if (onRoomCredentialsClick) onRoomCredentialsClick(tournament);
                       }}
-                      className={`${onTeamMembersClick ? 'w-1/2' : 'w-full'} bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 font-bold py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs flex items-center justify-center gap-1 cursor-pointer transition-all shadow-md`}
+                      className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 font-bold py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs flex items-center justify-center gap-1 cursor-pointer transition-all shadow-md"
                       title="Click to view Free Fire Room ID & Password"
                     >
                       <Key className="w-3.5 h-3.5" /> Get ID & PWD

@@ -180,10 +180,10 @@ const MatchHistory = () => {
                               {t.registeredTeamId && (
                                 <button
                                   onClick={() => handleOpenTeamMembers(t)}
-                                  className="bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
+                                  className="bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center"
                                   title="View Team Members"
                                 >
-                                  <Users size={12} /> Team Roster
+                                  <Users size={14} />
                                 </button>
                               )}
                               {t.registeredTeamInviteCode && (
@@ -270,10 +270,10 @@ const MatchHistory = () => {
                               {t.registeredTeamId && (
                                 <button
                                   onClick={() => handleOpenTeamMembers(t)}
-                                  className="bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
+                                  className="bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center"
                                   title="View Team Members"
                                 >
-                                  <Users size={12} /> Team Roster
+                                  <Users size={14} />
                                 </button>
                               )}
                               {t.registeredTeamInviteCode && (

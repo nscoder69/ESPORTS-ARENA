@@ -117,10 +117,26 @@ export default function TournamentList() {
           getAllTournaments(),
           userStr ? getMyRegisteredTournaments() : Promise.resolve([])
         ]);
-        setTournaments(data);
         if (registeredData.length > 0) {
-          const ids = new Set<string>(registeredData.map((t: any) => t.id));
-          setRegisteredTournamentIds(ids);
+          const registeredMap = new Map<string, any>();
+          registeredData.forEach((rt: any) => registeredMap.set(rt.id, rt));
+
+          const enrichedTournaments = data.map((t: any) => {
+            const reg = registeredMap.get(t.id);
+            if (reg) {
+              return {
+                ...t,
+                registeredTeamId: reg.registeredTeamId,
+                registeredTeamName: reg.registeredTeamName,
+                registeredTeamInviteCode: reg.registeredTeamInviteCode
+              };
+            }
+            return t;
+          });
+          setTournaments(enrichedTournaments);
+          setRegisteredTournamentIds(new Set(registeredMap.keys()));
+        } else {
+          setTournaments(data);
         }
       } catch (err) {
         console.error("Failed to fetch tournaments", err);
