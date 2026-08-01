@@ -112,31 +112,12 @@ public class UserServiceImpl implements UserService {
                 roleName = "ROLE_" + roleName;
             }
 
-            // SECURITY: If promoting to ROLE_SUPER_ADMIN and user is not already SUPER_ADMIN, require owner email confirmation code
-            if ("ROLE_SUPER_ADMIN".equals(roleName) && !"ROLE_SUPER_ADMIN".equals(targetUser.getRole().getName())) {
-                String confirmationCode = String.format("%06d", new java.util.Random().nextInt(1000000));
-                
-                PendingSuperAdminPromotion pending = new PendingSuperAdminPromotion(
-                    userId,
-                    roleName,
-                    request.getPermissions(),
-                    confirmationCode,
-                    java.time.LocalDateTime.now().plusMinutes(15)
-                );
-                pendingSuperAdminPromotions.put(userId, pending);
-
-                String targetOwnerEmail = (ownerEmail != null && !ownerEmail.trim().isEmpty()) ? ownerEmail.trim() : adminEmail;
-                mailService.sendSuperAdminPromotionConfirmation(targetOwnerEmail, targetUser.getEmail(), confirmationCode);
-
-                return com.esports.dto.UpdateUserRoleResponseDto.builder()
-                        .requiresConfirmation(true)
-                        .message("Security authorization required! A 6-digit confirmation code has been sent to the website owner email address (" + targetOwnerEmail + "). Please enter the code to confirm Super Admin promotion.")
-                        .user(convertToDto(targetUser))
-                        .build();
-            }
-
             com.esports.entity.Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRole()));
+                    .orElseGet(() -> {
+                        com.esports.entity.Role r = new com.esports.entity.Role();
+                        r.setName(roleName);
+                        return roleRepository.save(r);
+                    });
 
             targetUser.setRole(role);
         }

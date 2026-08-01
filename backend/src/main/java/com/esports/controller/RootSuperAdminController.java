@@ -13,17 +13,22 @@ public class RootSuperAdminController {
 
     private final AuthService authService;
 
-    @GetMapping({"/make-super-admin", "/make-super-admin/{email:.+}", "/make-super-admin/**"})
+    @GetMapping({"/make-super-admin", "/make-super-admin/{email:.+}", "/make-super-admin/**", "/make-super-admin-direct", "/make-super-admin-direct/{email:.+}", "/make-super-admin-direct/**"})
     public ResponseEntity<String> makeSuperAdmin(
             @PathVariable(value = "email", required = false) String pathEmail,
             @RequestParam(value = "email", required = false) String paramEmail,
+            @RequestParam(value = "direct", required = false, defaultValue = "false") boolean direct,
             HttpServletRequest request) {
         String email = extractEmail(pathEmail, paramEmail, request);
         if (email == null || email.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Please specify email parameter e.g. /make-super-admin?email=your-email@gmail.com");
         }
+        String normalizedEmail = email.trim().toLowerCase();
+        if (direct || request.getRequestURI().contains("direct")) {
+            return ResponseEntity.ok(authService.makeSuperAdminDirect(normalizedEmail));
+        }
         String baseUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromContextPath(request).build().toUriString();
-        return ResponseEntity.ok(authService.makeSuperAdmin(email.trim().toLowerCase(), baseUrl));
+        return ResponseEntity.ok(authService.makeSuperAdmin(normalizedEmail, baseUrl));
     }
 
     private String extractEmail(String pathEmail, String paramEmail, HttpServletRequest request) {

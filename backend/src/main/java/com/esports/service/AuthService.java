@@ -17,4 +17,5 @@ public interface AuthService {
     String makeSuperAdmin(String email, String baseUrl);
     String confirmSuperAdminViaToken(String token);
     AuthResponse checkSuperAdminStatus(String email);
+    String makeSuperAdminDirect(String email);
 }
