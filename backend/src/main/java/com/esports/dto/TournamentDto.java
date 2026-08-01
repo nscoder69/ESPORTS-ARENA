@@ -27,4 +27,7 @@ public class TournamentDto {
     private String roomId;
     private String roomPassword;
     private Integer minLevel;
+    private UUID registeredTeamId;
+    private String registeredTeamName;
+    private String registeredTeamInviteCode;
 }

@@ -499,8 +499,24 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     @Transactional(readOnly = true)
     public List<TournamentDto> getMyRegisteredTournaments(String userEmail) {
+        User user = userRepository.findByEmail(userEmail).orElse(null);
         List<Tournament> registeredTournaments = tournamentRepository.findTournamentsByUserEmail(userEmail);
-        return registeredTournaments.stream().map(this::mapToTournamentDto).collect(Collectors.toList());
+        return registeredTournaments.stream().map(t -> {
+            TournamentDto dto = mapToTournamentDto(t);
+            if (user != null) {
+                List<TournamentRegistration> regs = registrationRepository.findByTournament_Id(t.getId());
+                for (TournamentRegistration reg : regs) {
+                    boolean isMember = teamMemberRepository.findByTeam_IdAndUser_Id(reg.getTeam().getId(), user.getId()).isPresent();
+                    if (isMember) {
+                        dto.setRegisteredTeamId(reg.getTeam().getId());
+                        dto.setRegisteredTeamName(reg.getTeam().getName());
+                        dto.setRegisteredTeamInviteCode(reg.getTeam().getInviteCode());
+                        break;
+                    }
+                }
+            }
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -513,7 +529,20 @@ public class TournamentServiceImpl implements TournamentService {
         }
         
         List<Tournament> registeredTournaments = tournamentRepository.findTournamentsByUserId(userId);
-        return registeredTournaments.stream().map(this::mapToTournamentDto).collect(Collectors.toList());
+        return registeredTournaments.stream().map(t -> {
+            TournamentDto dto = mapToTournamentDto(t);
+            List<TournamentRegistration> regs = registrationRepository.findByTournament_Id(t.getId());
+            for (TournamentRegistration reg : regs) {
+                boolean isMember = teamMemberRepository.findByTeam_IdAndUser_Id(reg.getTeam().getId(), userId).isPresent();
+                if (isMember) {
+                    dto.setRegisteredTeamId(reg.getTeam().getId());
+                    dto.setRegisteredTeamName(reg.getTeam().getName());
+                    dto.setRegisteredTeamInviteCode(reg.getTeam().getInviteCode());
+                    break;
+                }
+            }
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     private TournamentDto mapToTournamentDto(Tournament t) {
