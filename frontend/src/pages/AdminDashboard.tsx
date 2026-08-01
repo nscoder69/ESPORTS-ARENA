@@ -1135,12 +1135,22 @@ const AdminDashboard = () => {
           {/* User Directory Table */}
           <div className="glass-panel p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-              <h3 className="text-xl font-bold font-display text-white">Registered Users</h3>
+              <div className="flex items-center gap-3">
+                <h3 className="text-xl font-bold font-display text-white">Registered Users</h3>
+                <button
+                  onClick={fetchUsers}
+                  className="p-2 rounded bg-surface border border-white/10 text-textSecondary hover:text-white hover:border-white/20 transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+                  title="Refresh Users Directory"
+                >
+                  <RefreshCw size={14} className={usersLoading ? 'animate-spin' : ''} />
+                  <span>Refresh</span>
+                </button>
+              </div>
               <div className="relative w-full md:w-72">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-textSecondary" size={16} />
                 <input
                   type="text"
-                  placeholder="Search by email, name..."
+                  placeholder="Search by email, name, role..."
                   className="input-field pl-10 py-2 text-sm"
                   value={userSearchQuery}
                   onChange={e => setUserSearchQuery(e.target.value)}
@@ -1181,9 +1191,9 @@ const AdminDashboard = () => {
                       .filter(u => {
                         const q = userSearchQuery.toLowerCase();
                         return (
-                          u.email.toLowerCase().includes(q) ||
-                          (u.gameName && u.gameName.toLowerCase().includes(q)) ||
-                          u.role.toLowerCase().includes(q)
+                          (u.email || '').toLowerCase().includes(q) ||
+                          (u.gameName || '').toLowerCase().includes(q) ||
+                          (u.role || '').toLowerCase().includes(q)
                         );
                       })
                       .map((u) => {
@@ -1191,6 +1201,18 @@ const AdminDashboard = () => {
                         const lastActiveStr = u.lastActiveAt
                           ? new Date(u.lastActiveAt).toLocaleString()
                           : 'Never';
+
+                        const roleBadgeClass = u.role === 'ROLE_SUPER_ADMIN'
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/30 font-bold'
+                          : u.role === 'ROLE_ADMIN'
+                          ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                          : 'bg-primary/10 text-primary border-primary/20';
+
+                        const roleLabel = u.role === 'ROLE_SUPER_ADMIN'
+                          ? '👑 Super Admin'
+                          : u.role === 'ROLE_ADMIN'
+                          ? 'Sub-Admin'
+                          : 'Player';
 
                         return (
                           <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition-colors text-sm">
@@ -1212,11 +1234,8 @@ const AdminDashboard = () => {
                               </button>
                             </td>
                             <td className="py-4 px-4">
-                              <span className={`text-xs font-bold px-2.5 py-1 rounded border uppercase tracking-wider ${u.role === 'ROLE_ADMIN'
-                                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                                  : 'bg-primary/10 text-primary border-primary/20'
-                                }`}>
-                                {u.role === 'ROLE_ADMIN' ? 'Admin' : 'Player'}
+                              <span className={`text-xs font-bold px-2.5 py-1 rounded border uppercase tracking-wider ${roleBadgeClass}`}>
+                                {roleLabel}
                               </span>
                             </td>
                             <td className="py-4 px-4 text-textSecondary">
