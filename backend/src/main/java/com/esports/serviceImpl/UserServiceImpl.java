@@ -328,4 +328,11 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Unauthorized: Only Super Admin can perform this action");
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 }

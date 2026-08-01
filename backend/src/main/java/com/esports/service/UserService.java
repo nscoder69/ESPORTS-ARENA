@@ -15,4 +15,5 @@ public interface UserService {
     List<UserDto> getAllAdmins(String adminEmail);
     com.esports.dto.UpdateUserRoleResponseDto updateUserRoleAndPermissions(UUID userId, com.esports.dto.UpdateAdminRoleRequest request, String adminEmail);
     com.esports.dto.UpdateUserRoleResponseDto confirmSuperAdminPromotion(UUID userId, com.esports.dto.ConfirmSuperAdminRequest request, String adminEmail);
+    User getByEmail(String email);
 }

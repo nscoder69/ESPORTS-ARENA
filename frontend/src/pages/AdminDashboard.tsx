@@ -9,7 +9,7 @@ import { getAdminSupportTickets, replyToSupportTicket } from '../services/suppor
 import { getUserTransactionHistory, getUserWalletBalance, getPendingDeposits, verifyPendingDeposit, getPendingWithdrawals, verifyPendingWithdrawal, getPublicPaymentSettings, updatePaymentSettings, getAllAdmins, updateUserRoleAndPermissions, confirmSuperAdminPromotion } from '../services/walletService';
 import logo from '../assets/obitoloo.png';
 import qrImageDefault from '../assets/QR.jpeg';
-import { getImageUrl } from '../services/api';
+import API, { getImageUrl } from '../services/api';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -76,9 +76,23 @@ const AdminDashboard = () => {
 
   const [tab, setTab] = useState<'active' | 'history'>('active');
 
-  const userStr = localStorage.getItem('user');
-  const currentUser = userStr ? JSON.parse(userStr) : null;
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  });
+
   const isSuperAdmin = currentUser?.role === 'ROLE_SUPER_ADMIN';
+
+  useEffect(() => {
+    API.get('/users/me')
+      .then(res => {
+        if (res.data) {
+          localStorage.setItem('user', JSON.stringify(res.data));
+          setCurrentUser(res.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const hasPermission = (permKey: string): boolean => {
     if (isSuperAdmin) return true;

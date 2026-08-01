@@ -5,7 +5,7 @@ import { Trophy, LayoutDashboard, IndianRupee, LogOut, User, CheckCircle, Shield
 import { useState, useEffect, useCallback } from 'react';
 import { getWalletBalance } from './services/walletService';
 import { getUserNotifications, markAllNotificationsAsRead } from './services/notificationService';
-import { getImageUrl } from './services/api';
+import API, { getImageUrl } from './services/api';
 import logo from './assets/obitoloo.png';
 
 const Home = React.lazy(() => import('./pages/Home'));
@@ -33,8 +33,10 @@ function App() {
   const [isBlocked, setIsBlocked] = useState(localStorage.getItem('userBlocked') === 'true');
 
   const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : null;
+  const [user, setUser] = useState<any>(() => {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  });
 
   const fetchBalance = useCallback(() => {
     if (token) {
@@ -57,7 +59,13 @@ function App() {
     // Run initial data fetching concurrently
     Promise.allSettled([
       getWalletBalance().then(w => setBalance(w.balance)),
-      getUserNotifications().then(data => setNotifications(data))
+      getUserNotifications().then(data => setNotifications(data)),
+      API.get('/users/me').then(res => {
+        if (res.data) {
+          localStorage.setItem('user', JSON.stringify(res.data));
+          setUser(res.data);
+        }
+      })
     ]).catch(() => {});
 
     window.addEventListener('walletUpdated', fetchBalance);

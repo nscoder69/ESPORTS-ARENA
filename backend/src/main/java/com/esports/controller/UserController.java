@@ -40,6 +40,22 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponse> getCurrentUser(Authentication authentication) {
+        User currentUser = userService.getByEmail(authentication.getName());
+        AuthResponse response = AuthResponse.builder()
+                .id(currentUser.getId())
+                .email(currentUser.getEmail())
+                .role(currentUser.getRole() != null ? currentUser.getRole().getName() : "ROLE_PLAYER")
+                .gameName(currentUser.getGameName())
+                .freeFireUid(currentUser.getFreeFireUid())
+                .gameLevel(currentUser.getGameLevel())
+                .avatarUrl(currentUser.getAvatarUrl())
+                .permissions(currentUser.getPermissions())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     public ResponseEntity<java.util.List<com.esports.dto.UserDto>> getAllUsers(Authentication authentication) {
         return ResponseEntity.ok(userService.getAllUsers(authentication.getName()));

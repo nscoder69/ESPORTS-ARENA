@@ -103,13 +103,19 @@ public class AuthController {
                     + ".icon { font-size: 48px; margin-bottom: 16px; }"
                     + "h1 { color: #00F0FF; font-size: 24px; margin-bottom: 12px; font-weight: 700; }"
                     + "p { color: #94A3B8; font-size: 15px; line-height: 1.6; margin-bottom: 24px; }"
-                    + ".badge { background: rgba(0,240,255,0.1); border: 1px solid rgba(0,240,255,0.3); color: #00F0FF; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 20px; }"
-                    + "</style></head><body>"
+                    + ".btn { background: linear-gradient(90deg, #00F0FF, #00A8FF); color: #000000; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 8px; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(0,240,255,0.4); margin-top: 10px; }"
+                    + "</style>"
+                    + "<script>"
+                    + "setTimeout(function() { window.location.href = 'http://localhost:5173/admin/dashboard'; }, 3000);"
+                    + "</script>"
+                    + "</head><body>"
                     + "<div class=\"card\">"
                     + "<div class=\"icon\">👑</div>"
                     + "<div class=\"badge\">ESPORTS ARENA SECURITY</div>"
                     + "<h1>Super Admin Privileges Activated!</h1>"
                     + "<p>" + resultMessage + "</p>"
+                    + "<p style=\"font-size:13px; color:#64748B;\">Redirecting to Super Admin Dashboard in 3 seconds...</p>"
+                    + "<a href=\"http://localhost:5173/admin/dashboard\" class=\"btn\">OPEN SUPER ADMIN DASHBOARD</a>"
                     + "</div></body></html>";
             return ResponseEntity.ok(htmlResponse);
         } catch (Exception e) {
