@@ -16,18 +16,9 @@ public class AdminTestController {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-    @GetMapping("/make-admin/{email:.+}")
-    public ResponseEntity<String> makeAdmin(@PathVariable String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-                .orElseThrow(() -> new RuntimeException("ROLE_ADMIN not found"));
-
-        user.setRole(adminRole);
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Successfully upgraded " + email + " to ROLE_ADMIN! Please log out and log back in to see changes.");
+    @GetMapping({"/make-admin", "/make-admin/{email:.+}", "/make-admin/**"})
+    public ResponseEntity<String> makeAdmin(@PathVariable(value = "email", required = false) String email) {
+        return ResponseEntity.status(403).body("DEACTIVATED: The URL request method for creating sub-admin (ROLE_ADMIN) accounts is currently disabled. Sub-admins must be assigned or promoted directly by a Super Admin from the Admin Dashboard.");
     }
 
     private final com.esports.service.AuthService authService;
