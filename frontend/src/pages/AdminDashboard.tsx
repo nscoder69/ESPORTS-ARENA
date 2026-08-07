@@ -10,6 +10,7 @@ import { getUserTransactionHistory, getUserWalletBalance, getPendingDeposits, ve
 import logo from '../assets/obitoloo.png';
 import qrImageDefault from '../assets/QR.jpeg';
 import API, { getImageUrl } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -844,9 +845,7 @@ const AdminDashboard = () => {
 
             <div className="flex-grow overflow-y-auto space-y-3 pr-2 custom-scrollbar max-h-[500px]">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-10">
-                  <Loader className="animate-spin text-primary" size={24} />
-                </div>
+                <LoadingSpinner size={32} text="Loading tournaments..." />
               ) : displayedTournaments.length === 0 ? (
                 <p className="text-textSecondary text-sm text-center py-4">No tournaments found.</p>
               ) : (
@@ -1176,10 +1175,7 @@ const AdminDashboard = () => {
             </div>
 
             {usersLoading ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <Loader className="animate-spin text-primary" size={32} />
-                <p className="text-textSecondary text-sm mt-4 animate-pulse">Loading directory...</p>
-              </div>
+              <LoadingSpinner size={40} text="Loading directory..." />
             ) : usersError ? (
               <div className="text-center py-12 bg-rose-500/10 border border-rose-500/20 rounded-xl">
                 <p className="text-rose-400 text-sm">{usersError}</p>
@@ -1393,10 +1389,7 @@ const AdminDashboard = () => {
             </div>
 
             {supportLoading ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <Loader className="animate-spin text-primary" size={32} />
-                <p className="text-textSecondary text-sm mt-4 animate-pulse">Loading tickets...</p>
-              </div>
+              <LoadingSpinner size={40} text="Loading support tickets..." />
             ) : supportError ? (
               <div className="text-center py-12 bg-rose-500/10 border border-rose-500/20 rounded-xl">
                 <p className="text-rose-400 text-sm">{supportError}</p>
@@ -1482,10 +1475,7 @@ const AdminDashboard = () => {
           )}
 
           {depositsLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-2 text-textSecondary">
-              <Loader className="animate-spin text-primary" size={32} />
-              <span className="text-sm">Fetching manual deposits...</span>
-            </div>
+            <LoadingSpinner size={40} text="Fetching manual deposits..." />
           ) : pendingDeposits.length === 0 ? (
             <div className="glass-panel p-12 text-center text-textSecondary border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-3">
               <CheckCircle size={36} className="text-emerald-500/70" />
@@ -1584,10 +1574,7 @@ const AdminDashboard = () => {
           )}
 
           {withdrawalsLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-2 text-textSecondary">
-              <Loader className="animate-spin text-primary" size={32} />
-              <span className="text-sm">Fetching manual withdrawals...</span>
-            </div>
+            <LoadingSpinner size={40} text="Fetching manual withdrawals..." />
           ) : pendingWithdrawals.length === 0 ? (
             <div className="glass-panel p-12 text-center text-textSecondary border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-3">
               <CheckCircle size={36} className="text-emerald-500/70" />
@@ -2369,10 +2356,7 @@ const AdminDashboard = () => {
             </div>
 
             {loadingProfileDetails ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <Loader className="animate-spin text-primary" size={32} />
-                <p className="text-textSecondary text-sm mt-4">Loading profile details...</p>
-              </div>
+              <LoadingSpinner size={40} text="Loading profile details..." />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Stats Left Column */}

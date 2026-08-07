@@ -92,9 +92,7 @@ export default function LiveMatch() {
 
   if (isParticipant === null) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <LoadingSpinner size={36} />
-      </div>
+      <LoadingSpinner fullScreen text="Verifying Match Access..." />
     );
   }
 

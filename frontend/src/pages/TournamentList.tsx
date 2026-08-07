@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { getAllTournaments, deleteTournament } from '../services/tournamentService';
 import { Trophy, X, Gamepad2, Key, Clock, Copy, CheckCircle } from 'lucide-react';
-import logo from '../assets/obitoloo.png';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { createTeam } from '../services/teamService';
 import { registerForTournament, getRegisteredTeamsForParticipant, joinTournamentViaInvite, getMyRegisteredTournaments, registerSolo, getTournamentResults, getRoomCredentials } from '../services/tournamentService';
@@ -381,15 +380,7 @@ export default function TournamentList() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <motion.img
-            src={logo}
-            alt="Loading..."
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-            className="w-12 h-12 object-contain"
-          />
-        </div>
+        <LoadingSpinner size={48} text="Loading Tournaments..." />
       ) : (upcomingTournaments.length === 0 && liveTournaments.length === 0 && finishedTournaments.length === 0) ? (
         <div className="text-center py-20 border border-dashed border-white/10 rounded-xl">
           <Trophy className="mx-auto text-borderDim mb-4" size={48} />

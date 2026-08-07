@@ -7,6 +7,7 @@ import { getWalletBalance } from './services/walletService';
 import { getUserNotifications, markAllNotificationsAsRead } from './services/notificationService';
 import API, { getImageUrl } from './services/api';
 import logo from './assets/obitoloo.png';
+import LoadingSpinner from './components/LoadingSpinner';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -336,17 +337,7 @@ function App() {
         )}
 
         <main className="flex-grow">
-          <Suspense fallback={
-            <div className="flex items-center justify-center h-full min-h-[50vh]">
-              <motion.img
-                src={logo}
-                alt="Loading..."
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-                className="w-12 h-12 object-contain"
-              />
-            </div>
-          }>
+          <Suspense fallback={<LoadingSpinner fullScreen text="Loading Esports Arena..." />}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />

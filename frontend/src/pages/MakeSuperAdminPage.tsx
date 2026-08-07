@@ -3,6 +3,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Mail, AlertTriangle, Loader2, CheckCircle2 } from 'lucide-react';
 import API from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function MakeSuperAdminPage() {
   const navigate = useNavigate();
@@ -75,8 +76,7 @@ export default function MakeSuperAdminPage() {
 
         {loading ? (
           <div className="py-12 flex flex-col items-center justify-center gap-4">
-            <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
-            <h2 className="text-xl font-bold text-white font-display">Processing Super Admin Request...</h2>
+            <LoadingSpinner size={48} text="Processing Super Admin Request..." />
             <p className="text-sm text-textSecondary">Connecting to authorization servers for {targetEmail}</p>
           </div>
         ) : error ? (

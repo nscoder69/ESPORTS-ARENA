@@ -4,8 +4,8 @@ import { Wallet as WalletIcon, ArrowUpRight, ArrowDownRight, IndianRupee, Clock,
 import { getWalletBalance, getTransactionHistory, depositFunds, withdrawFunds, getPublicPaymentSettings } from '../services/walletService';
 import type { Wallet, Transaction, PaymentSettings } from '../services/walletService';
 import { getImageUrl } from '../services/api';
-import logo from '../assets/obitoloo.png';
 import qrImage from '../assets/QR.jpeg';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function WalletDashboard() {
   const [wallet, setWallet] = useState<Wallet | null>(null);
@@ -186,15 +186,7 @@ export default function WalletDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <motion.img 
-          src={logo}
-          alt="Loading..."
-          animate={{ rotate: 360 }} 
-          transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} 
-          className="w-12 h-12 object-contain" 
-        />
-      </div>
+      <LoadingSpinner fullScreen text="Loading Wallet & Balance..." />
     );
   }
 
