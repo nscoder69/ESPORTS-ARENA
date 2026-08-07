@@ -22,7 +22,7 @@ export default function LoadingSpinner({
       animate={{ rotate: 360 }}
       transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
       style={{ width: numericSize, height: numericSize }}
-      className={`object-contain inline-block ${className}`}
+      className={`object-contain ${className}`}
     />
   );
 
@@ -34,5 +34,9 @@ export default function LoadingSpinner({
     );
   }
 
-  return spinner;
+  return (
+    <div className="w-full flex items-center justify-center py-6">
+      {spinner}
+    </div>
+  );
 }
