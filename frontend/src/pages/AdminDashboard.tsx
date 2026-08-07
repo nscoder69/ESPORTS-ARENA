@@ -247,6 +247,23 @@ const AdminDashboard = () => {
     }
   }, [adminView]);
 
+  useEffect(() => {
+    const handleAdminRealtimeUpdate = () => {
+      fetchTournaments();
+      if (hasPermission('MANAGE_DEPOSITS')) fetchPendingDeposits();
+      if (hasPermission('MANAGE_WITHDRAWALS')) fetchPendingWithdrawals();
+      if (hasPermission('MANAGE_SUPPORT')) fetchSupportTickets();
+    };
+
+    window.addEventListener('adminUpdated', handleAdminRealtimeUpdate);
+    window.addEventListener('tournamentsUpdated', fetchTournaments);
+
+    return () => {
+      window.removeEventListener('adminUpdated', handleAdminRealtimeUpdate);
+      window.removeEventListener('tournamentsUpdated', fetchTournaments);
+    };
+  }, []);
+
   const fetchPaymentSettings = async () => {
     try {
       const data = await getPublicPaymentSettings();

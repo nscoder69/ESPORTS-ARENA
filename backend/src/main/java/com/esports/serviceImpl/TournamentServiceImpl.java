@@ -48,6 +48,7 @@ public class TournamentServiceImpl implements TournamentService {
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
     private final NotificationService notificationService;
+    private final com.esports.service.RealtimeEventPublisher realtimeEventPublisher;
 
     @Override
     public TournamentDto createTournament(TournamentDto tournamentDto, String userEmail) {
@@ -74,7 +75,10 @@ public class TournamentServiceImpl implements TournamentService {
 
         Tournament saved = tournamentRepository.save(tournament);
 
-        return mapToTournamentDto(saved);
+        TournamentDto dto = mapToTournamentDto(saved);
+        realtimeEventPublisher.publishTournamentUpdate("TOURNAMENT_CREATED", dto);
+
+        return dto;
     }
 
     @Override
@@ -179,7 +183,11 @@ public class TournamentServiceImpl implements TournamentService {
         registration.setSlotNumber(assignedSlot);
         registration = registrationRepository.save(registration);
 
-        return mapToRegistrationDto(registration);
+        TournamentRegistrationDto regDto = mapToRegistrationDto(registration);
+        realtimeEventPublisher.publishTournamentUpdate("TOURNAMENT_REGISTERED", regDto);
+        realtimeEventPublisher.publishUserWalletUpdate(userEmail, null, "Registered for tournament " + tournament.getName());
+
+        return regDto;
     }
 
     @Override
@@ -267,7 +275,11 @@ public class TournamentServiceImpl implements TournamentService {
         registration.setSlotNumber(assignedSlot);
         registration = registrationRepository.save(registration);
 
-        return mapToRegistrationDto(registration);
+        TournamentRegistrationDto regDto = mapToRegistrationDto(registration);
+        realtimeEventPublisher.publishTournamentUpdate("TOURNAMENT_REGISTERED_SOLO", regDto);
+        realtimeEventPublisher.publishUserWalletUpdate(userEmail, null, "Solo registered for tournament " + tournament.getName());
+
+        return regDto;
     }
 
     @Override
@@ -333,20 +345,9 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setStatus("Cancelled");
         tournament = tournamentRepository.save(tournament);
         
-        TournamentDto response = new TournamentDto();
-        response.setId(tournament.getId());
-        response.setName(tournament.getName());
-        response.setDescription(tournament.getDescription());
-        response.setEntryFee(tournament.getEntryFee());
-        response.setPrizePool(tournament.getPrizePool());
-        response.setPerKillPrize(tournament.getPerKillPrize());
-        response.setFirstPrize(tournament.getFirstPrize());
-        response.setSecondPrize(tournament.getSecondPrize());
-        response.setThirdPrize(tournament.getThirdPrize());
-        response.setStatus(tournament.getStatus());
-        response.setGameMap(tournament.getGameMap());
-        response.setGameMode(tournament.getGameMode());
-        response.setMatchTiming(tournament.getMatchTiming());
+        TournamentDto response = mapToTournamentDto(tournament);
+        realtimeEventPublisher.publishTournamentUpdate("TOURNAMENT_CANCELLED", response);
+
         return response;
     }
 
@@ -362,20 +363,8 @@ public class TournamentServiceImpl implements TournamentService {
         }
         tournament = tournamentRepository.save(tournament);
         
-        TournamentDto response = new TournamentDto();
-        response.setId(tournament.getId());
-        response.setName(tournament.getName());
-        response.setDescription(tournament.getDescription());
-        response.setEntryFee(tournament.getEntryFee());
-        response.setPrizePool(tournament.getPrizePool());
-        response.setPerKillPrize(tournament.getPerKillPrize());
-        response.setFirstPrize(tournament.getFirstPrize());
-        response.setSecondPrize(tournament.getSecondPrize());
-        response.setThirdPrize(tournament.getThirdPrize());
-        response.setStatus(tournament.getStatus());
-        response.setGameMap(tournament.getGameMap());
-        response.setGameMode(tournament.getGameMode());
-        response.setMatchTiming(tournament.getMatchTiming());
+        TournamentDto response = mapToTournamentDto(tournament);
+        realtimeEventPublisher.publishTournamentUpdate("TOURNAMENT_RESCHEDULED", response);
         return response;
     }
 
@@ -392,6 +381,7 @@ public class TournamentServiceImpl implements TournamentService {
         
         tournament.setIsDeleted(true);
         tournamentRepository.save(tournament);
+        realtimeEventPublisher.publishTournamentUpdate("TOURNAMENT_DELETED", tournamentId);
     }
 
     @Override
@@ -760,7 +750,10 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setStatus("Finished");
         tournament = tournamentRepository.save(tournament);
 
-        return mapToTournamentDto(tournament);
+        TournamentDto resultDtoRes = mapToTournamentDto(tournament);
+        realtimeEventPublisher.publishTournamentUpdate("TOURNAMENT_FINISHED", resultDtoRes);
+
+        return resultDtoRes;
     }
 
     @Override
@@ -828,6 +821,9 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setRoomId(updateDto.getRoomId());
         tournament.setRoomPassword(updateDto.getRoomPassword());
         Tournament saved = tournamentRepository.save(tournament);
+
+        TournamentDto savedDto = mapToTournamentDto(saved);
+        realtimeEventPublisher.publishRoomCredentialsUpdate(tournamentId, savedDto);
 
         // Notify all registered players
         List<TournamentRegistration> registrations = registrationRepository.findByTournament_Id(tournamentId);

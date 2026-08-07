@@ -45,6 +45,16 @@ export default function WalletDashboard() {
   useEffect(() => {
     fetchWalletData();
     fetchPaymentSettings();
+
+    const handleRealtimeWalletUpdate = () => {
+      fetchWalletData();
+    };
+
+    window.addEventListener('walletUpdated', handleRealtimeWalletUpdate);
+
+    return () => {
+      window.removeEventListener('walletUpdated', handleRealtimeWalletUpdate);
+    };
   }, []);
 
   useEffect(() => {

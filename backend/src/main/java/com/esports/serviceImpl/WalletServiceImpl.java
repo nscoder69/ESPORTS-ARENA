@@ -29,6 +29,7 @@ public class WalletServiceImpl implements WalletService {
     private final UserRepository userRepository;
     private final com.razorpay.RazorpayClient razorpayClient;
     private final com.esports.service.NotificationService notificationService;
+    private final com.esports.service.RealtimeEventPublisher realtimeEventPublisher;
 
     @org.springframework.beans.factory.annotation.Value("${app.razorpay.key-secret}")
     private String razorpayKeySecret;
@@ -101,9 +102,14 @@ public class WalletServiceImpl implements WalletService {
         transaction.setPaymentReference(request.getPaymentReference().trim());
         transaction.setDescription("Manual Deposit Request (Awaiting Admin Verification)");
         
-        transactionRepository.save(transaction);
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        WalletDto dto = mapToWalletDto(wallet);
 
-        return mapToWalletDto(wallet);
+        // Broadcast to user and admin
+        realtimeEventPublisher.publishUserWalletUpdate(userEmail, dto, "Deposit request submitted");
+        realtimeEventPublisher.publishAdminUpdate("DEPOSIT_REQUESTED", mapToTransactionDto(savedTransaction));
+
+        return dto;
     }
 
     @Override
@@ -145,9 +151,14 @@ public class WalletServiceImpl implements WalletService {
         }
         transaction.setDescription(desc);
         
-        transactionRepository.save(transaction);
+        Transaction savedTx = transactionRepository.save(transaction);
+        WalletDto dto = mapToWalletDto(savedWallet);
 
-        return mapToWalletDto(savedWallet);
+        // Broadcast to user and admin
+        realtimeEventPublisher.publishUserWalletUpdate(userEmail, dto, "Withdrawal request submitted");
+        realtimeEventPublisher.publishAdminUpdate("WITHDRAWAL_REQUESTED", mapToTransactionDto(savedTx));
+
+        return dto;
     }
 
     @Override
@@ -271,7 +282,10 @@ public class WalletServiceImpl implements WalletService {
         transaction.setDescription("Razorpay Deposit");
         transactionRepository.save(transaction);
 
-        return mapToWalletDto(savedWallet);
+        WalletDto dto = mapToWalletDto(savedWallet);
+        realtimeEventPublisher.publishUserWalletUpdate(userEmail, dto, "Razorpay deposit successful");
+
+        return dto;
     }
 
     private boolean verifySignature(String orderId, String paymentId, String signature, String secret) {
@@ -368,7 +382,18 @@ public class WalletServiceImpl implements WalletService {
         }
 
         transactionRepository.save(transaction);
-        return mapToWalletDto(wallet);
+
+        WalletDto dto = mapToWalletDto(wallet);
+        if (wallet.getUser() != null && wallet.getUser().getEmail() != null) {
+            realtimeEventPublisher.publishUserWalletUpdate(
+                    wallet.getUser().getEmail(), 
+                    dto, 
+                    approve ? "Deposit approved" : "Deposit rejected"
+            );
+        }
+        realtimeEventPublisher.publishAdminUpdate("DEPOSIT_PROCESSED", mapToTransactionDto(transaction));
+
+        return dto;
     }
 
     @Override
@@ -445,7 +470,18 @@ public class WalletServiceImpl implements WalletService {
         }
 
         transactionRepository.save(transaction);
-        return mapToWalletDto(wallet);
+
+        WalletDto dto = mapToWalletDto(wallet);
+        if (wallet.getUser() != null && wallet.getUser().getEmail() != null) {
+            realtimeEventPublisher.publishUserWalletUpdate(
+                    wallet.getUser().getEmail(), 
+                    dto, 
+                    approve ? "Withdrawal approved" : "Withdrawal rejected"
+            );
+        }
+        realtimeEventPublisher.publishAdminUpdate("WITHDRAWAL_PROCESSED", mapToTransactionDto(transaction));
+
+        return dto;
     }
 
     private void verifyPermission(User admin, String requiredPermission) {

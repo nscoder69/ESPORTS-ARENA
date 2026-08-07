@@ -26,6 +26,7 @@ public class SupportServiceImpl implements SupportService {
     private final UserRepository userRepository;
     private final MailService mailService;
     private final NotificationService notificationService;
+    private final com.esports.service.RealtimeEventPublisher realtimeEventPublisher;
 
     @Override
     @Transactional
@@ -42,9 +43,11 @@ public class SupportServiceImpl implements SupportService {
         SupportTicket savedTicket = supportTicketRepository.save(ticket);
 
         // Send complaint email to admin
-        mailService.sendSupportReport(userEmail, subject, message);
+        SupportTicketDto dto = mapToDto(savedTicket);
+        realtimeEventPublisher.publishUserSupportUpdate(userEmail, dto);
+        realtimeEventPublisher.publishAdminUpdate("SUPPORT_TICKET_CREATED", dto);
 
-        return mapToDto(savedTicket);
+        return dto;
     }
 
     @Override
@@ -84,7 +87,13 @@ public class SupportServiceImpl implements SupportService {
         String notificationMessage = "An administrator has replied to your support ticket:\n\n" + reply;
         notificationService.createNotification(ticket.getUser(), notificationTitle, notificationMessage);
 
-        return mapToDto(updatedTicket);
+        SupportTicketDto dto = mapToDto(updatedTicket);
+        if (ticket.getUser() != null && ticket.getUser().getEmail() != null) {
+            realtimeEventPublisher.publishUserSupportUpdate(ticket.getUser().getEmail(), dto);
+        }
+        realtimeEventPublisher.publishAdminUpdate("SUPPORT_TICKET_REPLIED", dto);
+
+        return dto;
     }
 
     private void verifyAdmin(String email) {

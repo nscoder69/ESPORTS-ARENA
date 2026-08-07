@@ -24,6 +24,8 @@ const Support = React.lazy(() => import('./pages/Support'));
 const WalletDashboard = React.lazy(() => import('./pages/WalletDashboard'));
 const MakeSuperAdminPage = React.lazy(() => import('./pages/MakeSuperAdminPage'));
 
+import { initRealtimeSync } from './services/websocketService';
+
 function App() {
   const [balance, setBalance] = useState<number | null>(null);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -54,6 +56,14 @@ function App() {
   }, [token]);
 
   useEffect(() => {
+    if (user?.email) {
+      initRealtimeSync(user.email);
+    } else {
+      initRealtimeSync();
+    }
+  }, [user?.email]);
+
+  useEffect(() => {
     if (!token) return;
 
     // Run initial data fetching concurrently
@@ -68,11 +78,24 @@ function App() {
       })
     ]).catch(() => {});
 
-    window.addEventListener('walletUpdated', fetchBalance);
+    const handleWalletUpdated = (e: any) => {
+      fetchBalance();
+      if (e?.detail?.data?.balance !== undefined) {
+        setBalance(e.detail.data.balance);
+      }
+    };
+
+    const handleNotificationsUpdated = () => {
+      fetchNotifications();
+    };
+
+    window.addEventListener('walletUpdated', handleWalletUpdated);
+    window.addEventListener('notificationsUpdated', handleNotificationsUpdated);
     const interval = setInterval(fetchNotifications, 30000);
 
     return () => {
-      window.removeEventListener('walletUpdated', fetchBalance);
+      window.removeEventListener('walletUpdated', handleWalletUpdated);
+      window.removeEventListener('notificationsUpdated', handleNotificationsUpdated);
       clearInterval(interval);
     };
   }, [token, fetchBalance, fetchNotifications]);

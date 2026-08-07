@@ -32,6 +32,16 @@ export default function Support() {
 
   useEffect(() => {
     fetchTickets();
+
+    const handleSupportUpdate = () => {
+      fetchTickets();
+    };
+
+    window.addEventListener('supportUpdated', handleSupportUpdate);
+
+    return () => {
+      window.removeEventListener('supportUpdated', handleSupportUpdate);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

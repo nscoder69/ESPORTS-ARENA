@@ -138,13 +138,20 @@ export default function TournamentList() {
         } else {
           setTournaments(data);
         }
-      } catch (err) {
-        console.error("Failed to fetch tournaments", err);
+      } catch (error) {
+        console.error("Failed to fetch tournaments", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchTournaments();
+
+    window.addEventListener('tournamentsUpdated', fetchTournaments);
+
+    return () => {
+      window.removeEventListener('tournamentsUpdated', fetchTournaments);
+    };
   }, []);
 
   const openRegisterModal = async (tournament: any) => {
