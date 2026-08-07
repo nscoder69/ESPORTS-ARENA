@@ -34,6 +34,9 @@ public class User extends BaseEntity {
     @Column(name = "game_level")
     private Integer gameLevel = 1;
 
+    @Column(name = "game_profile_status", length = 50)
+    private String gameProfileStatus = "VERIFIED";
+
     @Column(name = "avatar_url")
     private String avatarUrl;
 

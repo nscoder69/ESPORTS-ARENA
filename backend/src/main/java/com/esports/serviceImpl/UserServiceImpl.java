@@ -31,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final TournamentRepository tournamentRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final com.esports.service.MailService mailService;
+    private final com.esports.service.GameProfileVerificationService gameProfileVerificationService;
 
     @org.springframework.beans.factory.annotation.Value("${spring.mail.username:}")
     private String ownerEmail;
@@ -53,14 +54,15 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (gameName != null) {
-            user.setGameName(gameName);
-        }
-        if (freeFireUid != null) {
-            user.setFreeFireUid(freeFireUid);
-        }
-        if (gameLevel != null) {
-            user.setGameLevel(gameLevel);
+        if ((gameName != null && !gameName.trim().isEmpty()) ||
+            (freeFireUid != null && !freeFireUid.trim().isEmpty()) ||
+            (gameLevel != null && gameLevel > 0)) {
+
+            String reqGameName = (gameName != null && !gameName.trim().isEmpty()) ? gameName.trim() : (user.getGameName() != null ? user.getGameName() : "");
+            String reqUid = (freeFireUid != null && !freeFireUid.trim().isEmpty()) ? freeFireUid.trim() : (user.getFreeFireUid() != null ? user.getFreeFireUid() : "");
+            Integer reqLevel = (gameLevel != null && gameLevel > 0) ? gameLevel : (user.getGameLevel() != null ? user.getGameLevel() : 1);
+
+            gameProfileVerificationService.submitRequest(user, reqGameName, reqUid, reqLevel);
         }
 
         if (avatar != null && !avatar.isEmpty()) {
@@ -267,6 +269,7 @@ public class UserServiceImpl implements UserService {
         dto.setGameName(u.getGameName());
         dto.setFreeFireUid(u.getFreeFireUid());
         dto.setGameLevel(u.getGameLevel() != null ? u.getGameLevel() : 1);
+        dto.setGameProfileStatus(u.getGameProfileStatus() != null ? u.getGameProfileStatus() : "VERIFIED");
         dto.setAvatarUrl(u.getAvatarUrl());
         dto.setCreatedAt(u.getCreatedAt());
         dto.setLastActiveAt(u.getLastActiveAt());

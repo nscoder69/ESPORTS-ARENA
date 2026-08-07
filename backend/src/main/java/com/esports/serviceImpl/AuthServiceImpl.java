@@ -37,6 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private final FileUploadService fileUploadService;
     private final OtpVerificationRepository otpVerificationRepository;
     private final MailService mailService;
+    private final com.esports.service.GameProfileVerificationService gameProfileVerificationService;
 
     @Override
     @Transactional
@@ -54,7 +55,6 @@ public class AuthServiceImpl implements AuthService {
                 throw new RuntimeException("Email address must be a @gmail.com address");
             }
 
-            // OTP Verification
             String otp = request.getOtp();
             if (otp == null || otp.trim().isEmpty()) {
                 throw new RuntimeException("OTP code is required");
@@ -63,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
             OtpVerification otpVerification = otpVerificationRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("No OTP verification code requested for this email"));
 
-            if (!otpVerification.getOtp().equals(otp)) {
+            if (!otpVerification.getOtp().equals(otp.trim())) {
                 throw new RuntimeException("Invalid OTP code");
             }
 
@@ -71,7 +71,6 @@ public class AuthServiceImpl implements AuthService {
                 throw new RuntimeException("OTP verification code has expired. Please request a new one.");
             }
 
-            // Delete the verification record to prevent reuse
             otpVerificationRepository.delete(otpVerification);
         }
 
@@ -90,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email is already taken");
+            throw new RuntimeException("Email already exists");
         }
 
         Role userRole = roleRepository.findByName("ROLE_PLAYER")
@@ -100,9 +99,15 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setRole(userRole);
-        user.setGameName(request.getGameName());
-        user.setFreeFireUid(request.getFreeFireUid());
-        user.setGameLevel(request.getGameLevel() != null ? request.getGameLevel() : 1);
+
+        boolean hasGameInfo = (request.getGameName() != null && !request.getGameName().trim().isEmpty()) ||
+                              (request.getFreeFireUid() != null && !request.getFreeFireUid().trim().isEmpty());
+
+        if (hasGameInfo) {
+            user.setGameProfileStatus("PENDING");
+        } else {
+            user.setGameProfileStatus("NONE");
+        }
 
         if (avatar != null && !avatar.isEmpty()) {
             try {
@@ -114,6 +119,15 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User savedUser = userRepository.save(user);
+
+        if (hasGameInfo) {
+            gameProfileVerificationService.submitRequest(
+                    savedUser,
+                    request.getGameName(),
+                    request.getFreeFireUid(),
+                    request.getGameLevel() != null ? request.getGameLevel() : 1
+            );
+        }
 
         // Create Wallet
         Wallet wallet = new Wallet();
@@ -130,6 +144,7 @@ public class AuthServiceImpl implements AuthService {
                 .gameName(savedUser.getGameName())
                 .freeFireUid(savedUser.getFreeFireUid())
                 .gameLevel(savedUser.getGameLevel())
+                .gameProfileStatus(savedUser.getGameProfileStatus())
                 .avatarUrl(savedUser.getAvatarUrl())
                 .permissions(savedUser.getPermissions())
                 .build();
@@ -166,6 +181,7 @@ public class AuthServiceImpl implements AuthService {
                 .gameName(user.getGameName())
                 .freeFireUid(user.getFreeFireUid())
                 .gameLevel(user.getGameLevel() != null ? user.getGameLevel() : 1)
+                .gameProfileStatus(user.getGameProfileStatus() != null ? user.getGameProfileStatus() : "VERIFIED")
                 .avatarUrl(user.getAvatarUrl())
                 .permissions(user.getPermissions())
                 .build();

@@ -101,6 +101,13 @@ public class TournamentServiceImpl implements TournamentService {
             throw new RuntimeException("Please update your In-Game Name, Free Fire UID, and Level in your profile before registering.");
         }
 
+        if ("PENDING".equalsIgnoreCase(captain.getGameProfileStatus())) {
+            throw new RuntimeException("Your In-Game Credentials (Name, UID, Level) are currently pending Admin Verification. Please wait for Admin approval before registering.");
+        }
+        if ("REJECTED".equalsIgnoreCase(captain.getGameProfileStatus()) || "NONE".equalsIgnoreCase(captain.getGameProfileStatus())) {
+            throw new RuntimeException("Please submit your In-Game Credentials for Admin verification in your profile before registering.");
+        }
+
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
 
@@ -199,6 +206,13 @@ public class TournamentServiceImpl implements TournamentService {
         if (player.getGameName() == null || player.getGameName().trim().isEmpty() ||
             player.getFreeFireUid() == null || player.getFreeFireUid().trim().isEmpty()) {
             throw new RuntimeException("Please update your In-Game Name and Free Fire UID in your profile before registering.");
+        }
+
+        if ("PENDING".equalsIgnoreCase(player.getGameProfileStatus())) {
+            throw new RuntimeException("Your In-Game Credentials (Name, UID, Level) are currently pending Admin Verification. Please wait for Admin approval before registering.");
+        }
+        if ("REJECTED".equalsIgnoreCase(player.getGameProfileStatus()) || "NONE".equalsIgnoreCase(player.getGameProfileStatus())) {
+            throw new RuntimeException("Please submit your In-Game Credentials for Admin verification in your profile before registering.");
         }
 
         Tournament tournament = tournamentRepository.findById(tournamentId)

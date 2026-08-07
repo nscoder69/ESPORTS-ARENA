@@ -188,7 +188,38 @@ const EditProfile = () => {
 
           <h2 className="text-2xl font-bold font-display text-white">{userData.email.split('@')[0]}</h2>
           <p className="text-sm text-textSecondary">{userData.email}</p>
+
+          <div className="mt-3">
+            {userData.gameProfileStatus === 'PENDING' ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                VERIFICATION PENDING ADMIN APPROVAL
+              </span>
+            ) : userData.gameProfileStatus === 'REJECTED' ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-400">
+                <Shield size={14} />
+                CREDENTIALS REJECTED - RESUBMISSION REQUIRED
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                <Shield size={14} />
+                VERIFIED GAME CREDENTIALS
+              </span>
+            )}
+          </div>
         </div>
+
+        {userData.gameProfileStatus === 'PENDING' && (
+          <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl mb-6 text-sm text-amber-300 flex items-start gap-3">
+            <Shield className="text-amber-400 shrink-0 mt-0.5" size={18} />
+            <div>
+              <p className="font-bold">Pending Admin Verification</p>
+              <p className="text-xs mt-1 text-amber-200/80">
+                Your submitted In-Game Name, Free Fire UID, and Level are under Admin review. Active credentials will update and tournament eligibility will unlock as soon as Admin approves your request.
+              </p>
+            </div>
+          </div>
+        )}
 
         {error && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-secondary/10 border border-secondary/20 text-secondary text-sm p-4 rounded-xl mb-8 text-center">
@@ -204,7 +235,7 @@ const EditProfile = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           <div className="space-y-4">
-            <h3 className="text-white font-display text-xl border-b border-white/10 pb-2">Gaming Identity</h3>
+            <h3 className="text-white font-display text-xl border-b border-white/10 pb-2">Gaming Identity (Admin Verified)</h3>
 
             <div>
               <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">In-Game Name</label>

@@ -254,7 +254,14 @@ export default function Signup() {
           </div>
 
           <div className="pt-4 border-t border-white/10">
-            <p className="text-xs text-textSecondary mb-4">Profile & Gaming Details</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-textSecondary font-semibold">Profile & Gaming Details</p>
+              <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">ADMIN VERIFIED</span>
+            </div>
+            <p className="text-xs text-amber-300/80 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg flex items-center gap-2 mb-4">
+              <Shield size={14} className="shrink-0 text-amber-400" />
+              Game credentials will be reviewed & verified by Admin prior to tournament participation.
+            </p>
             
             <div className="space-y-4">
               <div>

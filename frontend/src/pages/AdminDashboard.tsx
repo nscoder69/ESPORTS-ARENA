@@ -105,7 +105,7 @@ const AdminDashboard = () => {
     return true;
   };
 
-  const getInitialAdminView = (): 'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'payment-settings' | 'access-control' => {
+  const getInitialAdminView = (): 'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'game-verifications' | 'payment-settings' | 'access-control' => {
     if (isSuperAdmin || hasPermission('MANAGE_TOURNAMENTS')) return 'tournaments';
     if (hasPermission('MANAGE_USERS')) return 'users';
     if (hasPermission('MANAGE_SUPPORT')) return 'support';
@@ -114,13 +114,19 @@ const AdminDashboard = () => {
     return 'tournaments';
   };
 
-  const [adminView, setAdminView] = useState<'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'payment-settings' | 'access-control'>(getInitialAdminView);
+  const [adminView, setAdminView] = useState<'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'game-verifications' | 'payment-settings' | 'access-control'>(getInitialAdminView);
   const [pendingDeposits, setPendingDeposits] = useState<any[]>([]);
   const [depositsLoading, setDepositsLoading] = useState(false);
   const [depositsError, setDepositsError] = useState('');
   const [pendingWithdrawals, setPendingWithdrawals] = useState<any[]>([]);
   const [withdrawalsLoading, setWithdrawalsLoading] = useState(false);
   const [withdrawalsError, setWithdrawalsError] = useState('');
+  const [gameVerifications, setGameVerifications] = useState<any[]>([]);
+  const [gameVerificationsLoading, setGameVerificationsLoading] = useState(false);
+  const [gameVerificationsError, setGameVerificationsError] = useState('');
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [selectedReqForReject, setSelectedReqForReject] = useState<any | null>(null);
+  const [rejectionReasonInput, setRejectionReasonInput] = useState('');
   const [usersList, setUsersList] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState('');
@@ -239,6 +245,8 @@ const AdminDashboard = () => {
       fetchPendingDeposits();
     } else if (adminView === 'withdrawals' && hasPermission('MANAGE_WITHDRAWALS')) {
       fetchPendingWithdrawals();
+    } else if (adminView === 'game-verifications' && hasPermission('MANAGE_USERS')) {
+      fetchGameVerifications();
     } else if (adminView === 'payment-settings' && isSuperAdmin) {
       fetchPaymentSettings();
     } else if (adminView === 'access-control' && isSuperAdmin) {
@@ -248,12 +256,56 @@ const AdminDashboard = () => {
     }
   }, [adminView]);
 
+  const fetchGameVerifications = async () => {
+    setGameVerificationsLoading(true);
+    setGameVerificationsError('');
+    try {
+      const res = await API.get('/admin/game-profile-requests');
+      setGameVerifications(res.data);
+    } catch (err: any) {
+      setGameVerificationsError(err.response?.data?.message || 'Failed to fetch verification requests');
+    } finally {
+      setGameVerificationsLoading(false);
+    }
+  };
+
+  const handleApproveGameVerification = async (requestId: string) => {
+    if (!window.confirm('Approve these in-game credentials for user?')) return;
+    setActionLoading(true);
+    try {
+      await API.post(`/admin/game-profile-requests/${requestId}/approve`);
+      fetchGameVerifications();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to approve verification request');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRejectGameVerification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedReqForReject) return;
+    setActionLoading(true);
+    try {
+      await API.post(`/admin/game-profile-requests/${selectedReqForReject.id}/reject?reason=${encodeURIComponent(rejectionReasonInput)}`);
+      setRejectModalOpen(false);
+      setSelectedReqForReject(null);
+      setRejectionReasonInput('');
+      fetchGameVerifications();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to reject verification request');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleAdminRealtimeUpdate = () => {
       fetchTournaments();
       if (hasPermission('MANAGE_DEPOSITS')) fetchPendingDeposits();
       if (hasPermission('MANAGE_WITHDRAWALS')) fetchPendingWithdrawals();
       if (hasPermission('MANAGE_SUPPORT')) fetchSupportTickets();
+      if (hasPermission('MANAGE_USERS')) fetchGameVerifications();
     };
 
     window.addEventListener('adminUpdated', handleAdminRealtimeUpdate);
@@ -766,6 +818,20 @@ const AdminDashboard = () => {
                 className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'withdrawals' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Pending Withdrawals
+              </button>
+            )}
+
+            {hasPermission('MANAGE_USERS') && (
+              <button
+                onClick={() => setAdminView('game-verifications')}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center gap-1.5 ${adminView === 'game-verifications' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+              >
+                Game Profile Verifications
+                {gameVerifications.length > 0 && (
+                  <span className="w-5 h-5 rounded-full bg-amber-500 text-black text-[10px] font-extrabold flex items-center justify-center animate-pulse">
+                    {gameVerifications.length}
+                  </span>
+                )}
               </button>
             )}
 
@@ -1744,6 +1810,107 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
+      ) : adminView === 'game-verifications' ? (
+        <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-bold font-display text-white">In-Game Credentials Verifications</h3>
+              <p className="text-textSecondary text-xs mt-1">Review and verify user In-Game Name, Free Fire UID, and Level before unlocking tournament eligibility</p>
+            </div>
+            <button
+              onClick={fetchGameVerifications}
+              className="px-3 py-1.5 rounded text-xs font-semibold bg-surface border border-white/10 text-textSecondary hover:text-white transition-all cursor-pointer flex items-center gap-2"
+            >
+              <RefreshCw size={14} className={gameVerificationsLoading ? 'animate-spin' : ''} /> Refresh List
+            </button>
+          </div>
+
+          {gameVerificationsError && (
+            <div className="glass-panel p-4 border border-rose-500/20 bg-rose-500/5 text-rose-400 text-sm rounded-xl flex items-center gap-2">
+              <AlertCircle size={16} /> {gameVerificationsError}
+            </div>
+          )}
+
+          {gameVerificationsLoading ? (
+            <LoadingSpinner size={40} text="Fetching pending verification requests..." />
+          ) : gameVerifications.length === 0 ? (
+            <div className="glass-panel p-12 text-center text-textSecondary border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-3">
+              <CheckCircle size={36} className="text-emerald-500/70" />
+              <div>
+                <p className="text-white font-bold">No pending verification requests</p>
+                <p className="text-xs mt-1">All user in-game credential requests have been processed.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {gameVerifications.map((req) => (
+                <div key={req.id} className="glass-panel p-6 border border-amber-500/20 bg-surface/50 rounded-2xl flex flex-col justify-between gap-4">
+                  <div>
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+                      <div className="flex items-center gap-2">
+                        <UserIcon size={18} className="text-amber-400" />
+                        <span className="font-bold text-white text-sm">{req.userEmail}</span>
+                      </div>
+                      <span className="text-[10px] font-extrabold uppercase bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded">
+                        PENDING REVIEW
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="bg-background/50 p-3 rounded-lg border border-white/5">
+                        <p className="text-textSecondary font-semibold uppercase text-[10px] mb-1">Requested In-Game Name</p>
+                        <p className="font-bold text-white text-sm">{req.requestedGameName || 'Not Provided'}</p>
+                        {req.currentGameName && (
+                          <p className="text-[11px] text-textSecondary mt-1">Old: {req.currentGameName}</p>
+                        )}
+                      </div>
+
+                      <div className="bg-background/50 p-3 rounded-lg border border-white/5">
+                        <p className="text-textSecondary font-semibold uppercase text-[10px] mb-1">Requested Free Fire UID</p>
+                        <p className="font-mono font-bold text-amber-400 text-sm">{req.requestedFreeFireUid || 'Not Provided'}</p>
+                        {req.currentFreeFireUid && (
+                          <p className="text-[11px] text-textSecondary mt-1">Old: {req.currentFreeFireUid}</p>
+                        )}
+                      </div>
+
+                      <div className="col-span-2 bg-background/50 p-3 rounded-lg border border-white/5 flex items-center justify-between">
+                        <div>
+                          <p className="text-textSecondary font-semibold uppercase text-[10px]">Requested Game Level</p>
+                          <p className="font-bold text-emerald-400 text-sm">Level {req.requestedGameLevel || 1}</p>
+                        </div>
+                        <span className="text-[11px] text-textSecondary">
+                          Submitted: {new Date(req.createdAt).toLocaleDateString()} {new Date(req.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 border-t border-white/10 pt-4">
+                    <button
+                      onClick={() => {
+                        setSelectedReqForReject(req);
+                        setRejectionReasonInput('');
+                        setRejectModalOpen(true);
+                      }}
+                      disabled={actionLoading}
+                      className="px-4 py-2 rounded-lg text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      Reject Request
+                    </button>
+
+                    <button
+                      onClick={() => handleApproveGameVerification(req.id)}
+                      disabled={actionLoading}
+                      className="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                    >
+                      <CheckCircle size={14} /> Approve Credentials
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       ) : adminView === 'payment-settings' ? (
         <div className="flex-grow max-w-4xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
           <div className="glass-panel p-8 relative overflow-hidden border border-amber-500/20 shadow-2xl">
@@ -2621,6 +2788,71 @@ const AdminDashboard = () => {
                   className="flex-1 btn-primary py-3 font-semibold text-xs cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold"
                 >
                   {confirmingSuperAdmin ? 'Verifying...' : 'Authorize & Grant Super Admin'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Rejection Modal for Game Profile Verification */}
+      {rejectModalOpen && selectedReqForReject && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="glass-panel max-w-md w-full p-6 relative overflow-hidden border border-rose-500/30"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+              <h3 className="text-lg font-bold text-white font-display flex items-center gap-2">
+                <AlertCircle size={20} className="text-rose-400" /> Reject In-Game Credentials
+              </h3>
+              <button
+                onClick={() => {
+                  setRejectModalOpen(false);
+                  setSelectedReqForReject(null);
+                  setRejectionReasonInput('');
+                }}
+                className="text-textSecondary hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleRejectGameVerification} className="space-y-4">
+              <p className="text-xs text-textSecondary">
+                User: <strong className="text-white">{selectedReqForReject.userEmail}</strong>
+              </p>
+
+              <div>
+                <label className="block text-textSecondary text-xs font-semibold mb-2">Rejection Reason</label>
+                <textarea
+                  className="input-field py-2 text-sm w-full h-24 resize-none"
+                  placeholder="Explain why credentials could not be verified (e.g. Free Fire UID does not exist or level is incorrect)..."
+                  value={rejectionReasonInput}
+                  onChange={(e) => setRejectionReasonInput(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRejectModalOpen(false);
+                    setSelectedReqForReject(null);
+                    setRejectionReasonInput('');
+                  }}
+                  className="flex-1 py-2.5 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading || !rejectionReasonInput.trim()}
+                  className="flex-1 py-2.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-md text-xs cursor-pointer disabled:opacity-50"
+                >
+                  {actionLoading ? 'Rejecting...' : 'Confirm Rejection'}
                 </button>
               </div>
             </form>
