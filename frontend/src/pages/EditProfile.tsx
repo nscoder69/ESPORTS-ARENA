@@ -21,19 +21,38 @@ const EditProfile = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      setUserData(user);
-      setGameName(user.gameName || '');
-      setFreeFireUid(user.freeFireUid || '');
-      setGameLevel(user.gameLevel !== undefined && user.gameLevel !== null ? user.gameLevel : 1);
-      if (user.avatarUrl) {
-        setAvatarPreview(getImageUrl(user.avatarUrl));
+    const fetchLatestProfile = async () => {
+      try {
+        const res = await API.get('/users/me');
+        if (res.data) {
+          const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
+          const updatedUser = { ...existingUser, ...res.data, token: existingUser.token || localStorage.getItem('token') };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          setUserData(updatedUser);
+          setGameName(updatedUser.gameName || '');
+          setFreeFireUid(updatedUser.freeFireUid || '');
+          setGameLevel(updatedUser.gameLevel !== undefined && updatedUser.gameLevel !== null ? updatedUser.gameLevel : 1);
+          if (updatedUser.avatarUrl) {
+            setAvatarPreview(getImageUrl(updatedUser.avatarUrl));
+          }
+        }
+      } catch (e) {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          setUserData(user);
+          setGameName(user.gameName || '');
+          setFreeFireUid(user.freeFireUid || '');
+          setGameLevel(user.gameLevel !== undefined && user.gameLevel !== null ? user.gameLevel : 1);
+          if (user.avatarUrl) {
+            setAvatarPreview(getImageUrl(user.avatarUrl));
+          }
+        } else {
+          navigate('/login');
+        }
       }
-    } else {
-      navigate('/login');
-    }
+    };
+    fetchLatestProfile();
   }, [navigate]);
 
   const compressImageFile = (file: File, maxWidth = 500, quality = 0.85): Promise<File> => {
@@ -121,14 +140,19 @@ const EditProfile = () => {
 
       const response = await API.post('/users/profile', formData);
 
-      // Update local storage preserving existing token
+      // Update local storage setting PENDING verification status
       const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
-      const updatedUser = { ...existingUser, ...response.data, token: existingUser.token || localStorage.getItem('token') };
+      const updatedUser = { 
+        ...existingUser, 
+        ...response.data, 
+        gameProfileStatus: response.data?.gameProfileStatus || 'PENDING', 
+        token: existingUser.token || localStorage.getItem('token') 
+      };
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUserData(updatedUser);
 
-      setSuccess('Profile updated successfully!');
+      setSuccess('Profile submitted! Game credentials are now pending Admin verification.');
 
-      // Force reload to update navbar, or we could dispatch an event
       setTimeout(() => {
         window.location.href = '/profile/edit';
       }, 1500);

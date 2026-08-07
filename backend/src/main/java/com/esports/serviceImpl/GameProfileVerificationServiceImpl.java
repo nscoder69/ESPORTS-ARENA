@@ -152,8 +152,8 @@ public class GameProfileVerificationServiceImpl implements GameProfileVerificati
     private void verifyAdmin(String adminEmail) {
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("Admin user not found"));
-        if (!admin.hasPermission("MANAGE_USERS")) {
-            throw new RuntimeException("Access denied: You do not have MANAGE_USERS permission.");
+        if (!admin.hasPermission("MANAGE_USERS") && !admin.hasPermission("MANAGE_GAME_VERIFICATIONS")) {
+            throw new RuntimeException("Access denied: You do not have permission to manage game verifications.");
         }
     }
 

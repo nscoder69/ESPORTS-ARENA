@@ -821,7 +821,7 @@ const AdminDashboard = () => {
               </button>
             )}
 
-            {hasPermission('MANAGE_USERS') && (
+            {(hasPermission('MANAGE_GAME_VERIFICATIONS') || hasPermission('MANAGE_USERS')) && (
               <button
                 onClick={() => setAdminView('game-verifications')}
                 className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center gap-1.5 ${adminView === 'game-verifications' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
@@ -2116,6 +2116,7 @@ const AdminDashboard = () => {
                       { key: 'MANAGE_TOURNAMENTS', label: 'Tournaments Management (Create, Reschedule, Bracket Results)' },
                       { key: 'MANAGE_DEPOSITS', label: 'Pending Deposits Approval (Verify UTR & Credit Cash)' },
                       { key: 'MANAGE_WITHDRAWALS', label: 'Pending Withdrawals Approval (Payout Verification)' },
+                      { key: 'MANAGE_GAME_VERIFICATIONS', label: 'Game Profile Verifications (Verify Free Fire UID, In-Game Name & Level)' },
                       { key: 'MANAGE_USERS', label: 'User Directory & Moderation (Block, Delete, View Profile)' },
                       { key: 'MANAGE_SUPPORT', label: 'Customer Support Tickets (View & Reply Complaints)' }
                     ].map(perm => (

@@ -33,6 +33,7 @@ public class UserController {
                 .gameName(updatedUser.getGameName())
                 .freeFireUid(updatedUser.getFreeFireUid())
                 .gameLevel(updatedUser.getGameLevel())
+                .gameProfileStatus(updatedUser.getGameProfileStatus())
                 .avatarUrl(updatedUser.getAvatarUrl())
                 .permissions(updatedUser.getPermissions())
                 .build();
@@ -50,6 +51,7 @@ public class UserController {
                 .gameName(currentUser.getGameName())
                 .freeFireUid(currentUser.getFreeFireUid())
                 .gameLevel(currentUser.getGameLevel())
+                .gameProfileStatus(currentUser.getGameProfileStatus())
                 .avatarUrl(currentUser.getAvatarUrl())
                 .permissions(currentUser.getPermissions())
                 .build();
