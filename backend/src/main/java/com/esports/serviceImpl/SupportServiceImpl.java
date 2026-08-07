@@ -107,11 +107,12 @@ public class SupportServiceImpl implements SupportService {
             return;
         }
         String permissions = admin.getPermissions();
-        if (permissions != null && !permissions.trim().isEmpty()) {
-            java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
-            if (!permList.contains(requiredPermission)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
-            }
+        if (permissions == null || permissions.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
+        }
+        java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
+        if (!permList.contains(requiredPermission)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
         }
     }
 

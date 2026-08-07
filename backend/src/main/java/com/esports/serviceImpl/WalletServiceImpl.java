@@ -76,6 +76,13 @@ public class WalletServiceImpl implements WalletService {
     @Override
     @Transactional
     public WalletDto depositFunds(String userEmail, DepositRequest request) {
+        if (request == null || request.getAmount() == null || request.getAmount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Invalid deposit amount. Amount must be greater than zero.");
+        }
+        if (request.getPaymentReference() == null || request.getPaymentReference().trim().isEmpty()) {
+            throw new RuntimeException("Payment reference (UTR / Transaction ID) is required.");
+        }
+
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
@@ -91,7 +98,7 @@ public class WalletServiceImpl implements WalletService {
         transaction.setAmount(request.getAmount());
         transaction.setTransactionType(TransactionType.DEPOSIT);
         transaction.setStatus(TransactionStatus.PENDING);
-        transaction.setPaymentReference(request.getPaymentReference());
+        transaction.setPaymentReference(request.getPaymentReference().trim());
         transaction.setDescription("Manual Deposit Request (Awaiting Admin Verification)");
         
         transactionRepository.save(transaction);
@@ -446,11 +453,12 @@ public class WalletServiceImpl implements WalletService {
             return;
         }
         String permissions = admin.getPermissions();
-        if (permissions != null && !permissions.trim().isEmpty()) {
-            java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
-            if (!permList.contains(requiredPermission)) {
-                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
-            }
+        if (permissions == null || permissions.trim().isEmpty()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
+        }
+        java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
+        if (!permList.contains(requiredPermission)) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
         }
     }
 }

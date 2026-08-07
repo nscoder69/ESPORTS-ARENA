@@ -166,8 +166,7 @@ public class TournamentServiceImpl implements TournamentService {
             Transaction transaction = new Transaction();
             transaction.setWallet(savedWallet);
             transaction.setAmount(tournament.getEntryFee());
-            // Assuming WITHDRAWAL is available, if we need specific type we can check TransactionType
-            transaction.setTransactionType(TransactionType.WITHDRAWAL); 
+            transaction.setTransactionType(TransactionType.TOURNAMENT_FEE); 
             transaction.setStatus(TransactionStatus.SUCCESS);
             transaction.setPaymentReference("TOUR_" + tournament.getId().toString().substring(0,8) + "_TEAM_" + team.getId().toString().substring(0,8));
             transaction.setDescription("Registration Fee for " + tournament.getName());
@@ -235,7 +234,7 @@ public class TournamentServiceImpl implements TournamentService {
             Transaction transaction = new Transaction();
             transaction.setWallet(savedWallet);
             transaction.setAmount(tournament.getEntryFee());
-            transaction.setTransactionType(TransactionType.WITHDRAWAL); 
+            transaction.setTransactionType(TransactionType.TOURNAMENT_FEE); 
             transaction.setStatus(TransactionStatus.SUCCESS);
             transaction.setPaymentReference("TOUR_" + tournament.getId().toString().substring(0,8) + "_SOLO_" + player.getId().toString().substring(0,8));
             transaction.setDescription("Solo Registration Fee for " + tournament.getName());
@@ -604,11 +603,12 @@ public class TournamentServiceImpl implements TournamentService {
             return;
         }
         String permissions = admin.getPermissions();
-        if (permissions != null && !permissions.trim().isEmpty()) {
-            java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
-            if (!permList.contains(requiredPermission)) {
-                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
-            }
+        if (permissions == null || permissions.trim().isEmpty()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
+        }
+        java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
+        if (!permList.contains(requiredPermission)) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
         }
     }
 
@@ -746,7 +746,7 @@ public class TournamentServiceImpl implements TournamentService {
                     Transaction transaction = new Transaction();
                     transaction.setWallet(wallet);
                     transaction.setAmount(prizeWon);
-                    transaction.setTransactionType(TransactionType.DEPOSIT);
+                    transaction.setTransactionType(TransactionType.PRIZE);
                     transaction.setStatus(TransactionStatus.SUCCESS);
                     transaction.setPaymentReference("PRIZE_" + tournament.getId().toString().substring(0, 8) + "_" + reg.getTeam().getId().toString().substring(0, 8));
                     transaction.setDescription("Tournament Prize Won: " + tournament.getName() + 

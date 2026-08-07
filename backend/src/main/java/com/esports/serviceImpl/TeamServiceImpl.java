@@ -234,6 +234,11 @@ public class TeamServiceImpl implements TeamService {
         if (!team.getCaptain().getEmail().equals(requesterEmail)) {
             throw new RuntimeException("Only the team captain can delete the team");
         }
+
+        List<TournamentRegistration> registrations = registrationRepository.findByTeam_Id(teamId);
+        if (!registrations.isEmpty()) {
+            throw new RuntimeException("Cannot delete team that is currently registered in tournaments. Please unregister or complete the tournaments first.");
+        }
         
         // Delete all members first (cascade)
         teamMemberRepository.deleteByTeam_Id(teamId);
