@@ -19,7 +19,7 @@ export const getImageUrl = (url?: string | null): string => {
 
 const API = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000,
+  timeout: 60000,
 });
 
 API.interceptors.request.use((req) => {
