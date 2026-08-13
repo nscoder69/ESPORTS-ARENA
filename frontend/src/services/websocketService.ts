@@ -1,9 +1,19 @@
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 import { BACKEND_URL } from './api';
 
 let stompClient: Client | null = null;
 let currentSubscribedEmail: string | null = null;
+
+export const getWebSocketUrl = (): string => {
+  if (BACKEND_URL.startsWith('https://')) {
+    return BACKEND_URL.replace('https://', 'wss://') + '/ws';
+  }
+  if (BACKEND_URL.startsWith('http://')) {
+    return BACKEND_URL.replace('http://', 'ws://') + '/ws';
+  }
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${window.location.host}/ws`;
+};
 
 export const initRealtimeSync = (userEmail?: string) => {
   if (stompClient && stompClient.active && currentSubscribedEmail === userEmail) {
@@ -15,9 +25,9 @@ export const initRealtimeSync = (userEmail?: string) => {
     stompClient = null;
   }
 
-  const socket = new SockJS(`${BACKEND_URL}/ws`);
   const client = new Client({
-    webSocketFactory: () => socket,
+    brokerURL: getWebSocketUrl(),
+    webSocketFactory: () => new WebSocket(getWebSocketUrl()),
     reconnectDelay: 3000,
     heartbeatIncoming: 4000,
     heartbeatOutgoing: 4000,

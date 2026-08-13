@@ -1,20 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 import { motion } from 'framer-motion';
 import { Send, Users, Trophy, XCircle } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { getRegisteredTeamsForParticipant } from '../services/tournamentService';
-import { BACKEND_URL } from '../services/api';
+import { getWebSocketUrl } from '../services/websocketService';
 
 interface ChatMessage {
   senderName: string;
   content: string;
   timestamp: string;
 }
-
-
 
 export default function LiveMatch() {
   const { id } = useParams<{ id: string }>();
@@ -48,9 +45,9 @@ export default function LiveMatch() {
   useEffect(() => {
     if (!isParticipant || !tournamentId) return;
 
-    const socket = new SockJS(`${BACKEND_URL}/ws`);
     const client = new Client({
-      webSocketFactory: () => socket,
+      brokerURL: getWebSocketUrl(),
+      webSocketFactory: () => new WebSocket(getWebSocketUrl()),
       debug: (str) => console.log(str),
       reconnectDelay: 5000,
       onConnect: () => {
