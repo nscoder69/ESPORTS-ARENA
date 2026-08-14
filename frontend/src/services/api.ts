@@ -19,7 +19,7 @@ export const getImageUrl = (url?: string | null): string => {
 
 const API = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 60000,
+  timeout: 120000, // 120s timeout to accommodate cloud host cold starts (e.g. Render spin-up)
 });
 
 API.interceptors.request.use((req) => {
@@ -42,6 +42,11 @@ API.interceptors.response.use(
     const status = error.response?.status;
     const message = error.response?.data?.message || '';
     const reqUrl = error.config?.url || '';
+
+    // Handle timeout / connection abort errors gracefully
+    if (error.code === 'ECONNABORTED' || (error.message && error.message.toLowerCase().includes('timeout'))) {
+      error.message = 'Server request timed out. The backend service may be waking up from sleep. Please try again in a few seconds.';
+    }
 
     // Ignore 401/403 handling for /auth/ endpoints (login, register, forgot-password)
     if ((status === 401 || status === 403) && !reqUrl.includes('/auth/')) {

@@ -1,8 +1,17 @@
 import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import { BACKEND_URL } from './api';
 
 let stompClient: Client | null = null;
 let currentSubscribedEmail: string | null = null;
+
+export const getSockJsUrl = (): string => {
+  if (BACKEND_URL.startsWith('http://') || BACKEND_URL.startsWith('https://')) {
+    return `${BACKEND_URL}/ws`;
+  }
+  const protocol = window.location.protocol;
+  return `${protocol}//${window.location.host}/ws`;
+};
 
 export const getWebSocketUrl = (): string => {
   if (BACKEND_URL.startsWith('https://')) {
@@ -26,12 +35,14 @@ export const initRealtimeSync = (userEmail?: string) => {
   }
 
   const client = new Client({
-    brokerURL: getWebSocketUrl(),
-    webSocketFactory: () => new WebSocket(getWebSocketUrl()),
-    reconnectDelay: 3000,
-    heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000,
+    webSocketFactory: () => new SockJS(getSockJsUrl()),
+    reconnectDelay: 5000,
+    heartbeatIncoming: 10000,
+    heartbeatOutgoing: 10000,
     debug: () => {}, // silent
+    onStompError: (frame) => {
+      console.warn('STOMP protocol error:', frame.headers['message']);
+    },
     onConnect: () => {
       // 1. Global Tournament Updates
       client.subscribe('/topic/tournaments', (message) => {
