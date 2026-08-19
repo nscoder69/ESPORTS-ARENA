@@ -23,13 +23,13 @@ spring:
           writetimeout: 3000
   
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test?useSSL=true&requireSSL=false&verifyServerCertificate=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test?createDatabaseIfNotExist=true&useSSL=true&requireSSL=false&verifyServerCertificate=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&connectTimeout=10000&socketTimeout=30000}
     username: ${SPRING_DATASOURCE_USERNAME:3HGZktJF7kMeoJ1.root}
     password: ${SPRING_DATASOURCE_PASSWORD:<PASSWORD>}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
+      maximum-pool-size: 5
+      minimum-idle: 1
       idle-timeout: 300000
       connection-timeout: 20000
       max-lifetime: 1200000
@@ -51,9 +51,11 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     repair-on-migrate: true
+    connect-retries: 3
 
 server:
   port: ${PORT:8080}
+  address: 0.0.0.0
 
 app:
   jwt:
