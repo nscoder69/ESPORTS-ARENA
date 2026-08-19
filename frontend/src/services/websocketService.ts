@@ -57,11 +57,13 @@ export const initRealtimeSync = (userEmail?: string) => {
   }
 
   const client = new Client({
+    brokerURL: getWebSocketUrl(),
     webSocketFactory: () => createSockJSInstance(getSockJsUrl()),
-    reconnectDelay: 5000,
+    reconnectDelay: 8000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,
     debug: () => {}, // silent
+    onWebSocketError: () => {},
     onStompError: (frame) => {
       console.warn('STOMP protocol error:', frame.headers['message']);
     },
