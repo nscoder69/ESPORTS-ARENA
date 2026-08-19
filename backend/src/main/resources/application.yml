@@ -23,9 +23,9 @@ spring:
           writetimeout: 3000
   
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://sakura.proxy.rlwy.net:40534/railway?useSSL=true&requireSSL=false&verifyServerCertificate=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:lrslghrqdrtkbbim}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test?useSSL=true&requireSSL=false&verifyServerCertificate=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:3HGZktJF7kMeoJ1.root}
+    password: ${SPRING_DATASOURCE_PASSWORD:<PASSWORD>}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
