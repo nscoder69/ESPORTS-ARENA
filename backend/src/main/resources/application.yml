@@ -23,7 +23,7 @@ spring:
           writetimeout: 3000
   
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://sakura.proxy.rlwy.net:40534/railway?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://sakura.proxy.rlwy.net:40534/railway?useSSL=true&requireSSL=false&verifyServerCertificate=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${SPRING_DATASOURCE_USERNAME:root}
     password: ${SPRING_DATASOURCE_PASSWORD:lrslghrqdrtkbbim}
     driver-class-name: com.mysql.cj.jdbc.Driver
