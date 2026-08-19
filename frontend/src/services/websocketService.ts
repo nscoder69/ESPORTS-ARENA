@@ -1,17 +1,8 @@
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 import { BACKEND_URL } from './api';
 
 let stompClient: Client | null = null;
 let currentSubscribedEmail: string | null = null;
-
-export const getSockJsUrl = (): string => {
-  if (BACKEND_URL.startsWith('http://') || BACKEND_URL.startsWith('https://')) {
-    return `${BACKEND_URL}/ws`;
-  }
-  const protocol = window.location.protocol;
-  return `${protocol}//${window.location.host}/ws`;
-};
 
 export const getWebSocketUrl = (): string => {
   if (BACKEND_URL.startsWith('https://')) {
@@ -22,28 +13,6 @@ export const getWebSocketUrl = (): string => {
   }
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${protocol}//${window.location.host}/ws`;
-};
-
-const createSockJSInstance = (url: string) => {
-  const originalAddEventListener = window.addEventListener;
-  try {
-    // Intercept unload event binding from legacy libraries (sockjs-client) to comply with modern Permissions Policy
-    window.addEventListener = function (
-      type: string,
-      listener: EventListenerOrEventListenerObject,
-      options?: boolean | AddEventListenerOptions
-    ) {
-      if (type === 'unload') {
-        type = 'pagehide';
-      }
-      return originalAddEventListener.call(this, type, listener, options);
-    };
-    return new SockJS(url);
-  } catch (err) {
-    return new SockJS(url);
-  } finally {
-    window.addEventListener = originalAddEventListener;
-  }
 };
 
 export const initRealtimeSync = (userEmail?: string) => {
@@ -58,12 +27,11 @@ export const initRealtimeSync = (userEmail?: string) => {
 
   const client = new Client({
     brokerURL: getWebSocketUrl(),
-    webSocketFactory: () => createSockJSInstance(getSockJsUrl()),
-    reconnectDelay: 8000,
+    webSocketFactory: () => new WebSocket(getWebSocketUrl()),
+    reconnectDelay: 5000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,
     debug: () => {}, // silent
-    onWebSocketError: () => {},
     onStompError: (frame) => {
       console.warn('STOMP protocol error:', frame.headers['message']);
     },
