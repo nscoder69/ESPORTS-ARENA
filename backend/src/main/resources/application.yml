@@ -33,6 +33,7 @@ spring:
       idle-timeout: 300000
       connection-timeout: 20000
       max-lifetime: 1200000
+      initialization-fail-timeout: 0
 
   jpa:
     open-in-view: false
