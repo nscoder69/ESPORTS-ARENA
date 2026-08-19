@@ -24,6 +24,28 @@ export const getWebSocketUrl = (): string => {
   return `${protocol}//${window.location.host}/ws`;
 };
 
+const createSockJSInstance = (url: string) => {
+  const originalAddEventListener = window.addEventListener;
+  try {
+    // Intercept unload event binding from legacy libraries (sockjs-client) to comply with modern Permissions Policy
+    window.addEventListener = function (
+      type: string,
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | AddEventListenerOptions
+    ) {
+      if (type === 'unload') {
+        type = 'pagehide';
+      }
+      return originalAddEventListener.call(this, type, listener, options);
+    };
+    return new SockJS(url);
+  } catch (err) {
+    return new SockJS(url);
+  } finally {
+    window.addEventListener = originalAddEventListener;
+  }
+};
+
 export const initRealtimeSync = (userEmail?: string) => {
   if (stompClient && stompClient.active && currentSubscribedEmail === userEmail) {
     return;
@@ -35,7 +57,7 @@ export const initRealtimeSync = (userEmail?: string) => {
   }
 
   const client = new Client({
-    webSocketFactory: () => new SockJS(getSockJsUrl()),
+    webSocketFactory: () => createSockJSInstance(getSockJsUrl()),
     reconnectDelay: 5000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,

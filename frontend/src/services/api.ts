@@ -38,13 +38,28 @@ API.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
+  async (error) => {
+    const config = error.config;
     const status = error.response?.status;
     const message = error.response?.data?.message || '';
-    const reqUrl = error.config?.url || '';
+    const reqUrl = config?.url || '';
+
+    const isTimeoutOrNetworkError =
+      error.code === 'ECONNABORTED' ||
+      !error.response ||
+      status === 503 ||
+      status === 504 ||
+      (error.message && error.message.toLowerCase().includes('timeout'));
+
+    // Retry once for GET requests if cold-start network error / timeout occurs
+    if (isTimeoutOrNetworkError && config && !config._retry && (config.method === 'get' || reqUrl.includes('/public/ping'))) {
+      config._retry = true;
+      await new Promise((res) => setTimeout(res, 2000));
+      return API(config);
+    }
 
     // Handle timeout / connection abort errors gracefully
-    if (error.code === 'ECONNABORTED' || (error.message && error.message.toLowerCase().includes('timeout'))) {
+    if (isTimeoutOrNetworkError) {
       error.message = 'Server request timed out. The backend service may be waking up from sleep. Please try again in a few seconds.';
     }
 
@@ -66,5 +81,10 @@ API.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Trigger background server warmup ping on initial module load
+if (typeof window !== 'undefined') {
+  API.get('/public/ping').catch(() => {});
+}
 
 export default API;
