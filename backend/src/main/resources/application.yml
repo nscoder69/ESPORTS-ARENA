@@ -2,6 +2,14 @@ spring:
   application:
     name: esports-platform
 
+  main:
+    lazy-initialization: true
+
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+
   servlet:
     multipart:
       max-file-size: 15MB
