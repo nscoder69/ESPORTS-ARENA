@@ -53,9 +53,11 @@ API.interceptors.response.use(
       status === 504 ||
       (error.message && error.message.toLowerCase().includes('timeout'));
 
-    // Retry up to 3 times for GET requests if cold-start network error / 429 / 502 / timeout occurs
+    // Retry GET requests or /public/ping if cold-start network error / 429 / 502 / timeout occurs
     const retryCount = config?._retryCount || 0;
-    if (isTimeoutOrNetworkError && config && retryCount < 3 && (config.method === 'get' || reqUrl.includes('/public/ping'))) {
+    const isPing = reqUrl.includes('/public/ping');
+    const maxRetries = isPing ? 10 : 3;
+    if (isTimeoutOrNetworkError && config && retryCount < maxRetries && (config.method === 'get' || isPing)) {
       config._retryCount = retryCount + 1;
       const delay = status === 429 ? 4000 : 3000;
       await new Promise((res) => setTimeout(res, delay));
@@ -89,6 +91,34 @@ API.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const isColdStartError = (error: any): boolean => {
+  const status = error?.response?.status;
+  const message = error?.response?.data?.message || error?.message || '';
+  return (
+    error?.code === 'ECONNABORTED' ||
+    !error?.response ||
+    status === 502 ||
+    status === 503 ||
+    status === 504 ||
+    status === 524 ||
+    message.toLowerCase().includes('waking up') ||
+    message.toLowerCase().includes('timed out') ||
+    message.toLowerCase().includes('network error')
+  );
+};
+
+export const pingBackend = async (maxAttempts = 15, delayMs = 3000): Promise<boolean> => {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      await API.get('/public/ping', { timeout: 10000 });
+      return true;
+    } catch {
+      await new Promise((res) => setTimeout(res, delayMs));
+    }
+  }
+  return false;
+};
 
 // Trigger background server warmup ping on initial module load
 if (typeof window !== 'undefined') {

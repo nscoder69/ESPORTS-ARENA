@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { login } from '../services/authService';
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import API, { isColdStartError, pingBackend } from '../services/api';
+import { Lock, Mail, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
 
 export default function Login() {
@@ -10,12 +11,20 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [wakingUpStatus, setWakingUpStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Proactively ping server when login page mounts to initiate cold-start wake up early
+    API.get('/public/ping').catch(() => {});
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setWakingUpStatus('');
+
     try {
       const data = await login({ email, password });
       if (data && data.token) {
@@ -26,9 +35,31 @@ export default function Login() {
         setError('Login failed. Please check credentials.');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Invalid email or password');
+      if (isColdStartError(err)) {
+        setWakingUpStatus('Backend server is waking up on Render. Auto-retrying, please wait...');
+        const isBackendUp = await pingBackend();
+        if (isBackendUp) {
+          setWakingUpStatus('Server is ready! Signing in...');
+          try {
+            const data = await login({ email, password });
+            if (data && data.token) {
+              localStorage.setItem('token', data.token);
+              localStorage.setItem('user', JSON.stringify(data));
+              window.location.replace('/');
+              return;
+            }
+          } catch (retryErr: any) {
+            setError(retryErr.response?.data?.message || retryErr.message || 'Invalid email or password');
+          }
+        } else {
+          setError('Server request timed out. The backend service may be waking up from sleep. Please try again in a few seconds.');
+        }
+      } else {
+        setError(err.response?.data?.message || err.message || 'Invalid email or password');
+      }
     } finally {
       setIsLoading(false);
+      setWakingUpStatus('');
     }
   };
 
@@ -45,7 +76,14 @@ export default function Login() {
           <p className="text-sm text-textSecondary">Sign in to your account to continue</p>
         </div>
         
-        {error && (
+        {wakingUpStatus && (
+          <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm p-3.5 rounded-lg mb-6 flex items-center gap-3">
+            <RefreshCw className="w-5 h-5 text-amber-400 animate-spin flex-shrink-0" />
+            <span className="font-medium text-xs leading-relaxed">{wakingUpStatus}</span>
+          </div>
+        )}
+
+        {error && !wakingUpStatus && (
           <div className="bg-secondary/10 border border-secondary/20 text-secondary text-sm p-3 rounded-md mb-6 text-center">
             {error}
           </div>
@@ -115,7 +153,7 @@ export default function Login() {
                   transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
                   className="w-5 h-5 object-contain"
                 />
-                <span>Signing in...</span>
+                <span>{wakingUpStatus ? 'Waking up server...' : 'Signing in...'}</span>
               </>
             ) : (
               'Sign In'
