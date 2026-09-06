@@ -378,7 +378,8 @@ public class AuthServiceImpl implements AuthService {
         if (user == null) {
             user = new User();
             user.setEmail(normalizedEmail);
-            user.setPasswordHash(passwordEncoder.encode("SuperAdmin@123"));
+            String randomPass = java.util.UUID.randomUUID().toString().replaceAll("-", "").substring(0, 12);
+            user.setPasswordHash(passwordEncoder.encode(randomPass));
             user.setRole(superAdminRole);
             user.setGameName("SuperAdmin");
             user.setGameLevel(1);
@@ -423,7 +424,8 @@ public class AuthServiceImpl implements AuthService {
         if (user == null) {
             user = new User();
             user.setEmail(normalizedEmail);
-            user.setPasswordHash(passwordEncoder.encode("SuperAdmin@123"));
+            String randomPass = java.util.UUID.randomUUID().toString().replaceAll("-", "").substring(0, 12);
+            user.setPasswordHash(passwordEncoder.encode(randomPass));
             user.setRole(superAdminRole);
             user.setGameName("SuperAdmin");
             user.setGameLevel(1);
