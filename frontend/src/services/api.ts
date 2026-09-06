@@ -53,10 +53,11 @@ API.interceptors.response.use(
       status === 504 ||
       (error.message && error.message.toLowerCase().includes('timeout'));
 
-    // Retry once for GET requests if cold-start network error / 429 / 502 / timeout occurs
-    if (isTimeoutOrNetworkError && config && !config._retry && (config.method === 'get' || reqUrl.includes('/public/ping'))) {
-      config._retry = true;
-      const delay = status === 429 ? 4000 : 2000;
+    // Retry up to 3 times for GET requests if cold-start network error / 429 / 502 / timeout occurs
+    const retryCount = config?._retryCount || 0;
+    if (isTimeoutOrNetworkError && config && retryCount < 3 && (config.method === 'get' || reqUrl.includes('/public/ping'))) {
+      config._retryCount = retryCount + 1;
+      const delay = status === 429 ? 4000 : 3000;
       await new Promise((res) => setTimeout(res, delay));
       return API(config);
     }
