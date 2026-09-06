@@ -39,6 +39,7 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .addFilterBefore(corsFilter(), org.springframework.security.web.header.HeaderWriterFilter.class)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -48,7 +49,7 @@ public class SecurityConfig {
                 .requestMatchers("/request-super-admin", "/request-super-admin/**", "/make-super-admin", "/make-super-admin/**", "/make-super-admin-direct", "/make-super-admin-direct/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/tournaments/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
-                .requestMatchers("/ws/**", "/ws").permitAll()
+                .requestMatchers("/ws", "/ws/**").permitAll()
                 .requestMatchers("/error", "/favicon.ico").permitAll()
                 .anyRequest().authenticated()
             )
@@ -77,10 +78,24 @@ public class SecurityConfig {
     }
 
     @Bean
+    public org.springframework.web.filter.CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of("https://*.vercel.app", "https://*.onrender.com", "http://localhost:*", "http://127.0.0.1:*", "*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Authorization", "Content-Type", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        source.registerCorsConfiguration("/**", configuration);
+        return new org.springframework.web.filter.CorsFilter(source);
+    }
+
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("https://*.vercel.app", "https://*.onrender.com", "http://localhost:*", "http://127.0.0.1:*"));
+        configuration.setAllowedOriginPatterns(List.of("https://*.vercel.app", "https://*.onrender.com", "http://localhost:*", "http://127.0.0.1:*", "*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization", "Content-Type", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
