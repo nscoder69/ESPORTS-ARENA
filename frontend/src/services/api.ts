@@ -47,20 +47,27 @@ API.interceptors.response.use(
     const isTimeoutOrNetworkError =
       error.code === 'ECONNABORTED' ||
       !error.response ||
+      status === 429 ||
+      status === 502 ||
       status === 503 ||
       status === 504 ||
       (error.message && error.message.toLowerCase().includes('timeout'));
 
-    // Retry once for GET requests if cold-start network error / timeout occurs
+    // Retry once for GET requests if cold-start network error / 429 / 502 / timeout occurs
     if (isTimeoutOrNetworkError && config && !config._retry && (config.method === 'get' || reqUrl.includes('/public/ping'))) {
       config._retry = true;
-      await new Promise((res) => setTimeout(res, 2000));
+      const delay = status === 429 ? 4000 : 2000;
+      await new Promise((res) => setTimeout(res, delay));
       return API(config);
     }
 
-    // Handle timeout / connection abort errors gracefully
+    // Handle timeout / rate limit / connection abort errors gracefully
     if (isTimeoutOrNetworkError) {
-      error.message = 'Server request timed out. The backend service may be waking up from sleep. Please try again in a few seconds.';
+      if (status === 429) {
+        error.message = 'Too many requests. Please wait a few seconds before retrying.';
+      } else {
+        error.message = 'Server request timed out. The backend service may be waking up from sleep. Please try again in a few seconds.';
+      }
     }
 
     // Ignore 401/403 handling for /auth/ endpoints (login, register, forgot-password)
