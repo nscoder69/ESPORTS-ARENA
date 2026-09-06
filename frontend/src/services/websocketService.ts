@@ -1,4 +1,5 @@
 import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import { BACKEND_URL } from './api';
 
 let stompClient: Client | null = null;
@@ -26,15 +27,15 @@ export const initRealtimeSync = (userEmail?: string) => {
   }
 
   const client = new Client({
-    brokerURL: getWebSocketUrl(),
-    webSocketFactory: () => new WebSocket(getWebSocketUrl()),
-    reconnectDelay: 5000,
+    webSocketFactory: () => new SockJS(`${BACKEND_URL}/ws`),
+    reconnectDelay: 10000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,
     debug: () => {}, // silent
     onStompError: (frame) => {
       console.warn('STOMP protocol error:', frame.headers['message']);
     },
+    onWebSocketError: () => {}, // suppress connection noise during server sleep
     onConnect: () => {
       // 1. Global Tournament Updates
       client.subscribe('/topic/tournaments', (message) => {
