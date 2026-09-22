@@ -32,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final ChatMessageRepository chatMessageRepository;
     private final com.esports.service.MailService mailService;
     private final com.esports.service.GameProfileVerificationService gameProfileVerificationService;
+    private final jakarta.persistence.EntityManager entityManager;
 
     @org.springframework.beans.factory.annotation.Value("${spring.mail.username:}")
     private String ownerEmail;
@@ -223,42 +224,77 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        // 1. Delete chat messages
-        chatMessageRepository.deleteByUserId(userId);
+        String userIdStr = userId.toString();
 
-        // 2. Find and delete team memberships
-        java.util.List<com.esports.entity.TeamMember> memberships = teamMemberRepository.findByUser_Id(userId);
-        teamMemberRepository.deleteAll(memberships);
+        // 1. Delete notifications
+        entityManager.createNativeQuery("DELETE FROM notifications WHERE user_id = :userId")
+                .setParameter("userId", userIdStr)
+                .executeUpdate();
 
-        // 3. Find and delete teams captained by this user
-        java.util.List<com.esports.entity.Team> captainTeams = teamRepository.findByCaptain(user);
-        for (com.esports.entity.Team team : captainTeams) {
-            // Delete registrations for this team
-            java.util.List<com.esports.entity.TournamentRegistration> registrations = tournamentRegistrationRepository.findByTeam_Id(team.getId());
-            tournamentRegistrationRepository.deleteAll(registrations);
-            // Delete all members of this team
-            teamMemberRepository.deleteByTeam_Id(team.getId());
-            // Delete team
-            teamRepository.delete(team);
+        // 2. Delete game profile requests
+        entityManager.createNativeQuery("DELETE FROM game_profile_requests WHERE user_id = :userId")
+                .setParameter("userId", userIdStr)
+                .executeUpdate();
+
+        // 3. Delete support tickets
+        entityManager.createNativeQuery("DELETE FROM support_tickets WHERE user_id = :userId")
+                .setParameter("userId", userIdStr)
+                .executeUpdate();
+
+        // 4. Delete OTP verifications
+        if (user.getEmail() != null) {
+            entityManager.createNativeQuery("DELETE FROM otp_verifications WHERE email = :email")
+                    .setParameter("email", user.getEmail())
+                    .executeUpdate();
         }
 
-        // 4. Update organized tournaments to set organizer to null
-        tournamentRepository.findAll().stream()
-                .filter(t -> t.getOrganizer() != null && t.getOrganizer().getId().equals(userId))
-                .forEach(t -> {
-                    t.setOrganizer(null);
-                    tournamentRepository.save(t);
-                });
+        // 5. Delete chat messages
+        entityManager.createNativeQuery("DELETE FROM chat_messages WHERE user_id = :userId")
+                .setParameter("userId", userIdStr)
+                .executeUpdate();
 
-        // 5. Delete wallet and transactions
+        // 6. Delete team memberships
+        entityManager.createNativeQuery("DELETE FROM team_members WHERE user_id = :userId")
+                .setParameter("userId", userIdStr)
+                .executeUpdate();
+
+        // 7. Find and delete teams captained by this user
+        java.util.List<com.esports.entity.Team> captainTeams = teamRepository.findByCaptain(user);
+        for (com.esports.entity.Team team : captainTeams) {
+            String teamIdStr = team.getId().toString();
+            entityManager.createNativeQuery("DELETE FROM match_results WHERE team_id = :teamId")
+                    .setParameter("teamId", teamIdStr)
+                    .executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM tournament_registrations WHERE team_id = :teamId")
+                    .setParameter("teamId", teamIdStr)
+                    .executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM team_members WHERE team_id = :teamId")
+                    .setParameter("teamId", teamIdStr)
+                    .executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM teams WHERE id = :teamId")
+                    .setParameter("teamId", teamIdStr)
+                    .executeUpdate();
+        }
+
+        // 8. Update organized tournaments to set organizer to null
+        entityManager.createNativeQuery("UPDATE tournaments SET organizer_id = NULL WHERE organizer_id = :userId")
+                .setParameter("userId", userIdStr)
+                .executeUpdate();
+
+        // 9. Delete wallet and transactions
         walletRepository.findByUserId(userId).ifPresent(wallet -> {
-            java.util.List<com.esports.entity.Transaction> transactions = transactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId());
-            transactionRepository.deleteAll(transactions);
-            walletRepository.delete(wallet);
+            String walletIdStr = wallet.getId().toString();
+            entityManager.createNativeQuery("DELETE FROM transactions WHERE wallet_id = :walletId")
+                    .setParameter("walletId", walletIdStr)
+                    .executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM wallets WHERE id = :walletId")
+                    .setParameter("walletId", walletIdStr)
+                    .executeUpdate();
         });
 
-        // 6. Delete user permanently
+        // 10. Delete user permanently
         userRepository.delete(user);
+        userRepository.flush();
     }
 
     private com.esports.dto.UserDto convertToDto(User u) {
@@ -291,15 +327,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private void verifyPermission(User admin, String requiredPermission) {
-        if ("ROLE_SUPER_ADMIN".equals(admin.getRole().getName())) {
+        if ("ROLE_SUPER_ADMIN".equals(admin.getRole() != null ? admin.getRole().getName() : null)) {
             return;
         }
-        String permissions = admin.getPermissions();
-        if (permissions == null || permissions.trim().isEmpty()) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
-        }
-        java.util.List<String> permList = java.util.Arrays.asList(permissions.split(","));
-        if (!permList.contains(requiredPermission)) {
+        if (!admin.hasPermission(requiredPermission)) {
             throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You do not have " + requiredPermission + " permission");
         }
     }
