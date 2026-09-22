@@ -11,7 +11,7 @@ export default function Signup() {
     password: '',
     gameName: '',
     freeFireUid: '',
-    gameLevel: '1',
+    gameLevel: '',
     otp: '',
     avatar: null as File | null
   });
@@ -118,7 +118,11 @@ export default function Signup() {
     }
 
     try {
-      await registerUser(formData);
+      const submissionData = {
+        ...formData,
+        gameLevel: (formData.gameLevel !== undefined && formData.gameLevel !== null && String(formData.gameLevel).trim() !== '') ? String(formData.gameLevel).trim() : '1'
+      };
+      await registerUser(submissionData);
       navigate('/login');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to register. Email might be in use.');

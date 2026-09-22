@@ -28,6 +28,11 @@ export const registerUser = async (data: any) => {
     }
   });
 
+  if (data.gameLevel !== undefined && data.gameLevel !== null && String(data.gameLevel).trim() !== '') {
+    formData.set('gameLevel', String(data.gameLevel).trim());
+    formData.set('game_level', String(data.gameLevel).trim());
+  }
+
   const response = await API.post('/auth/register', formData);
   return response.data;
 };

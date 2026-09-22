@@ -45,7 +45,8 @@ public class GameProfileVerificationServiceImpl implements GameProfileVerificati
 
         request.setGameName(gameName != null ? gameName.trim() : "");
         request.setFreeFireUid(freeFireUid != null ? freeFireUid.trim() : "");
-        request.setGameLevel(gameLevel != null && gameLevel > 0 ? gameLevel : 1);
+        Integer effectiveLevel = (gameLevel != null && gameLevel > 0) ? gameLevel : (user.getGameLevel() != null && user.getGameLevel() > 0 ? user.getGameLevel() : 1);
+        request.setGameLevel(effectiveLevel);
         request.setStatus("PENDING");
         request.setRejectionReason(null);
 
@@ -100,7 +101,8 @@ public class GameProfileVerificationServiceImpl implements GameProfileVerificati
         User user = request.getUser();
         user.setGameName(request.getGameName());
         user.setFreeFireUid(request.getFreeFireUid());
-        user.setGameLevel(request.getGameLevel() != null && request.getGameLevel() > 0 ? request.getGameLevel() : 1);
+        Integer approvedLevel = (request.getGameLevel() != null && request.getGameLevel() > 0) ? request.getGameLevel() : (user.getGameLevel() != null && user.getGameLevel() > 0 ? user.getGameLevel() : 1);
+        user.setGameLevel(approvedLevel);
         user.setGameProfileStatus("VERIFIED");
         userRepository.save(user);
 
