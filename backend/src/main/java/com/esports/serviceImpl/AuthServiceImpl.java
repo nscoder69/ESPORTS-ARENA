@@ -101,12 +101,19 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(userRole);
 
         boolean hasGameInfo = (request.getGameName() != null && !request.getGameName().trim().isEmpty()) ||
-                              (request.getFreeFireUid() != null && !request.getFreeFireUid().trim().isEmpty());
+                              (request.getFreeFireUid() != null && !request.getFreeFireUid().trim().isEmpty()) ||
+                              (request.getGameLevel() != null && request.getGameLevel() > 0);
 
         if (hasGameInfo) {
             user.setGameProfileStatus("PENDING");
         } else {
             user.setGameProfileStatus("NONE");
+        }
+
+        if (request.getGameLevel() != null && request.getGameLevel() > 0) {
+            user.setGameLevel(request.getGameLevel());
+        } else {
+            user.setGameLevel(1);
         }
 
         if (avatar != null && !avatar.isEmpty()) {
@@ -125,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
                     savedUser,
                     request.getGameName(),
                     request.getFreeFireUid(),
-                    request.getGameLevel() != null ? request.getGameLevel() : 1
+                    request.getGameLevel() != null && request.getGameLevel() > 0 ? request.getGameLevel() : 1
             );
         }
 
@@ -143,7 +150,7 @@ public class AuthServiceImpl implements AuthService {
                 .role(userRole.getName())
                 .gameName(savedUser.getGameName())
                 .freeFireUid(savedUser.getFreeFireUid())
-                .gameLevel(savedUser.getGameLevel())
+                .gameLevel(savedUser.getGameLevel() != null ? savedUser.getGameLevel() : 1)
                 .gameProfileStatus(savedUser.getGameProfileStatus())
                 .avatarUrl(savedUser.getAvatarUrl())
                 .permissions(savedUser.getPermissions())

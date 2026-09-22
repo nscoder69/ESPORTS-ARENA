@@ -100,7 +100,7 @@ public class GameProfileVerificationServiceImpl implements GameProfileVerificati
         User user = request.getUser();
         user.setGameName(request.getGameName());
         user.setFreeFireUid(request.getFreeFireUid());
-        user.setGameLevel(request.getGameLevel());
+        user.setGameLevel(request.getGameLevel() != null && request.getGameLevel() > 0 ? request.getGameLevel() : 1);
         user.setGameProfileStatus("VERIFIED");
         userRepository.save(user);
 

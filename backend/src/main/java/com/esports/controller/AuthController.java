@@ -22,6 +22,7 @@ public class AuthController {
             @RequestParam(value = "otp", required = false) String otp,
             @RequestParam(value = "freeFireUid", required = false) String freeFireUid,
             @RequestParam(value = "gameName", required = false) String gameName,
+            @RequestParam(value = "gameLevel", required = false) String gameLevel,
             @RequestParam(value = "avatar", required = false) org.springframework.web.multipart.MultipartFile avatar) {
         
         RegisterRequest request = new RegisterRequest();
@@ -30,6 +31,12 @@ public class AuthController {
         request.setFreeFireUid(freeFireUid);
         request.setGameName(gameName);
         request.setOtp(otp);
+
+        if (gameLevel != null && !gameLevel.trim().isEmpty()) {
+            try {
+                request.setGameLevel(Integer.parseInt(gameLevel.trim()));
+            } catch (NumberFormatException ignored) {}
+        }
         
         return ResponseEntity.ok(authService.register(request, avatar));
     }
