@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getWalletBalance } from './services/walletService';
 import { getUserNotifications, markAllNotificationsAsRead } from './services/notificationService';
 import API, { getImageUrl } from './services/api';
+import { playNotificationSound, requestNotificationPermission } from './services/notificationSoundService';
 import logo from './assets/obitoloo.png';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -78,6 +79,10 @@ function App() {
         }
       })
     ]).catch(() => {});
+
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
 
     const handleWalletUpdated = (e: any) => {
       fetchBalance();
@@ -194,6 +199,20 @@ function App() {
                             </button>
                           )}
                         </div>
+                        {typeof window !== 'undefined' && 'Notification' in window && Notification.permission !== 'granted' && (
+                          <div className="bg-primary/10 border-b border-primary/20 px-3 py-2 flex items-center justify-between text-xs">
+                            <span className="text-textSecondary text-[11px]">Enable sound & push alerts</span>
+                            <button
+                              onClick={async () => {
+                                await requestNotificationPermission();
+                                playNotificationSound();
+                              }}
+                              className="px-2 py-0.5 rounded bg-primary text-black text-[10px] font-bold hover:bg-primary/80 transition-all cursor-pointer"
+                            >
+                              Enable 🔔
+                            </button>
+                          </div>
+                        )}
                         <div className="flex-1 overflow-y-auto divide-y divide-white/5 custom-scrollbar">
                           {notifications.length === 0 ? (
                             <p className="text-textSecondary text-xs text-center py-6">No notifications yet.</p>

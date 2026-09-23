@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare, Shield, Plus, Key, Copy } from 'lucide-react';
+import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare, Shield, Plus, Key, Copy, Bell, Volume2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllTournaments, getRegistrationsForTournament, cancelTournament, rescheduleTournament, removeTeamFromTournament, updateTournamentResults, deleteTournament, getUserRegisteredTournaments, updateRoomCredentials } from '../services/tournamentService';
 import { getTeamMembers } from '../services/teamService';
 import { getAllUsers, blockUser, unblockUser, deleteUser } from '../services/authService';
 import { getAdminSupportTickets, replyToSupportTicket } from '../services/supportService';
 import { getUserTransactionHistory, getUserWalletBalance, getPendingDeposits, verifyPendingDeposit, getPendingWithdrawals, verifyPendingWithdrawal, getPublicPaymentSettings, updatePaymentSettings, getAllAdmins, updateUserRoleAndPermissions, confirmSuperAdminPromotion } from '../services/walletService';
+import { sendAppNotification, playNotificationSound, requestNotificationPermission } from '../services/notificationSoundService';
 import logo from '../assets/obitoloo.png';
 import qrImageDefault from '../assets/QR.jpeg';
 import API, { getImageUrl } from '../services/api';
@@ -142,6 +143,9 @@ const AdminDashboard = () => {
   const [inputConfirmationCode, setInputConfirmationCode] = useState('');
   const [confirmingSuperAdmin, setConfirmingSuperAdmin] = useState(false);
   const [confirmError, setConfirmError] = useState('');
+  const [notificationPermission, setNotificationPermission] = useState<string>(() => {
+    return typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'denied';
+  });
 
   const compressImageFile = (file: File, maxWidth = 600, quality = 0.85): Promise<File> => {
     return new Promise((resolve) => {
@@ -335,6 +339,50 @@ const AdminDashboard = () => {
       clearInterval(pollInterval);
     };
   }, [currentUser]);
+
+  const lastCountsRef = useRef<{ deposits: number; withdrawals: number; support: number; verifications: number } | null>(null);
+
+  useEffect(() => {
+    const currentCounts = {
+      deposits: pendingDeposits.length,
+      withdrawals: pendingWithdrawals.length,
+      support: supportTickets.filter(t => t.status === 'Pending').length,
+      verifications: gameVerifications.length
+    };
+
+    if (lastCountsRef.current !== null) {
+      if (currentCounts.deposits > lastCountsRef.current.deposits) {
+        sendAppNotification('New Deposit Request 💰', {
+          body: `${currentCounts.deposits} deposit verification request(s) awaiting action.`,
+          url: '/admin/dashboard',
+          tag: 'admin-deposit'
+        });
+      }
+      if (currentCounts.withdrawals > lastCountsRef.current.withdrawals) {
+        sendAppNotification('New Withdrawal Request 💸', {
+          body: `${currentCounts.withdrawals} withdrawal payout request(s) awaiting approval.`,
+          url: '/admin/dashboard',
+          tag: 'admin-withdrawal'
+        });
+      }
+      if (currentCounts.support > lastCountsRef.current.support) {
+        sendAppNotification('New Support Ticket 💬', {
+          body: `${currentCounts.support} pending support ticket(s) awaiting reply.`,
+          url: '/admin/dashboard',
+          tag: 'admin-support'
+        });
+      }
+      if (currentCounts.verifications > lastCountsRef.current.verifications) {
+        sendAppNotification('Game Profile Verification 🎮', {
+          body: `${currentCounts.verifications} in-game profile credential request(s) awaiting review.`,
+          url: '/admin/dashboard',
+          tag: 'admin-verification'
+        });
+      }
+    }
+
+    lastCountsRef.current = currentCounts;
+  }, [pendingDeposits.length, pendingWithdrawals.length, supportTickets, gameVerifications.length]);
 
   const fetchPaymentSettings = async () => {
     try {
@@ -779,18 +827,46 @@ const AdminDashboard = () => {
       {/* Admin Header */}
       <div className="bg-surface border-b border-white/5 py-8">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center gap-2 mb-4 font-bold tracking-widest text-xs uppercase">
-            <ShieldAlert size={14} className="text-rose-400" /> 
-            <span className="text-rose-400">System Administration</span>
-            {isSuperAdmin ? (
-              <span className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider shadow">
-                ★ Super Admin (Developer Control)
-              </span>
-            ) : (
-              <span className="bg-indigo-600 text-white px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider">
-                Sub-Admin
-              </span>
-            )}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2 font-bold tracking-widest text-xs uppercase">
+              <ShieldAlert size={14} className="text-rose-400" /> 
+              <span className="text-rose-400">System Administration</span>
+              {isSuperAdmin ? (
+                <span className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider shadow">
+                  ★ Super Admin (Developer Control)
+                </span>
+              ) : (
+                <span className="bg-indigo-600 text-white px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider">
+                  Sub-Admin
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {notificationPermission !== 'granted' ? (
+                <button
+                  onClick={async () => {
+                    const ok = await requestNotificationPermission();
+                    if (ok) {
+                      setNotificationPermission('granted');
+                      playNotificationSound();
+                    }
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-semibold hover:bg-rose-500/30 transition-all cursor-pointer animate-pulse"
+                  title="Click to enable sound & desktop/phone alerts for incoming admin requests"
+                >
+                  <Bell size={13} /> Enable Audio Alerts
+                </button>
+              ) : (
+                <button
+                  onClick={() => playNotificationSound()}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-medium hover:bg-emerald-500/25 transition-all cursor-pointer"
+                  title="Alerts enabled! Click to test notification chime sound"
+                >
+                  <Volume2 size={13} /> Audio Alerts Active (Test Sound)
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
