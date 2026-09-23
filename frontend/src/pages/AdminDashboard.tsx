@@ -256,16 +256,22 @@ const AdminDashboard = () => {
     }
   }, [adminView]);
 
-  const fetchGameVerifications = async () => {
-    setGameVerificationsLoading(true);
-    setGameVerificationsError('');
+  const fetchGameVerifications = async (silent: boolean = false) => {
+    if (!silent) {
+      setGameVerificationsLoading(true);
+      setGameVerificationsError('');
+    }
     try {
       const res = await API.get('/admin/game-profile-requests');
       setGameVerifications(res.data);
     } catch (err: any) {
-      setGameVerificationsError(err.response?.data?.message || 'Failed to fetch verification requests');
+      if (!silent) {
+        setGameVerificationsError(err.response?.data?.message || 'Failed to fetch verification requests');
+      }
     } finally {
-      setGameVerificationsLoading(false);
+      if (!silent) {
+        setGameVerificationsLoading(false);
+      }
     }
   };
 
@@ -299,23 +305,36 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchAllPendingRequests = () => {
+    if (hasPermission('MANAGE_DEPOSITS')) fetchPendingDeposits(true);
+    if (hasPermission('MANAGE_WITHDRAWALS')) fetchPendingWithdrawals(true);
+    if (hasPermission('MANAGE_SUPPORT')) fetchSupportTickets(true);
+    if (hasPermission('MANAGE_GAME_VERIFICATIONS') || hasPermission('MANAGE_USERS')) fetchGameVerifications(true);
+  };
+
   useEffect(() => {
     const handleAdminRealtimeUpdate = () => {
       fetchTournaments();
-      if (hasPermission('MANAGE_DEPOSITS')) fetchPendingDeposits();
-      if (hasPermission('MANAGE_WITHDRAWALS')) fetchPendingWithdrawals();
-      if (hasPermission('MANAGE_SUPPORT')) fetchSupportTickets();
-      if (hasPermission('MANAGE_USERS')) fetchGameVerifications();
+      fetchAllPendingRequests();
     };
 
     window.addEventListener('adminUpdated', handleAdminRealtimeUpdate);
     window.addEventListener('tournamentsUpdated', fetchTournaments);
 
+    // Initial fetch of all pending request counts on mount
+    fetchAllPendingRequests();
+
+    // Regular interval to keep pending request counts real-time and visible
+    const pollInterval = setInterval(() => {
+      fetchAllPendingRequests();
+    }, 12000);
+
     return () => {
       window.removeEventListener('adminUpdated', handleAdminRealtimeUpdate);
       window.removeEventListener('tournamentsUpdated', fetchTournaments);
+      clearInterval(pollInterval);
     };
-  }, []);
+  }, [currentUser]);
 
   const fetchPaymentSettings = async () => {
     try {
@@ -417,16 +436,22 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchPendingDeposits = async () => {
-    setDepositsLoading(true);
-    setDepositsError('');
+  const fetchPendingDeposits = async (silent: boolean = false) => {
+    if (!silent) {
+      setDepositsLoading(true);
+      setDepositsError('');
+    }
     try {
       const data = await getPendingDeposits();
       setPendingDeposits(data);
     } catch (err: any) {
-      setDepositsError(err.response?.data?.message || 'Failed to fetch pending deposits');
+      if (!silent) {
+        setDepositsError(err.response?.data?.message || 'Failed to fetch pending deposits');
+      }
     } finally {
-      setDepositsLoading(false);
+      if (!silent) {
+        setDepositsLoading(false);
+      }
     }
   };
 
@@ -443,16 +468,22 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchPendingWithdrawals = async () => {
-    setWithdrawalsLoading(true);
-    setWithdrawalsError('');
+  const fetchPendingWithdrawals = async (silent: boolean = false) => {
+    if (!silent) {
+      setWithdrawalsLoading(true);
+      setWithdrawalsError('');
+    }
     try {
       const data = await getPendingWithdrawals();
       setPendingWithdrawals(data);
     } catch (err: any) {
-      setWithdrawalsError(err.response?.data?.message || 'Failed to fetch pending withdrawals');
+      if (!silent) {
+        setWithdrawalsError(err.response?.data?.message || 'Failed to fetch pending withdrawals');
+      }
     } finally {
-      setWithdrawalsLoading(false);
+      if (!silent) {
+        setWithdrawalsLoading(false);
+      }
     }
   };
 
@@ -494,16 +525,22 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchSupportTickets = async () => {
-    setSupportLoading(true);
-    setSupportError('');
+  const fetchSupportTickets = async (silent: boolean = false) => {
+    if (!silent) {
+      setSupportLoading(true);
+      setSupportError('');
+    }
     try {
       const data = await getAdminSupportTickets();
       setSupportTickets(data);
     } catch (err: any) {
-      setSupportError(err.response?.data?.message || 'Failed to fetch support tickets');
+      if (!silent) {
+        setSupportError(err.response?.data?.message || 'Failed to fetch support tickets');
+      }
     } finally {
-      setSupportLoading(false);
+      if (!silent) {
+        setSupportLoading(false);
+      }
     }
   };
 
@@ -719,6 +756,23 @@ const AdminDashboard = () => {
 
   const displayedTournaments = tab === 'active' ? activeTournaments : historyTournaments;
 
+  const pendingTicketsCount = supportTickets.filter(t => t.status === 'Pending').length;
+
+  const renderRedDotBadge = (count: number) => {
+    if (count <= 0) return null;
+    return (
+      <span className="flex items-center gap-1.5 ml-2" title={`${count} pending request${count > 1 ? 's' : ''}`}>
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-80"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,1)]"></span>
+        </span>
+        <span className="px-1.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-400 text-[10px] font-extrabold leading-none">
+          {count}
+        </span>
+      </span>
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
 
@@ -799,39 +853,38 @@ const AdminDashboard = () => {
             {hasPermission('MANAGE_SUPPORT') && (
               <button
                 onClick={() => setAdminView('support')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'support' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center ${adminView === 'support' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Support Tickets
+                {renderRedDotBadge(pendingTicketsCount)}
               </button>
             )}
             {hasPermission('MANAGE_DEPOSITS') && (
               <button
                 onClick={() => setAdminView('deposits')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'deposits' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center ${adminView === 'deposits' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Pending Deposits
+                {renderRedDotBadge(pendingDeposits.length)}
               </button>
             )}
             {hasPermission('MANAGE_WITHDRAWALS') && (
               <button
                 onClick={() => setAdminView('withdrawals')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'withdrawals' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center ${adminView === 'withdrawals' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Pending Withdrawals
+                {renderRedDotBadge(pendingWithdrawals.length)}
               </button>
             )}
 
             {(hasPermission('MANAGE_GAME_VERIFICATIONS') || hasPermission('MANAGE_USERS')) && (
               <button
                 onClick={() => setAdminView('game-verifications')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center gap-1.5 ${adminView === 'game-verifications' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center ${adminView === 'game-verifications' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Game Profile Verifications
-                {gameVerifications.length > 0 && (
-                  <span className="w-5 h-5 rounded-full bg-amber-500 text-black text-[10px] font-extrabold flex items-center justify-center animate-pulse">
-                    {gameVerifications.length}
-                  </span>
-                )}
+                {renderRedDotBadge(gameVerifications.length)}
               </button>
             )}
 
@@ -1414,13 +1467,21 @@ const AdminDashboard = () => {
 
             <div className="glass-panel p-6 flex items-center justify-between">
               <div>
-                <p className="text-textSecondary text-xs uppercase tracking-wider mb-1 font-semibold">Pending Tickets</p>
-                <h4 className="text-3xl font-display font-bold text-amber-400">
-                  {supportTickets.filter(t => t.status === 'Pending').length}
+                <p className="text-textSecondary text-xs uppercase tracking-wider mb-1 font-semibold flex items-center gap-1.5">
+                  Pending Tickets
+                  {pendingTicketsCount > 0 && (
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                    </span>
+                  )}
+                </p>
+                <h4 className={`text-3xl font-display font-bold ${pendingTicketsCount > 0 ? 'text-rose-400' : 'text-amber-400'}`}>
+                  {pendingTicketsCount}
                 </h4>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                <Clock className="text-amber-400" size={20} />
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${pendingTicketsCount > 0 ? 'bg-rose-500/10 border-rose-500/30' : 'bg-amber-500/10 border-amber-500/20'}`}>
+                <Clock className={pendingTicketsCount > 0 ? 'text-rose-400' : 'text-amber-400'} size={20} />
               </div>
             </div>
 
@@ -1490,10 +1551,16 @@ const AdminDashboard = () => {
                             <td className="py-4 px-4 font-medium text-white">{t.user?.email || 'Unknown User'}</td>
                             <td className="py-4 px-4 text-textSecondary">{t.subject}</td>
                             <td className="py-4 px-4">
-                              <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${t.status === 'Resolved'
+                              <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded inline-flex items-center gap-1.5 ${t.status === 'Resolved'
                                   ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                  : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                  : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
                                 }`}>
+                                {t.status === 'Pending' && (
+                                  <span className="relative flex h-1.5 w-1.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
+                                  </span>
+                                )}
                                 {t.status}
                               </span>
                             </td>
@@ -1523,11 +1590,19 @@ const AdminDashboard = () => {
         <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-white font-display font-bold text-xl">Pending Manual Deposits</h3>
+              <h3 className="text-white font-display font-bold text-xl flex items-center gap-2">
+                Pending Manual Deposits
+                {pendingDeposits.length > 0 && (
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                  </span>
+                )}
+              </h3>
               <p className="text-textSecondary text-xs mt-1">Review UTR / transaction IDs submitted by players against your bank statement</p>
             </div>
             <button
-              onClick={fetchPendingDeposits}
+              onClick={() => fetchPendingDeposits(false)}
               className="p-2 rounded bg-surface border border-white/5 text-textSecondary hover:text-white hover:border-white/20 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer"
             >
               <RefreshCw size={14} className={depositsLoading ? 'animate-spin' : ''} /> Refresh List
@@ -1569,7 +1644,15 @@ const AdminDashboard = () => {
                       const date = new Date(deposit.createdAt).toLocaleString();
                       return (
                         <tr key={deposit.id} className="border-b border-white/5 hover:bg-white/5 transition-colors text-sm">
-                          <td className="py-4 px-4 font-semibold text-white">{deposit.userEmail}</td>
+                          <td className="py-4 px-4 font-semibold text-white">
+                            <div className="flex items-center gap-2">
+                              <span className="relative flex h-2 w-2 flex-shrink-0">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                              </span>
+                              <span>{deposit.userEmail}</span>
+                            </div>
+                          </td>
                           <td className="py-4 px-4 text-textSecondary">{deposit.username || 'N/A'}</td>
                           <td className="py-4 px-4 font-display font-bold text-emerald-400">₹{deposit.amount.toFixed(2)}</td>
                           <td className="py-4 px-4 font-mono font-bold text-white tracking-wider">
@@ -1622,11 +1705,19 @@ const AdminDashboard = () => {
         <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-white font-display font-bold text-xl">Pending Manual Withdrawals</h3>
+              <h3 className="text-white font-display font-bold text-xl flex items-center gap-2">
+                Pending Manual Withdrawals
+                {pendingWithdrawals.length > 0 && (
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                  </span>
+                )}
+              </h3>
               <p className="text-textSecondary text-xs mt-1">Review withdrawal requests, check UPI / Bank details, make payouts, and verify status.</p>
             </div>
             <button
-              onClick={fetchPendingWithdrawals}
+              onClick={() => fetchPendingWithdrawals(false)}
               className="p-2 rounded bg-surface border border-white/5 text-textSecondary hover:text-white hover:border-white/20 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer"
             >
               <RefreshCw size={14} className={withdrawalsLoading ? 'animate-spin' : ''} /> Refresh List
@@ -1668,7 +1759,15 @@ const AdminDashboard = () => {
                       const date = new Date(withdrawal.createdAt).toLocaleString();
                       return (
                         <tr key={withdrawal.id} className="border-b border-white/5 hover:bg-white/5 transition-colors text-sm">
-                          <td className="py-4 px-4 font-semibold text-white">{withdrawal.userEmail}</td>
+                          <td className="py-4 px-4 font-semibold text-white">
+                            <div className="flex items-center gap-2">
+                              <span className="relative flex h-2 w-2 flex-shrink-0">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                              </span>
+                              <span>{withdrawal.userEmail}</span>
+                            </div>
+                          </td>
                           <td className="py-4 px-4 text-textSecondary">{withdrawal.username || 'N/A'}</td>
                           <td className="py-4 px-4 font-display font-bold text-rose-400">₹{withdrawal.amount.toFixed(2)}</td>
                           <td className="py-4 px-4 text-white font-medium">
@@ -1814,11 +1913,19 @@ const AdminDashboard = () => {
         <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-2xl font-bold font-display text-white">In-Game Credentials Verifications</h3>
+              <h3 className="text-2xl font-bold font-display text-white flex items-center gap-2">
+                In-Game Credentials Verifications
+                {gameVerifications.length > 0 && (
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                  </span>
+                )}
+              </h3>
               <p className="text-textSecondary text-xs mt-1">Review and verify user In-Game Name, Free Fire UID, and Level before unlocking tournament eligibility</p>
             </div>
             <button
-              onClick={fetchGameVerifications}
+              onClick={() => fetchGameVerifications(false)}
               className="px-3 py-1.5 rounded text-xs font-semibold bg-surface border border-white/10 text-textSecondary hover:text-white transition-all cursor-pointer flex items-center gap-2"
             >
               <RefreshCw size={14} className={gameVerificationsLoading ? 'animate-spin' : ''} /> Refresh List
@@ -1851,7 +1958,11 @@ const AdminDashboard = () => {
                         <UserIcon size={18} className="text-amber-400" />
                         <span className="font-bold text-white text-sm">{req.userEmail}</span>
                       </div>
-                      <span className="text-[10px] font-extrabold uppercase bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-extrabold uppercase bg-rose-500/10 border border-rose-500/30 text-rose-400 px-2 py-0.5 rounded flex items-center gap-1.5">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
+                        </span>
                         PENDING REVIEW
                       </span>
                     </div>
