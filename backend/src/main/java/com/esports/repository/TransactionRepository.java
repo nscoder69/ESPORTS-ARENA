@@ -13,4 +13,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             com.esports.entity.TransactionType transactionType, 
             com.esports.entity.TransactionStatus status
     );
+    boolean existsByPaymentReference(String paymentReference);
+    java.util.Optional<Transaction> findByPaymentReference(String paymentReference);
 }

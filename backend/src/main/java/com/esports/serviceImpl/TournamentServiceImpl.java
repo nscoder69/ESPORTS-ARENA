@@ -349,15 +349,16 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional
     public TournamentDto cancelTournament(UUID tournamentId, String adminEmail) {
         verifyAdmin(adminEmail);
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
         
-        refundAllRegisteredTeams(tournament);
-        
         tournament.setStatus("Cancelled");
         tournament = tournamentRepository.save(tournament);
+
+        refundAllRegisteredTeams(tournament);
         
         TournamentDto response = mapToTournamentDto(tournament);
         realtimeEventPublisher.publishTournamentUpdate("TOURNAMENT_CANCELLED", response);
@@ -389,7 +390,7 @@ public class TournamentServiceImpl implements TournamentService {
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Tournament not found"));
         
-        if (!"Finished".equalsIgnoreCase(tournament.getStatus()) && !"Cancelled".equalsIgnoreCase(tournament.getStatus())) {
+        if (!"Finished".equalsIgnoreCase(tournament.getStatus())) {
             refundAllRegisteredTeams(tournament);
         }
         
@@ -399,8 +400,12 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional
     public void removeTeamFromTournament(UUID tournamentId, UUID teamId, String adminEmail) {
         verifyAdmin(adminEmail);
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+
         List<TournamentRegistration> registrations = registrationRepository.findByTournament_Id(tournamentId);
         
         TournamentRegistration regToRemove = registrations.stream()
@@ -408,7 +413,49 @@ public class TournamentServiceImpl implements TournamentService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Registration not found"));
         
+        // If tournament had an entry fee, refund the captain who paid
+        if (tournament.getEntryFee() != null && tournament.getEntryFee().compareTo(java.math.BigDecimal.ZERO) > 0) {
+            if (regToRemove.getTeam() != null && regToRemove.getTeam().getCaptain() != null) {
+                User captain = regToRemove.getTeam().getCaptain();
+                String paymentRef = "REFUND_" + tournament.getId().toString().substring(0, 8) + "_" + teamId.toString().substring(0, 8);
+                if (!transactionRepository.existsByPaymentReference(paymentRef)) {
+                    Wallet wallet = walletRepository.findByUserId(captain.getId()).orElse(null);
+                    if (wallet != null) {
+                        if (wallet.getBalance() == null) {
+                            wallet.setBalance(java.math.BigDecimal.ZERO);
+                        }
+                        wallet.setBalance(wallet.getBalance().add(tournament.getEntryFee()));
+                        Wallet savedWallet = walletRepository.save(wallet);
+
+                        Transaction transaction = new Transaction();
+                        transaction.setWallet(savedWallet);
+                        transaction.setAmount(tournament.getEntryFee());
+                        transaction.setTransactionType(TransactionType.DEPOSIT);
+                        transaction.setStatus(TransactionStatus.SUCCESS);
+                        transaction.setPaymentReference(paymentRef);
+                        transaction.setDescription("Refund: Removed from Tournament - " + tournament.getName());
+                        transactionRepository.save(transaction);
+
+                        realtimeEventPublisher.publishUserWalletUpdate(
+                            captain.getEmail(),
+                            savedWallet.getBalance(),
+                            "Refund of ₹" + tournament.getEntryFee() + " credited for removal from " + tournament.getName()
+                        );
+
+                        try {
+                            notificationService.createNotification(
+                                captain,
+                                "Tournament Removal Refund: ₹" + tournament.getEntryFee(),
+                                "Your team was removed from tournament '" + tournament.getName() + "'. Your entry fee of ₹" + tournament.getEntryFee() + " has been refunded to your wallet."
+                            );
+                        } catch (Exception ignored) {}
+                    }
+                }
+            }
+        }
+
         registrationRepository.delete(regToRemove);
+        realtimeEventPublisher.publishTournamentUpdate("TOURNAMENT_UNREGISTERED", tournamentId);
     }
 
     @Override
@@ -621,9 +668,18 @@ public class TournamentServiceImpl implements TournamentService {
         
         if (tournament.getEntryFee() != null && tournament.getEntryFee().compareTo(java.math.BigDecimal.ZERO) > 0) {
             for (TournamentRegistration reg : registrations) {
+                if (reg.getTeam() == null || reg.getTeam().getCaptain() == null) {
+                    continue;
+                }
                 User captain = reg.getTeam().getCaptain();
-                Wallet wallet = walletRepository.findByUserId(captain.getId()).orElse(null);
+                String paymentRef = "REFUND_" + tournament.getId().toString().substring(0, 8) + "_" + reg.getTeam().getId().toString().substring(0, 8);
                 
+                // Idempotent: Never refund the same team twice
+                if (transactionRepository.existsByPaymentReference(paymentRef)) {
+                    continue;
+                }
+
+                Wallet wallet = walletRepository.findByUserId(captain.getId()).orElse(null);
                 if (wallet != null) {
                     if (wallet.getBalance() == null) {
                         wallet.setBalance(java.math.BigDecimal.ZERO);
@@ -636,14 +692,31 @@ public class TournamentServiceImpl implements TournamentService {
                     transaction.setAmount(tournament.getEntryFee());
                     transaction.setTransactionType(TransactionType.DEPOSIT);
                     transaction.setStatus(TransactionStatus.SUCCESS);
-                    transaction.setPaymentReference("REFUND_" + tournament.getId().toString().substring(0,8) + "_" + reg.getTeam().getId().toString().substring(0,8));
-                    transaction.setDescription("Refund: Tournament Cancelled - " + tournament.getName());
+                    transaction.setPaymentReference(paymentRef);
+                    transaction.setDescription("Refund: Tournament " + ("Cancelled".equalsIgnoreCase(tournament.getStatus()) ? "Cancelled" : "Deleted") + " - " + tournament.getName());
                     transactionRepository.save(transaction);
+
+                    // Publish live real-time wallet update to captain
+                    realtimeEventPublisher.publishUserWalletUpdate(
+                        captain.getEmail(),
+                        savedWallet.getBalance(),
+                        "Refund of ₹" + tournament.getEntryFee() + " credited for tournament " + tournament.getName()
+                    );
+
+                    // Send in-app notification to the captain
+                    try {
+                        notificationService.createNotification(
+                            captain,
+                            "Tournament Refund: ₹" + tournament.getEntryFee(),
+                            "Tournament '" + tournament.getName() + "' was cancelled/removed by the organizer. Your entry fee of ₹" + tournament.getEntryFee() + " has been refunded to your wallet."
+                        );
+                    } catch (Exception ignored) {
+                    }
                 }
             }
         }
         
-        // Remove all registrations to enforce re-registration if revived
+        // Remove all registrations to enforce clean state
         registrationRepository.deleteAll(registrations);
     }
 

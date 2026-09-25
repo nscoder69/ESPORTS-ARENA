@@ -774,7 +774,7 @@ const AdminDashboard = () => {
   };
 
   const handleCancelTournament = async () => {
-    if (!window.confirm("Are you sure you want to cancel this tournament? This cannot be fully undone.")) return;
+    if (!window.confirm("Are you sure you want to cancel this tournament? All registered captains will be automatically refunded their entry fees to their wallet.")) return;
     setActionLoading(true);
     setActionError('');
     try {
@@ -789,7 +789,7 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteTournament = async (tournamentId: string) => {
-    if (!window.confirm("Are you sure you want to permanently delete this tournament and clear it from history?")) return;
+    if (!window.confirm("Are you sure you want to permanently delete this tournament? Any registered captains will be automatically refunded their entry fees to their wallet.")) return;
     setActionLoading(true);
     setActionError('');
     try {
