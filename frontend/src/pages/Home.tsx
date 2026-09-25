@@ -68,33 +68,33 @@ export default function Home() {
             </div>
             <p className="text-textSecondary text-sm mb-8 relative z-10">Survival of the fittest. Drop in, loot up, and be the last one standing on the massive battleground.</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-auto relative z-10">
-              <Link to="/tournaments?mode=full-map-solo" className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-xl bg-surfaceHighlight hover:bg-primary/20 border border-white/5 hover:border-primary/50 transition-all group">
-                <div className="h-10 flex items-center">
-                  <Users size={20} className="text-textSecondary group-hover:text-primary transition-colors" />
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-auto relative z-10">
+              <Link to="/tournaments?mode=full-map-solo" className="flex flex-col items-center justify-center p-2.5 sm:p-6 rounded-xl bg-surfaceHighlight hover:bg-primary/20 border border-white/5 hover:border-primary/50 transition-all group">
+                <div className="h-8 sm:h-10 flex items-center">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-textSecondary group-hover:text-primary transition-colors" />
                 </div>
-                <span className="text-white font-semibold">Solo</span>
-                <span className="text-[10px] uppercase tracking-wider text-textSecondary mt-1 font-semibold">1v49</span>
+                <span className="text-white font-semibold text-xs sm:text-base">Solo</span>
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-textSecondary mt-0.5 sm:mt-1 font-semibold whitespace-nowrap">1v49</span>
               </Link>
 
-              <Link to="/tournaments?mode=full-map-duo" className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-xl bg-surfaceHighlight hover:bg-primary/20 border border-white/5 hover:border-primary/50 transition-all group">
-                <div className="h-10 flex items-center gap-1">
-                  <Users size={20} className="text-textSecondary group-hover:text-primary transition-colors" />
-                  <Users size={20} className="text-textSecondary group-hover:text-primary transition-colors" />
+              <Link to="/tournaments?mode=full-map-duo" className="flex flex-col items-center justify-center p-2.5 sm:p-6 rounded-xl bg-surfaceHighlight hover:bg-primary/20 border border-white/5 hover:border-primary/50 transition-all group">
+                <div className="h-8 sm:h-10 flex items-center gap-0.5 sm:gap-1">
+                  <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-textSecondary group-hover:text-primary transition-colors" />
+                  <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-textSecondary group-hover:text-primary transition-colors" />
                 </div>
-                <span className="text-white font-semibold">Duo</span>
-                <span className="text-[10px] uppercase tracking-wider text-textSecondary mt-1 font-semibold">2 Players</span>
+                <span className="text-white font-semibold text-xs sm:text-base">Duo</span>
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-textSecondary mt-0.5 sm:mt-1 font-semibold whitespace-nowrap">2 Players</span>
               </Link>
 
-              <Link to="/tournaments?mode=full-map-squad" className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-xl bg-surfaceHighlight hover:bg-primary/20 border border-white/5 hover:border-primary/50 transition-all group">
-                <div className="h-10 flex items-center gap-1">
-                  <Users size={16} className="text-textSecondary group-hover:text-primary transition-colors" />
-                  <Users size={16} className="text-textSecondary group-hover:text-primary transition-colors" />
-                  <Users size={16} className="text-textSecondary group-hover:text-primary transition-colors" />
-                  <Users size={16} className="text-textSecondary group-hover:text-primary transition-colors" />
+              <Link to="/tournaments?mode=full-map-squad" className="flex flex-col items-center justify-center p-2.5 sm:p-6 rounded-xl bg-surfaceHighlight hover:bg-primary/20 border border-white/5 hover:border-primary/50 transition-all group">
+                <div className="h-8 sm:h-10 flex items-center gap-0.5 sm:gap-1">
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 text-textSecondary group-hover:text-primary transition-colors" />
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 text-textSecondary group-hover:text-primary transition-colors" />
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 text-textSecondary group-hover:text-primary transition-colors" />
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 text-textSecondary group-hover:text-primary transition-colors" />
                 </div>
-                <span className="text-white font-semibold">Squad</span>
-                <span className="text-[10px] uppercase tracking-wider text-textSecondary mt-1 font-semibold">4 Players</span>
+                <span className="text-white font-semibold text-xs sm:text-base">Squad</span>
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-textSecondary mt-0.5 sm:mt-1 font-semibold whitespace-nowrap">4 Players</span>
               </Link>
             </div>
           </motion.div>

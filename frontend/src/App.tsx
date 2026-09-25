@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, LayoutDashboard, IndianRupee, LogOut, User, CheckCircle, ShieldAlert, Bell, HelpCircle, Menu, X } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getWalletBalance } from './services/walletService';
 import { getUserNotifications, markAllNotificationsAsRead } from './services/notificationService';
 import API, { getImageUrl } from './services/api';
@@ -41,6 +41,78 @@ function App() {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   });
+
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside for Notifications and Profile dropdowns
+  useEffect(() => {
+    const handleDocumentClick = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(target)
+      ) {
+        setIsNotificationsOpen(false);
+      }
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(target)
+      ) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    if (isNotificationsOpen || isProfileDropdownOpen) {
+      document.addEventListener('mousedown', handleDocumentClick);
+      document.addEventListener('touchstart', handleDocumentClick);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleDocumentClick);
+      document.removeEventListener('touchstart', handleDocumentClick);
+    };
+  }, [isNotificationsOpen, isProfileDropdownOpen]);
+
+  // Handle system back navigation for dropdowns & mobile drawer
+  const navModalPushedRef = useRef(false);
+  useEffect(() => {
+    const isAnyOpen = isNotificationsOpen || isProfileDropdownOpen || isMobileMenuOpen;
+    if (isAnyOpen && !navModalPushedRef.current) {
+      navModalPushedRef.current = true;
+      window.history.pushState({ appNavModal: true }, '');
+
+      const handlePopState = () => {
+        navModalPushedRef.current = false;
+        setIsNotificationsOpen(false);
+        setIsProfileDropdownOpen(false);
+        setIsMobileMenuOpen(false);
+      };
+
+      window.addEventListener('popstate', handlePopState, { once: true });
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    } else if (!isAnyOpen && navModalPushedRef.current) {
+      navModalPushedRef.current = false;
+      if (window.history.state?.appNavModal) {
+        window.history.back();
+      }
+    }
+  }, [isNotificationsOpen, isProfileDropdownOpen, isMobileMenuOpen]);
+
+  // Ensure there is always a base entry so system back navigates within the app instead of closing all pages
+  useEffect(() => {
+    if (!window.history.state?.appBaseSet) {
+      if (window.location.pathname !== '/') {
+        const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+        window.history.replaceState({ appBaseSet: true, page: 'home' }, '', '/');
+        window.history.pushState({ appBaseSet: true, page: 'current' }, '', currentUrl);
+      } else {
+        window.history.replaceState({ appBaseSet: true, page: 'home' }, '');
+      }
+    }
+  }, []);
 
   const fetchBalance = useCallback(() => {
     if (token) {
@@ -164,7 +236,7 @@ function App() {
 
                 {/* Notifications Bell Dropdown */}
                 {token && user && (
-                  <div className="relative">
+                  <div className="relative" ref={notificationsRef}>
                     <button
                       onClick={() => {
                         setIsNotificationsOpen(!isNotificationsOpen);
@@ -239,7 +311,7 @@ function App() {
                 )}
 
                 {/* Profile Section */}
-                <div className="relative">
+                <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => {
                       setIsProfileDropdownOpen(!isProfileDropdownOpen);
@@ -318,6 +390,21 @@ function App() {
             </button>
           </div>
         </header>
+
+        {/* Full-screen click-outside backdrop overlay for profile & notification dropdowns */}
+        {(isNotificationsOpen || isProfileDropdownOpen) && (
+          <div
+            className="fixed inset-0 z-40 bg-transparent"
+            onClick={() => {
+              setIsNotificationsOpen(false);
+              setIsProfileDropdownOpen(false);
+            }}
+            onTouchStart={() => {
+              setIsNotificationsOpen(false);
+              setIsProfileDropdownOpen(false);
+            }}
+          />
+        )}
 
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (

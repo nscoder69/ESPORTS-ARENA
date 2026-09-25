@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Users, ShieldAlert, Loader, Search, RefreshCw, X, Calendar, UserX, AlertCircle, Trash2, CheckCircle, IndianRupee, Clock, Wallet, User as UserIcon, QrCode, Edit3, MessageSquare, Shield, Plus, Key, Copy, Bell, Volume2 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { getAllTournaments, getRegistrationsForTournament, cancelTournament, rescheduleTournament, removeTeamFromTournament, updateTournamentResults, deleteTournament, getUserRegisteredTournaments, updateRoomCredentials } from '../services/tournamentService';
 import { getTeamMembers } from '../services/teamService';
 import { getAllUsers, blockUser, unblockUser, deleteUser } from '../services/authService';
@@ -115,7 +115,29 @@ const AdminDashboard = () => {
     return 'tournaments';
   };
 
-  const [adminView, setAdminView] = useState<'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'game-verifications' | 'payment-settings' | 'access-control'>(getInitialAdminView);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTabFromUrl = searchParams.get('tab') as any;
+
+  const validTabs = ['tournaments', 'users', 'support', 'deposits', 'withdrawals', 'game-verifications', 'payment-settings', 'access-control'];
+
+  const [adminView, setAdminViewState] = useState<'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'game-verifications' | 'payment-settings' | 'access-control'>(() => {
+    if (currentTabFromUrl && validTabs.includes(currentTabFromUrl)) {
+      return currentTabFromUrl;
+    }
+    return getInitialAdminView();
+  });
+
+  // Sync tab state when URL search params change (e.g., system back / forward navigation)
+  useEffect(() => {
+    if (currentTabFromUrl && validTabs.includes(currentTabFromUrl) && currentTabFromUrl !== adminView) {
+      setAdminViewState(currentTabFromUrl);
+    }
+  }, [currentTabFromUrl]);
+
+  const setAdminView = (view: 'tournaments' | 'users' | 'support' | 'deposits' | 'withdrawals' | 'game-verifications' | 'payment-settings' | 'access-control') => {
+    setAdminViewState(view);
+    setSearchParams({ tab: view });
+  };
   const [pendingDeposits, setPendingDeposits] = useState<any[]>([]);
   const [depositsLoading, setDepositsLoading] = useState(false);
   const [depositsError, setDepositsError] = useState('');
@@ -143,6 +165,27 @@ const AdminDashboard = () => {
   const [inputConfirmationCode, setInputConfirmationCode] = useState('');
   const [confirmingSuperAdmin, setConfirmingSuperAdmin] = useState(false);
   const [confirmError, setConfirmError] = useState('');
+
+  // Efficient & accurate computation of user activity stats
+  const userStats = useMemo(() => {
+    const total = usersList.length;
+    const now = Date.now();
+    let online = 0;
+    for (let i = 0; i < total; i++) {
+      const u = usersList[i];
+      if (u.lastActiveAt) {
+        const diff = now - new Date(u.lastActiveAt).getTime();
+        if (diff < 5 * 60 * 1000) {
+          online++;
+        }
+      }
+    }
+    return {
+      total,
+      online,
+      offline: Math.max(0, total - online),
+    };
+  }, [usersList]);
   const [notificationPermission, setNotificationPermission] = useState<string>(() => {
     return typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'denied';
   });
@@ -216,6 +259,59 @@ const AdminDashboard = () => {
   const [profileTournaments, setProfileTournaments] = useState<any[]>([]);
   const [loadingProfileDetails, setLoadingProfileDetails] = useState(false);
   const [profileActiveTab, setProfileActiveTab] = useState<'transactions' | 'tournaments'>('transactions');
+
+  // Handle system back navigation for all admin dashboard modals
+  const adminModalPushedRef = useRef(false);
+  useEffect(() => {
+    const isAnyModalOpen =
+      rescheduleModalOpen ||
+      membersModalOpen ||
+      resultsModalOpen ||
+      roomModalOpen ||
+      rejectModalOpen ||
+      isPromoteUserModalOpen ||
+      isSuperAdminConfirmModalOpen ||
+      isReplyModalOpen ||
+      profileModalOpen;
+
+    if (isAnyModalOpen && !adminModalPushedRef.current) {
+      adminModalPushedRef.current = true;
+      window.history.pushState({ adminModal: true }, '');
+
+      const handlePopState = () => {
+        adminModalPushedRef.current = false;
+        setRescheduleModalOpen(false);
+        setMembersModalOpen(false);
+        setResultsModalOpen(false);
+        setRoomModalOpen(false);
+        setRejectModalOpen(false);
+        setIsPromoteUserModalOpen(false);
+        setIsSuperAdminConfirmModalOpen(false);
+        setIsReplyModalOpen(false);
+        setProfileModalOpen(false);
+      };
+
+      window.addEventListener('popstate', handlePopState, { once: true });
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    } else if (!isAnyModalOpen && adminModalPushedRef.current) {
+      adminModalPushedRef.current = false;
+      if (window.history.state?.adminModal) {
+        window.history.back();
+      }
+    }
+  }, [
+    rescheduleModalOpen,
+    membersModalOpen,
+    resultsModalOpen,
+    roomModalOpen,
+    rejectModalOpen,
+    isPromoteUserModalOpen,
+    isSuperAdminConfirmModalOpen,
+    isReplyModalOpen,
+    profileModalOpen,
+  ]);
 
   // Super Admin Payment Settings State
   const [paymentSettings, setPaymentSettings] = useState<any>({ upiId: '', upiQrUrl: '' });
@@ -1307,38 +1403,43 @@ const AdminDashboard = () => {
       ) : adminView === 'users' ? (
         <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
           {/* Stats Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="glass-panel p-6 flex items-center justify-between">
-              <div>
-                <p className="text-textSecondary text-xs uppercase tracking-wider mb-1 font-semibold">Total Registered Users</p>
-                <h4 className="text-3xl font-display font-bold text-white">{usersList.length}</h4>
+          <div className="grid grid-cols-3 gap-2 sm:gap-6">
+            <div className="glass-panel p-3 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
+              <div className="min-w-0">
+                <p className="text-textSecondary text-[10px] sm:text-xs uppercase tracking-wider mb-0.5 sm:mb-1 font-semibold truncate" title="Total Registered Users">
+                  <span className="sm:hidden">Total Users</span>
+                  <span className="hidden sm:inline">Total Registered Users</span>
+                </p>
+                <h4 className="text-lg sm:text-3xl font-display font-bold text-white">{userStats.total}</h4>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                <Users className="text-primary" size={20} />
-              </div>
-            </div>
-
-            <div className="glass-panel p-6 flex items-center justify-between">
-              <div>
-                <p className="text-textSecondary text-xs uppercase tracking-wider mb-1 font-semibold">Online Right Now</p>
-                <h4 className="text-3xl font-display font-bold text-emerald-400">
-                  {usersList.filter(u => u.lastActiveAt && (Date.now() - new Date(u.lastActiveAt).getTime()) < 5 * 60 * 1000).length}
-                </h4>
-              </div>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 self-end sm:self-auto">
+                <Users className="text-primary w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
 
-            <div className="glass-panel p-6 flex items-center justify-between">
-              <div>
-                <p className="text-textSecondary text-xs uppercase tracking-wider mb-1 font-semibold">Offline (Over 24h)</p>
-                <h4 className="text-3xl font-display font-bold text-textSecondary">
-                  {usersList.filter(u => !u.lastActiveAt || (Date.now() - new Date(u.lastActiveAt).getTime()) >= 24 * 60 * 60 * 1000).length}
-                </h4>
+            <div className="glass-panel p-3 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
+              <div className="min-w-0">
+                <p className="text-textSecondary text-[10px] sm:text-xs uppercase tracking-wider mb-0.5 sm:mb-1 font-semibold truncate" title="Online Right Now">
+                  <span className="sm:hidden">Online</span>
+                  <span className="hidden sm:inline">Online Right Now</span>
+                </p>
+                <h4 className="text-lg sm:text-3xl font-display font-bold text-emerald-400">{userStats.online}</h4>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
-                <Users className="text-textSecondary" size={20} />
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0 self-end sm:self-auto">
+                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+              </div>
+            </div>
+
+            <div className="glass-panel p-3 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
+              <div className="min-w-0">
+                <p className="text-textSecondary text-[10px] sm:text-xs uppercase tracking-wider mb-0.5 sm:mb-1 font-semibold truncate" title="Offline Users">
+                  <span className="sm:hidden">Offline</span>
+                  <span className="hidden sm:inline">Offline</span>
+                </p>
+                <h4 className="text-lg sm:text-3xl font-display font-bold text-textSecondary">{userStats.offline}</h4>
+              </div>
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0 self-end sm:self-auto">
+                <Users className="text-textSecondary w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
           </div>
@@ -1530,46 +1631,53 @@ const AdminDashboard = () => {
       ) : adminView === 'support' ? (
         <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
           {/* Support Stats Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="glass-panel p-6 flex items-center justify-between">
-              <div>
-                <p className="text-textSecondary text-xs uppercase tracking-wider mb-1 font-semibold">Total Tickets</p>
-                <h4 className="text-3xl font-display font-bold text-white">{supportTickets.length}</h4>
+          <div className="grid grid-cols-3 gap-2 sm:gap-6">
+            <div className="glass-panel p-3 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
+              <div className="min-w-0">
+                <p className="text-textSecondary text-[10px] sm:text-xs uppercase tracking-wider mb-0.5 sm:mb-1 font-semibold truncate" title="Total Tickets">
+                  <span className="sm:hidden">Total</span>
+                  <span className="hidden sm:inline">Total Tickets</span>
+                </p>
+                <h4 className="text-lg sm:text-3xl font-display font-bold text-white">{supportTickets.length}</h4>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                <MessageSquare className="text-primary" size={20} />
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 self-end sm:self-auto">
+                <MessageSquare className="text-primary w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
 
-            <div className="glass-panel p-6 flex items-center justify-between">
-              <div>
-                <p className="text-textSecondary text-xs uppercase tracking-wider mb-1 font-semibold flex items-center gap-1.5">
-                  Pending Tickets
+            <div className="glass-panel p-3 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
+              <div className="min-w-0">
+                <p className="text-textSecondary text-[10px] sm:text-xs uppercase tracking-wider mb-0.5 sm:mb-1 font-semibold flex items-center gap-1 truncate" title="Pending Tickets">
+                  <span className="sm:hidden">Pending</span>
+                  <span className="hidden sm:inline">Pending Tickets</span>
                   {pendingTicketsCount > 0 && (
-                    <span className="relative flex h-2 w-2">
+                    <span className="relative flex h-2 w-2 shrink-0">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
                     </span>
                   )}
                 </p>
-                <h4 className={`text-3xl font-display font-bold ${pendingTicketsCount > 0 ? 'text-rose-400' : 'text-amber-400'}`}>
+                <h4 className={`text-lg sm:text-3xl font-display font-bold ${pendingTicketsCount > 0 ? 'text-rose-400' : 'text-amber-400'}`}>
                   {pendingTicketsCount}
                 </h4>
               </div>
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${pendingTicketsCount > 0 ? 'bg-rose-500/10 border-rose-500/30' : 'bg-amber-500/10 border-amber-500/20'}`}>
-                <Clock className={pendingTicketsCount > 0 ? 'text-rose-400' : 'text-amber-400'} size={20} />
+              <div className={`w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center border shrink-0 self-end sm:self-auto ${pendingTicketsCount > 0 ? 'bg-rose-500/10 border-rose-500/30' : 'bg-amber-500/10 border-amber-500/20'}`}>
+                <Clock className={`${pendingTicketsCount > 0 ? 'text-rose-400' : 'text-amber-400'} w-4 h-4 sm:w-5 sm:h-5`} />
               </div>
             </div>
 
-            <div className="glass-panel p-6 flex items-center justify-between">
-              <div>
-                <p className="text-textSecondary text-xs uppercase tracking-wider mb-1 font-semibold">Resolved Tickets</p>
-                <h4 className="text-3xl font-display font-bold text-emerald-400">
+            <div className="glass-panel p-3 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
+              <div className="min-w-0">
+                <p className="text-textSecondary text-[10px] sm:text-xs uppercase tracking-wider mb-0.5 sm:mb-1 font-semibold truncate" title="Resolved Tickets">
+                  <span className="sm:hidden">Resolved</span>
+                  <span className="hidden sm:inline">Resolved Tickets</span>
+                </p>
+                <h4 className="text-lg sm:text-3xl font-display font-bold text-emerald-400">
                   {supportTickets.filter(t => t.status === 'Resolved').length}
                 </h4>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                <CheckCircle className="text-emerald-400" size={20} />
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0 self-end sm:self-auto">
+                <CheckCircle className="text-emerald-400 w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
           </div>

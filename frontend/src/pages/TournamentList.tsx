@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { getAllTournaments, deleteTournament } from '../services/tournamentService';
 import { Trophy, X, Gamepad2, Key, Clock, Copy, CheckCircle } from 'lucide-react';
@@ -75,6 +75,47 @@ export default function TournamentList() {
   // Team Members Modal State
   const [isTeamMembersModalOpen, setIsTeamMembersModalOpen] = useState(false);
   const [teamMembersModalData, setTeamMembersModalData] = useState<{ id: string; name: string } | null>(null);
+
+  // Handle system back navigation for TournamentList modals
+  const modalPushedRef = useRef(false);
+  useEffect(() => {
+    const isAnyModalOpen =
+      isModalOpen ||
+      isParticipantsModalOpen ||
+      isResultsModalOpen ||
+      isRoomCredentialsModalOpen ||
+      isTeamMembersModalOpen;
+
+    if (isAnyModalOpen && !modalPushedRef.current) {
+      modalPushedRef.current = true;
+      window.history.pushState({ tournamentModal: true }, '');
+
+      const handlePopState = () => {
+        modalPushedRef.current = false;
+        setIsModalOpen(false);
+        setIsParticipantsModalOpen(false);
+        setIsResultsModalOpen(false);
+        setIsRoomCredentialsModalOpen(false);
+        setIsTeamMembersModalOpen(false);
+      };
+
+      window.addEventListener('popstate', handlePopState, { once: true });
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    } else if (!isAnyModalOpen && modalPushedRef.current) {
+      modalPushedRef.current = false;
+      if (window.history.state?.tournamentModal) {
+        window.history.back();
+      }
+    }
+  }, [
+    isModalOpen,
+    isParticipantsModalOpen,
+    isResultsModalOpen,
+    isRoomCredentialsModalOpen,
+    isTeamMembersModalOpen,
+  ]);
 
   const handleOpenTeamMembers = (tournament: any) => {
     if (tournament.registeredTeamId) {
