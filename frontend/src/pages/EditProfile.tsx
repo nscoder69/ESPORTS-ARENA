@@ -140,7 +140,6 @@ const EditProfile = () => {
 
       const response = await API.post('/users/profile', formData);
 
-      // Update local storage setting PENDING verification status
       const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
       const updatedUser = { 
         ...existingUser, 
@@ -167,23 +166,23 @@ const EditProfile = () => {
   if (!userData) return null;
 
   return (
-    <div className="flex flex-col items-center min-h-[calc(100vh-4rem)] px-4 py-8 overflow-y-auto">
+    <div className="flex flex-col items-center min-h-[calc(100vh-4rem)] px-4 sm:px-6 py-10 overflow-y-auto bg-background">
       <div className="w-full max-w-2xl flex justify-between items-center mb-6">
-        <Link to="/" className="text-textSecondary hover:text-white flex items-center gap-2 transition-colors">
+        <Link to="/" className="text-textSecondary hover:text-white flex items-center gap-2 transition-colors text-xs font-bold uppercase tracking-wider">
           <ArrowLeft size={16} /> Back to Dashboard
         </Link>
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-panel p-8 md:p-10 w-full max-w-2xl flex-shrink-0 relative overflow-hidden"
+        className="bg-card border border-borderColor rounded-2xl shadow-card-dark p-6 sm:p-10 w-full max-w-2xl flex-shrink-0 relative overflow-hidden"
       >
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-primary/20 to-secondary/20 opacity-50"></div>
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-primary/15 via-[#FF6A28]/10 to-secondary/15 opacity-60"></div>
 
-        <div className="relative z-10 flex flex-col items-center mb-10">
+        <div className="relative z-10 flex flex-col items-center mb-8">
           <div className="relative mb-4 group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <div className="w-28 h-28 rounded-full bg-surfaceHighlight border-4 border-background overflow-hidden flex items-center justify-center relative shadow-xl">
+            <div className="w-28 h-28 rounded-full bg-elevated border-4 border-card overflow-hidden flex items-center justify-center relative shadow-card-dark">
               {avatarPreview ? (
                 <img src={avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
               ) : (
@@ -191,13 +190,13 @@ const EditProfile = () => {
               )}
 
               {/* Overlay for hover */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-                <Camera size={24} className="mb-1" />
+              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                <Camera size={24} className="mb-1 text-primary" />
                 <span className="text-[10px] font-bold tracking-wider uppercase">Change</span>
               </div>
             </div>
 
-            <div className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full border-2 border-background flex items-center justify-center shadow-lg text-black">
+            <div className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full border-2 border-card flex items-center justify-center shadow-fire-sm text-white">
               <Upload size={14} />
             </div>
 
@@ -210,22 +209,22 @@ const EditProfile = () => {
             />
           </div>
 
-          <h2 className="text-2xl font-bold font-display text-white">{userData.email.split('@')[0]}</h2>
-          <p className="text-sm text-textSecondary">{userData.email}</p>
+          <h2 className="text-2xl font-extrabold font-display text-white">{userData.email.split('@')[0]}</h2>
+          <p className="text-xs text-textSecondary mt-0.5">{userData.email}</p>
 
           <div className="mt-3">
             {userData.gameProfileStatus === 'PENDING' ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gold/15 border border-gold/30 text-gold shadow-gold-sm">
+                <span className="w-2 h-2 rounded-full bg-gold animate-ping"></span>
                 VERIFICATION PENDING ADMIN APPROVAL
               </span>
             ) : userData.gameProfileStatus === 'REJECTED' ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-400">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-secondary/15 border border-secondary/30 text-secondary shadow-red-sm">
                 <Shield size={14} />
                 CREDENTIALS REJECTED - RESUBMISSION REQUIRED
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
                 <Shield size={14} />
                 VERIFIED GAME CREDENTIALS
               </span>
@@ -234,11 +233,11 @@ const EditProfile = () => {
         </div>
 
         {userData.gameProfileStatus === 'PENDING' && (
-          <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl mb-6 text-sm text-amber-300 flex items-start gap-3">
-            <Shield className="text-amber-400 shrink-0 mt-0.5" size={18} />
+          <div className="bg-gold/10 border border-gold/30 p-4 rounded-xl mb-6 text-sm text-gold flex items-start gap-3 shadow-gold-sm">
+            <Shield className="text-gold shrink-0 mt-0.5" size={18} />
             <div>
               <p className="font-bold">Pending Admin Verification</p>
-              <p className="text-xs mt-1 text-amber-200/80">
+              <p className="text-xs mt-1 text-gold/80 leading-relaxed">
                 Your submitted In-Game Name, Free Fire UID, and Level are under Admin review. Active credentials will update and tournament eligibility will unlock as soon as Admin approves your request.
               </p>
             </div>
@@ -246,25 +245,25 @@ const EditProfile = () => {
         )}
 
         {error && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-secondary/10 border border-secondary/20 text-secondary text-sm p-4 rounded-xl mb-8 text-center">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-secondary/15 border border-secondary/30 text-secondary text-sm p-4 rounded-xl mb-6 text-center font-medium">
             {error}
           </motion.div>
         )}
 
         {success && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm p-4 rounded-xl mb-8 text-center font-medium">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm p-4 rounded-xl mb-6 text-center font-bold">
             {success}
           </motion.div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+        <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
           <div className="space-y-4">
-            <h3 className="text-white font-display text-xl border-b border-white/10 pb-2">Gaming Identity (Admin Verified)</h3>
+            <h3 className="text-white font-display text-lg font-bold border-b border-borderColor pb-2.5">Gaming Identity (Admin Verified)</h3>
 
             <div>
-              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">In-Game Name</label>
+              <label className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">In-Game Name</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-textSecondary">
                   <User size={16} />
                 </div>
                 <input
@@ -278,9 +277,9 @@ const EditProfile = () => {
             </div>
 
             <div>
-              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Free Fire UID</label>
+              <label className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Free Fire UID</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-primary">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-primary">
                   <Gamepad2 size={16} />
                 </div>
                 <input
@@ -294,9 +293,9 @@ const EditProfile = () => {
             </div>
 
             <div>
-              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">In-Game Level (Free Fire Level)</label>
+              <label className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">In-Game Level (Free Fire Level)</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-amber-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gold">
                   <Shield size={16} />
                 </div>
                 <input
@@ -313,11 +312,11 @@ const EditProfile = () => {
             </div>
           </div>
 
-          <div className="pt-6">
+          <div className="pt-4">
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full py-4 text-base mt-4 flex items-center justify-center gap-2"
+              className="btn-primary w-full py-3.5 text-sm font-bold flex items-center justify-center gap-2"
             >
               {loading ? (
                 <><LoadingSpinner size={18} /> Updating Profile...</>

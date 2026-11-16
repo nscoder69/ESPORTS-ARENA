@@ -5,27 +5,61 @@
 @layer base {
   body {
     @apply bg-background text-textPrimary font-sans antialiased selection:bg-primary/30 selection:text-white;
+    background-color: #0B0B0F;
+    color: #FFFFFF;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    @apply font-display tracking-tight text-white;
+  }
+
+  /* Custom Fire & Shadow scrollbars */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0B0B0F;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #303039;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #FF5A1F;
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply bg-surface/80 backdrop-blur-md border border-white/10 shadow-sm rounded-xl;
+    @apply bg-[#17171F]/90 backdrop-blur-md border border-[#303039] shadow-card-dark rounded-xl;
+  }
+
+  .elevated-panel {
+    @apply bg-[#20202A] border border-[#303039] shadow-card-dark rounded-xl;
   }
   
   .input-field {
-    @apply w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm;
+    @apply w-full bg-[#14141B] border border-[#303039] rounded-lg px-4 py-3 text-white placeholder-textSecondary/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm;
   }
 
   .btn-primary {
-    @apply w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3 rounded-md transition-colors text-sm;
+    @apply w-full bg-gradient-to-r from-primary via-[#FF6A28] to-primary hover:brightness-110 active:scale-[0.99] text-white font-bold py-3 px-6 rounded-lg shadow-fire-sm hover:shadow-fire-md transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none;
   }
 
   .btn-secondary {
-    @apply w-full bg-surfaceHighlight hover:bg-white/10 text-white font-semibold py-3 border border-white/10 rounded-md transition-colors text-sm;
+    @apply w-full bg-[#20202A] hover:bg-[#17171F] text-white font-semibold py-3 px-6 border border-[#303039] hover:border-primary/60 hover:text-primary rounded-lg transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .badge-live {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-secondary/15 text-secondary border border-secondary/40 shadow-red-sm;
+  }
+
+  .badge-gold {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-gold/15 text-gold border border-gold/40 shadow-gold-sm;
+  }
+
+  .badge-orange {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-primary/15 text-primary border border-primary/40 shadow-fire-sm;
   }
 }

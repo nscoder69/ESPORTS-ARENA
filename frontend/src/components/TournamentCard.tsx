@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Trophy, Map, Clock, Users, ArrowRight, Trash2, Key, Shield } from 'lucide-react';
+import { Trophy, Map, Clock, Users, ArrowRight, Trash2, Key, Shield, Flame } from 'lucide-react';
 import fullmapBg from '../assets/fullmap.webp';
 import clashsquadBg from '../assets/clashsquad.jpg';
 
@@ -17,6 +17,8 @@ interface TournamentCardProps {
 
 export default function TournamentCard({ tournament, onRegisterClick, onParticipantsClick, onDeleteClick, onResultClick, onRoomCredentialsClick, onTeamMembersClick, onClick, isUserRegistered }: TournamentCardProps) {
   const isRegistrationClosed = tournament.registrationClosingTime ? new Date(tournament.registrationClosingTime) < new Date() : false;
+  const isLive = tournament.status?.toLowerCase().includes('live');
+  const isFinished = tournament.status === 'Finished';
 
   return (
     <motion.div
@@ -24,22 +26,30 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
-      className="glass-panel overflow-hidden group cursor-pointer"
+      className="bg-card border border-borderColor hover:border-primary/50 rounded-2xl shadow-card-dark overflow-hidden group cursor-pointer transition-all duration-300 flex flex-col"
       onClick={() => onClick && onClick(tournament)}
     >
-      <div className="h-32 bg-surfaceHighlight relative flex items-center justify-center overflow-hidden">
+      <div className="h-32 bg-elevated relative flex items-center justify-center overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           {tournament.gameMode.includes('Clash Squad') || tournament.gameMode === 'CLASH_SQUAD' ? (
-            <img src={clashsquadBg} alt="Clash Squad" className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+            <img src={clashsquadBg} alt="Clash Squad" className="w-full h-full object-cover opacity-30 group-hover:opacity-45 transition-opacity duration-500" />
           ) : (
-            <img src={fullmapBg} alt="Full Map" className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+            <img src={fullmapBg} alt="Full Map" className="w-full h-full object-cover opacity-30 group-hover:opacity-45 transition-opacity duration-500" />
           )}
         </div>
 
         {/* Status Badge */}
-        <span className="absolute top-3 right-3 bg-accent/10 text-accent px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border border-accent/20 flex items-center gap-1.5 z-20">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+        <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider border flex items-center gap-1.5 z-20 ${
+          isLive 
+            ? 'bg-secondary/20 text-secondary border-secondary/40 shadow-red-sm'
+            : isFinished
+              ? 'bg-elevated/90 text-textSecondary border-borderColor'
+              : 'bg-primary/20 text-primary border-primary/40 shadow-fire-sm'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${
+            isLive ? 'bg-secondary animate-pulse' : isFinished ? 'bg-textSecondary' : 'bg-primary animate-pulse'
+          }`}></span>
           {tournament.status}
         </span>
 
@@ -47,7 +57,7 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
         {onDeleteClick && (
           <button
             onClick={(e) => { e.stopPropagation(); onDeleteClick(tournament); }}
-            className="absolute top-3 left-3 bg-rose-500/20 text-rose-500 p-2 rounded-md hover:bg-rose-500 hover:text-white transition-colors z-20 border border-rose-500/30"
+            className="absolute top-3 left-3 bg-secondary/20 text-secondary p-2 rounded-lg hover:bg-secondary hover:text-white transition-colors z-20 border border-secondary/40 shadow-red-sm"
             title="Delete Tournament"
           >
             <Trash2 size={14} />
@@ -55,86 +65,108 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
         )}
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/80 to-transparent z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/75 to-transparent z-10"></div>
 
-        <Trophy size={48} className="text-primary/30 group-hover:text-primary/80 transition-colors duration-300 relative z-20" />
+        <Trophy size={48} className="text-primary/25 group-hover:text-primary/70 transition-colors duration-300 relative z-20" />
       </div>
 
-      <div className="p-4 sm:p-6">
-        <h3 className="text-base sm:text-lg font-bold text-white mb-1.5 sm:mb-2 leading-tight">{tournament.name}</h3>
-        <p className="text-textSecondary text-[11px] sm:text-xs mb-4 sm:mb-5 line-clamp-2 leading-relaxed">{tournament.description}</p>
+      <div className="p-4 sm:p-5 flex-1 flex flex-col">
+        <h3 className="text-base sm:text-lg font-bold text-white mb-1.5 leading-snug group-hover:text-primary transition-colors">{tournament.name}</h3>
+        <p className="text-textSecondary text-[11px] sm:text-xs mb-4 line-clamp-2 leading-relaxed">{tournament.description}</p>
 
-        <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="bg-background rounded-md p-2 sm:p-3 border border-white/10">
-            <span className="block text-[9px] sm:text-[10px] uppercase text-textSecondary font-semibold mb-1">Prize Pool</span>
-            <span className="block text-white font-bold text-xs sm:text-sm">₹{tournament.prizePool}</span>
+        {/* Prize Pool and Entry Fee Cards */}
+        <div className="grid grid-cols-2 gap-2 sm:gap-2.5 mb-4">
+          <div className="bg-inputBg rounded-xl p-2.5 sm:p-3 border border-borderColor">
+            <span className="block text-[9px] sm:text-[10px] uppercase text-textSecondary font-bold tracking-wider mb-1">Prize Pool</span>
+            <span className="block text-gold font-extrabold text-xs sm:text-sm drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]">₹{tournament.prizePool}</span>
           </div>
-          <div className="bg-background rounded-md p-2 sm:p-3 border border-white/10">
-            <span className="block text-[9px] sm:text-[10px] uppercase text-textSecondary font-semibold mb-1">Entry Fee</span>
-            <span className="block text-white font-bold text-xs sm:text-sm">{tournament.entryFee > 0 ? `₹${tournament.entryFee}` : 'FREE'}</span>
+          <div className="bg-inputBg rounded-xl p-2.5 sm:p-3 border border-borderColor">
+            <span className="block text-[9px] sm:text-[10px] uppercase text-textSecondary font-bold tracking-wider mb-1">Entry Fee</span>
+            <span className={`block font-bold text-xs sm:text-sm ${tournament.entryFee > 0 ? 'text-primary' : 'text-emerald-400'}`}>
+              {tournament.entryFee > 0 ? `₹${tournament.entryFee}` : 'FREE'}
+            </span>
           </div>
         </div>
 
+        {/* Prize Breakdown */}
         {(tournament.firstPrize > 0 || tournament.secondPrize > 0 || tournament.thirdPrize > 0 || tournament.perKillPrize > 0) && (
-          <div className="flex flex-wrap gap-1.5 mb-4 sm:mb-6 justify-center">
-            {tournament.firstPrize > 0 && <div className="bg-[#FFD700]/10 border border-[#FFD700]/30 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold text-[#FFD700] flex items-center gap-0.5 sm:gap-1"><Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> 1st: ₹{tournament.firstPrize}</div>}
-            {tournament.secondPrize > 0 && <div className="bg-[#C0C0C0]/10 border border-[#C0C0C0]/30 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold text-[#C0C0C0] flex items-center gap-0.5 sm:gap-1"><Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> 2nd: ₹{tournament.secondPrize}</div>}
-            {tournament.thirdPrize > 0 && <div className="bg-[#CD7F32]/10 border border-[#CD7F32]/30 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold text-[#CD7F32] flex items-center gap-0.5 sm:gap-1"><Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> 3rd: ₹{tournament.thirdPrize}</div>}
-            {tournament.perKillPrize > 0 && <div className="bg-white/10 border border-white/20 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold text-white">KILL: ₹{tournament.perKillPrize}</div>}
+          <div className="flex flex-wrap gap-1.5 mb-4 justify-center">
+            {tournament.firstPrize > 0 && (
+              <div className="bg-gold/15 border border-gold/40 px-2 py-0.5 rounded text-[10px] font-bold text-gold flex items-center gap-1 shadow-gold-sm">
+                <Trophy className="w-2.5 h-2.5 text-gold" /> 1st: ₹{tournament.firstPrize}
+              </div>
+            )}
+            {tournament.secondPrize > 0 && (
+              <div className="bg-[#C0C0C0]/15 border border-[#C0C0C0]/40 px-2 py-0.5 rounded text-[10px] font-bold text-[#C0C0C0] flex items-center gap-1">
+                <Trophy className="w-2.5 h-2.5 text-[#C0C0C0]" /> 2nd: ₹{tournament.secondPrize}
+              </div>
+            )}
+            {tournament.thirdPrize > 0 && (
+              <div className="bg-[#CD7F32]/15 border border-[#CD7F32]/40 px-2 py-0.5 rounded text-[10px] font-bold text-[#CD7F32] flex items-center gap-1">
+                <Trophy className="w-2.5 h-2.5 text-[#CD7F32]" /> 3rd: ₹{tournament.thirdPrize}
+              </div>
+            )}
+            {tournament.perKillPrize > 0 && (
+              <div className="bg-primary/15 border border-primary/30 px-2 py-0.5 rounded text-[10px] font-bold text-white flex items-center gap-1 shadow-fire-sm">
+                <Flame className="w-2.5 h-2.5 text-primary" /> KILL: ₹{tournament.perKillPrize}
+              </div>
+            )}
           </div>
         )}
 
-        <div className="flex items-center justify-between text-[11px] sm:text-xs text-textSecondary mb-4 sm:mb-6">
-          <div className="flex items-center gap-1 sm:gap-1.5">
-            <Map className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" /> <span>{tournament.gameMap}</span>
+        <div className="flex items-center justify-between text-[11px] sm:text-xs text-textSecondary mb-4">
+          <div className="flex items-center gap-1.5">
+            <Map className="w-3.5 h-3.5 text-primary flex-shrink-0" /> <span>{tournament.gameMap}</span>
           </div>
-          <div className="flex items-center gap-1 sm:gap-1.5">
-            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" /> <span>{tournament.gameMode}</span>
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-primary flex-shrink-0" /> <span>{tournament.gameMode}</span>
           </div>
-          <div className="flex items-center gap-1 sm:gap-1.5 text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-            <Shield className="w-3 h-3 flex-shrink-0" /> <span>Min Lvl: {tournament.minLevel || 1}</span>
+          <div className="flex items-center gap-1 text-gold font-bold bg-gold/10 px-2 py-0.5 rounded border border-gold/30">
+            <Shield className="w-3 h-3 flex-shrink-0 text-gold" /> <span>Lvl: {tournament.minLevel || 1}+</span>
           </div>
         </div>
 
         {tournament.matchTiming && (
-          <div className="mb-4 flex items-center justify-center gap-1.5 sm:gap-2 bg-primary/10 border border-primary/20 rounded-md py-1.5 sm:py-2 px-2 text-primary text-xs sm:text-sm font-semibold text-center">
-            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+          <div className="mb-3 flex items-center justify-center gap-1.5 bg-elevated border border-borderColor rounded-lg py-1.5 px-2 text-primary text-xs font-semibold text-center">
+            <Clock className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="break-all sm:break-normal">{new Date(tournament.matchTiming).toLocaleString()}</span>
           </div>
         )}
 
         {tournament.registrationClosingTime && (
-          <div className={`mb-4 sm:mb-6 text-center text-[11px] sm:text-xs font-medium ${isRegistrationClosed ? 'text-rose-400' : 'text-amber-400'}`}>
-            {isRegistrationClosed ? 'Registration Closed' : `Registration closes: ${new Date(tournament.registrationClosingTime).toLocaleString()}`}
+          <div className={`mb-4 text-center text-[11px] font-medium ${isRegistrationClosed ? 'text-secondary font-bold' : 'text-primary/90'}`}>
+            {isRegistrationClosed ? 'Registration Closed' : `Closes: ${new Date(tournament.registrationClosingTime).toLocaleString()}`}
           </div>
         )}
 
+        {/* Capacity / Registration progress */}
         {(tournament.registeredCount !== undefined && tournament.maxCapacity !== undefined && tournament.maxCapacity !== 999) && (
-          <div className="mb-4 sm:mb-5">
-            <div className="flex justify-between items-end mb-1 sm:mb-1.5">
-              <span className="text-[9px] sm:text-[10px] uppercase text-textSecondary font-semibold flex items-center gap-1">
-                <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" /> Progress
+          <div className="mb-4">
+            <div className="flex justify-between items-end mb-1.5">
+              <span className="text-[10px] uppercase text-textSecondary font-bold tracking-wider flex items-center gap-1">
+                <Users className="w-3 h-3 flex-shrink-0 text-primary" /> Progress
               </span>
-              <span className="text-[11px] sm:text-xs font-bold text-white">
+              <span className="text-xs font-bold text-white">
                 {tournament.registeredCount} / {tournament.maxCapacity} {tournament.gameMode && tournament.gameMode.toLowerCase().includes('solo') ? 'Players' : 'Teams'}
               </span>
             </div>
-            <div className="w-full bg-surfaceHighlight rounded-full h-1 sm:h-1.5 border border-white/5 overflow-hidden">
+            <div className="w-full bg-inputBg rounded-full h-1.5 border border-borderColor overflow-hidden">
               <div
-                className={`h-full rounded-full ${tournament.registeredCount >= tournament.maxCapacity ? 'bg-rose-500' : 'bg-primary'}`}
+                className={`h-full rounded-full transition-all duration-300 ${tournament.registeredCount >= tournament.maxCapacity ? 'bg-secondary' : 'bg-gradient-to-r from-primary to-[#FF733B]'}`}
                 style={{ width: `${Math.min(100, (tournament.registeredCount / tournament.maxCapacity) * 100)}%` }}
               ></div>
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-2">
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2 mt-auto pt-2">
           {tournament.status === 'Finished' ? (
             <>
               {onParticipantsClick ? (
                 <button
                   onClick={(e) => { e.stopPropagation(); onParticipantsClick(tournament); }}
-                  className="w-full bg-surfaceHighlight border border-white/5 hover:bg-surface text-textSecondary hover:text-white font-semibold py-2 sm:py-2.5 rounded-md transition-colors text-[11px] sm:text-xs flex items-center justify-center"
+                  className="w-full bg-elevated border border-borderColor hover:bg-surface text-textSecondary hover:text-white font-semibold py-2 sm:py-2.5 rounded-lg transition-colors text-xs flex items-center justify-center cursor-pointer"
                 >
                   Participants
                 </button>
@@ -142,14 +174,14 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
               {onResultClick ? (
                 <button
                   onClick={(e) => { e.stopPropagation(); onResultClick(tournament); }}
-                  className="w-full bg-primary text-black hover:brightness-110 font-semibold py-2 sm:py-2.5 rounded-md transition-colors text-[11px] sm:text-xs flex items-center justify-center gap-1 sm:gap-1.5"
+                  className="w-full bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-bold py-2 sm:py-2.5 rounded-lg transition-all text-xs flex items-center justify-center gap-1.5 shadow-gold-sm cursor-pointer"
                 >
-                  <span className="hidden xs:inline">View </span>Results <Trophy className="w-3 h-3 hidden xs:inline" />
+                  <span>Results</span> <Trophy className="w-3 h-3" />
                 </button>
               ) : (
                 !onParticipantsClick && (
                   <button
-                    className="w-full col-span-2 bg-surfaceHighlight border border-white/5 hover:bg-surface text-white font-semibold py-2 sm:py-2.5 rounded-md transition-colors text-[11px] sm:text-xs flex items-center justify-center gap-1"
+                    className="w-full col-span-2 bg-gold/20 border border-gold/40 text-gold font-bold py-2 sm:py-2.5 rounded-lg transition-colors text-xs flex items-center justify-center gap-1"
                   >
                     View Results <Trophy className="w-3 h-3" />
                   </button>
@@ -161,7 +193,7 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
               {onParticipantsClick && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onParticipantsClick(tournament); }}
-                  className="w-full bg-surfaceHighlight border border-white/5 hover:bg-surface text-textSecondary hover:text-white font-semibold py-2 sm:py-2.5 rounded-md transition-colors text-[11px] sm:text-xs flex items-center justify-center"
+                  className="w-full bg-elevated border border-borderColor hover:bg-surface text-textSecondary hover:text-white font-semibold py-2 sm:py-2.5 rounded-lg transition-colors text-xs flex items-center justify-center cursor-pointer"
                 >
                   Participants
                 </button>
@@ -175,7 +207,7 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
                           e.stopPropagation();
                           onTeamMembersClick(tournament);
                         }}
-                        className="p-2 sm:p-2.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary font-bold rounded-md transition-all flex items-center justify-center cursor-pointer"
+                        className="p-2 sm:p-2.5 bg-elevated hover:bg-surface border border-borderColor hover:border-primary/50 text-primary font-bold rounded-lg transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         title="View Team Members"
                       >
                         <Users className="w-4 h-4" />
@@ -186,7 +218,7 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
                         e.stopPropagation();
                         if (onRoomCredentialsClick) onRoomCredentialsClick(tournament);
                       }}
-                      className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 font-bold py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs flex items-center justify-center gap-1 cursor-pointer transition-all shadow-md"
+                      className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 font-bold py-2 sm:py-2.5 rounded-lg text-xs flex items-center justify-center gap-1 cursor-pointer transition-all shadow-sm"
                       title="Click to view Free Fire Room ID & Password"
                     >
                       <Key className="w-3.5 h-3.5" /> Get ID & PWD
@@ -199,7 +231,11 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
                       if (!isRegistrationClosed) onRegisterClick(tournament);
                     }}
                     disabled={isRegistrationClosed}
-                    className={`w-full font-semibold py-2 sm:py-2.5 rounded-md transition-colors text-[11px] sm:text-xs flex items-center justify-center gap-1 ${isRegistrationClosed ? 'bg-surfaceHighlight text-textSecondary cursor-not-allowed' : 'bg-primary text-black hover:brightness-110'}`}
+                    className={`w-full font-bold py-2 sm:py-2.5 rounded-lg transition-all text-xs flex items-center justify-center gap-1 cursor-pointer ${
+                      isRegistrationClosed 
+                        ? 'bg-elevated text-textSecondary cursor-not-allowed border border-borderColor' 
+                        : 'bg-gradient-to-r from-primary via-[#FF6A28] to-primary hover:brightness-110 text-white shadow-fire-sm hover:shadow-fire-md'
+                    }`}
                   >
                     {isRegistrationClosed ? 'Closed' : 'Register'} {!isRegistrationClosed && <ArrowRight className="w-3.5 h-3.5" />}
                   </button>
@@ -207,7 +243,11 @@ export default function TournamentCard({ tournament, onRegisterClick, onParticip
               ) : (
                 !onParticipantsClick && (
                   <button
-                    className="w-full col-span-2 bg-primary text-black hover:brightness-110 font-semibold py-2 sm:py-2.5 rounded-md transition-colors text-[11px] sm:text-xs flex items-center justify-center gap-1"
+                    className={`w-full col-span-2 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-xs flex items-center justify-center gap-1 cursor-pointer ${
+                      isRegistrationClosed
+                        ? 'bg-elevated border border-borderColor text-textSecondary'
+                        : 'bg-gradient-to-r from-primary via-[#FF6A28] to-primary hover:brightness-110 text-white shadow-fire-sm'
+                    }`}
                   >
                     {isRegistrationClosed ? 'View Details' : 'Register Now'} {!isRegistrationClosed && <ArrowRight className="w-3.5 h-3.5" />}
                   </button>

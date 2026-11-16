@@ -73,13 +73,13 @@ export default function Support() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-10 max-w-6xl flex-grow flex flex-col justify-start">
-      <div className="mb-10 text-left">
+    <div className="container mx-auto px-4 sm:px-6 py-10 max-w-6xl flex-grow flex flex-col justify-start bg-background">
+      <div className="mb-8 text-left">
         <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight flex items-center gap-3">
           <HelpCircle className="text-primary" size={32} /> Help & Support Portal
         </h1>
-        <p className="text-textSecondary text-sm max-w-xl">
-          Submit any complaints, issues, or feedback. Support requests are automatically forwarded to <strong className="text-primary">esportsarena638@gmail.com</strong>. You will receive notifications in your account as soon as an administrator replies.
+        <p className="text-textSecondary text-sm max-w-xl leading-relaxed">
+          Submit any complaints, disputes, or feedback. Support requests are automatically forwarded to <strong className="text-primary">esportsarena638@gmail.com</strong>. You will receive notifications as soon as an administrator replies.
         </p>
       </div>
 
@@ -88,22 +88,22 @@ export default function Support() {
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-5 glass-panel p-6 md:p-8 relative overflow-hidden"
+          className="lg:col-span-5 bg-card border border-borderColor rounded-2xl p-6 sm:p-7 relative overflow-hidden shadow-card-dark"
         >
           <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary to-secondary"></div>
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <h2 className="text-xl font-bold font-display text-white mb-5 flex items-center gap-2">
             <Send size={18} className="text-primary" /> Submit a Ticket
           </h2>
 
           {error && (
-            <div className="bg-secondary/10 border border-secondary/20 text-secondary text-xs p-3 rounded-md mb-4 flex items-center gap-2">
+            <div className="bg-secondary/15 border border-secondary/30 text-secondary text-xs p-3 rounded-xl mb-4 flex items-center gap-2">
               <AlertCircle size={14} className="flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs p-3 rounded-md mb-4 flex items-center gap-2">
+            <div className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs p-3 rounded-xl mb-4 flex items-center gap-2 font-medium">
               <CheckCircle size={14} className="flex-shrink-0" />
               <span>{success}</span>
             </div>
@@ -111,7 +111,7 @@ export default function Support() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Subject *</label>
+              <label className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Subject *</label>
               <input 
                 type="text" 
                 className="input-field text-sm"
@@ -123,7 +123,7 @@ export default function Support() {
             </div>
 
             <div>
-              <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Message *</label>
+              <label className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Message *</label>
               <textarea 
                 rows={5}
                 className="input-field text-sm resize-none py-3"
@@ -137,7 +137,7 @@ export default function Support() {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="btn-primary w-full py-2.5 flex items-center justify-center gap-2 font-semibold"
+              className="btn-primary w-full py-3 flex items-center justify-center gap-2 font-bold"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Support Request'}
             </button>
@@ -152,13 +152,13 @@ export default function Support() {
           className="lg:col-span-7 flex flex-col gap-4"
         >
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <h2 className="text-xl font-bold font-display text-white flex items-center gap-2">
               <MessageSquare size={18} className="text-primary" /> Your Tickets ({tickets.length})
             </h2>
           </div>
 
           {tickets.length === 0 ? (
-            <div className="glass-panel p-8 text-center text-textSecondary text-sm">
+            <div className="bg-card border border-borderColor rounded-2xl p-8 text-center text-textSecondary text-sm shadow-card-dark">
               You haven't submitted any support requests yet.
             </div>
           ) : (
@@ -174,21 +174,21 @@ export default function Support() {
                 return (
                   <div 
                     key={ticket.id}
-                    className={`glass-panel border transition-all duration-200 ${
-                      isExpanded ? 'border-primary/30 bg-surfaceHighlight/30' : 'border-white/5 hover:border-white/10'
+                    className={`bg-card rounded-2xl border transition-all duration-200 overflow-hidden shadow-card-dark ${
+                      isExpanded ? 'border-primary/50 bg-elevated/50' : 'border-borderColor hover:border-primary/40'
                     }`}
                   >
                     {/* Header Panel */}
                     <button
                       onClick={() => toggleExpand(ticket.id)}
-                      className="w-full text-left p-4 flex items-center justify-between gap-4 cursor-pointer"
+                      className="w-full text-left p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                          <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded flex items-center gap-1 ${
+                          <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1 ${
                             ticket.status === 'Resolved' 
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                              : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' 
+                              : 'bg-gold/15 text-gold border border-gold/30 shadow-gold-sm'
                           }`}>
                             {ticket.status === 'Resolved' ? (
                               <CheckCircle size={10} />
@@ -199,7 +199,7 @@ export default function Support() {
                           </span>
                           <span className="text-[10px] text-textSecondary">{date}</span>
                         </div>
-                        <h3 className="text-white font-semibold text-sm truncate">{ticket.subject}</h3>
+                        <h3 className="text-white font-bold text-sm truncate">{ticket.subject}</h3>
                       </div>
                       <div className="text-textSecondary hover:text-white transition-colors">
                         {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -216,11 +216,11 @@ export default function Support() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="px-4 pb-5 pt-1 border-t border-white/5 space-y-4">
+                          <div className="px-4 pb-5 pt-1 border-t border-borderColor space-y-4">
                             {/* User Message */}
                             <div>
                               <p className="text-[10px] text-textSecondary uppercase font-bold tracking-wider mb-1">Your Request</p>
-                              <p className="text-textPrimary text-sm bg-black/20 p-3 rounded border border-white/5 whitespace-pre-line">
+                              <p className="text-textPrimary text-sm bg-inputBg p-3.5 rounded-xl border border-borderColor whitespace-pre-line leading-relaxed">
                                 {ticket.message}
                               </p>
                             </div>
@@ -229,12 +229,12 @@ export default function Support() {
                             {ticket.reply ? (
                               <div className="border-l-2 border-primary pl-3 mt-4">
                                 <p className="text-[10px] text-primary uppercase font-bold tracking-wider mb-1">Administrator Reply</p>
-                                <p className="text-textPrimary text-sm bg-primary/5 p-3 rounded border border-primary/10 whitespace-pre-line">
+                                <p className="text-textPrimary text-sm bg-primary/10 p-3.5 rounded-xl border border-primary/20 whitespace-pre-line leading-relaxed">
                                   {ticket.reply}
                                 </p>
                               </div>
                             ) : (
-                              <div className="border-l-2 border-amber-500/50 pl-3 mt-4 text-xs text-textSecondary italic">
+                              <div className="border-l-2 border-gold/50 pl-3 mt-4 text-xs text-textSecondary italic">
                                 Awaiting response from support team...
                               </div>
                             )}

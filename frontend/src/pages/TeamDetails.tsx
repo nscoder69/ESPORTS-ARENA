@@ -20,8 +20,6 @@ export default function TeamDetails() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // We get the team info from the "My Teams" list API for now
-        // In a complete app, we'd have a specific GET /teams/:id API.
         const allMyTeams = await getMyTeams();
         const currentTeam = allMyTeams.find((t: any) => t.id === id);
         
@@ -62,7 +60,7 @@ export default function TeamDetails() {
     if (!confirm('Are you sure you want to leave this team?')) return;
     try {
       await removeTeamMember(id!, currentUser.id);
-      window.location.href = '/create-team'; // redirect to teams list
+      window.location.href = '/create-team';
     } catch {
       alert('Failed to leave team.');
     }
@@ -80,7 +78,7 @@ export default function TeamDetails() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]">
+      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] bg-background">
         <motion.img 
           src={logo}
           alt="Loading..."
@@ -94,9 +92,9 @@ export default function TeamDetails() {
 
   if (error || !team) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]">
-        <div className="glass-panel p-8 text-center max-w-md w-full">
-          <p className="text-secondary mb-6">{error}</p>
+      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] bg-background px-4">
+        <div className="bg-card border border-borderColor rounded-2xl shadow-card-dark p-8 text-center max-w-md w-full">
+          <p className="text-secondary font-semibold mb-6">{error}</p>
           <Link to="/create-team" className="btn-primary inline-block">Back to Teams</Link>
         </div>
       </div>
@@ -108,45 +106,45 @@ export default function TeamDetails() {
     : currentUser.freeFireUid === team.captainFreeFireUid;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <Link to="/create-team" className="inline-flex items-center gap-2 text-textSecondary hover:text-white transition-colors mb-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 bg-background">
+      <Link to="/create-team" className="inline-flex items-center gap-2 text-textSecondary hover:text-white transition-colors mb-6 text-xs font-bold uppercase tracking-wider">
         <ArrowLeft size={16} /> Back to My Teams
       </Link>
 
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-panel p-8 mb-8 relative overflow-hidden"
+        className="bg-card border border-borderColor rounded-2xl shadow-card-dark p-6 sm:p-8 mb-8 relative overflow-hidden"
       >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
         
-        <div className="flex items-center gap-6 relative z-10">
-          <div className="w-24 h-24 rounded-2xl bg-surfaceHighlight flex items-center justify-center border border-primary/20 text-primary">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10 text-center sm:text-left">
+          <div className="w-24 h-24 rounded-2xl bg-elevated flex items-center justify-center border border-borderColor text-primary shadow-fire-sm flex-shrink-0">
             {team.logoUrl ? (
               <img src={getImageUrl(team.logoUrl)} alt={team.name} className="w-full h-full object-cover rounded-2xl" />
             ) : (
-              <Shield size={48} />
+              <Shield size={44} />
             )}
           </div>
           <div className="flex-grow">
-            <h1 className="text-3xl font-bold font-display text-white mb-2">{team.name}</h1>
-            <div className="flex flex-wrap items-center gap-3 text-sm mb-4">
+            <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-white mb-2">{team.name}</h1>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm mb-4">
               <span className={`px-3 py-1 rounded-full font-bold uppercase tracking-wider text-[10px] border ${
-                members.length >= 4 ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-primary/20 text-primary border-primary/30'
+                members.length >= 4 ? 'bg-secondary/20 text-secondary border-secondary/40 shadow-red-sm' : 'bg-primary/20 text-primary border-primary/40 shadow-fire-sm'
               }`}>
                 {members.length}/4 Members (Max 4 Players)
               </span>
             </div>
 
             {/* Team Shareable Credentials Block */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 text-left">
               {/* Invite Code */}
-              <div className="bg-primary/10 border border-primary/30 p-3 rounded-xl flex items-center justify-between">
+              <div className="bg-elevated border border-borderColor p-3 rounded-xl flex items-center justify-between">
                 <div>
                   <span className="flex items-center gap-1 text-[10px] font-bold text-primary uppercase tracking-wider">
-                    <Key size={12} /> Team Invite Code (Share with Teammates)
+                    <Key size={12} /> Team Invite Code (Share)
                   </span>
-                  <span className="text-white font-mono text-base font-bold tracking-widest block mt-0.5">
+                  <span className="text-white font-mono text-base font-extrabold tracking-widest block mt-0.5">
                     {team.inviteCode || 'N/A'}
                   </span>
                 </div>
@@ -156,19 +154,19 @@ export default function TeamDetails() {
                     setCopiedField('inviteCode');
                     setTimeout(() => setCopiedField(null), 2000);
                   }}
-                  className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-fire-sm"
                   title="Copy Invite Code"
                 >
                   {copiedField === 'inviteCode' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                  <span>{copiedField === 'inviteCode' ? 'Copied!' : 'Copy Code'}</span>
+                  <span>{copiedField === 'inviteCode' ? 'Copied!' : 'Copy'}</span>
                 </button>
               </div>
 
               {/* Team ID */}
-              <div className="bg-surfaceHighlight/30 border border-white/10 p-3 rounded-xl flex items-center justify-between">
+              <div className="bg-elevated border border-borderColor p-3 rounded-xl flex items-center justify-between">
                 <div>
                   <span className="flex items-center gap-1 text-[10px] font-bold text-textSecondary uppercase tracking-wider">
-                    <Hash size={12} /> Team ID
+                    <Hash size={12} className="text-primary" /> Team ID
                   </span>
                   <span className="text-white font-mono text-xs font-bold block mt-1 truncate max-w-[150px]">
                     {team.id}
@@ -180,11 +178,11 @@ export default function TeamDetails() {
                     setCopiedField('teamId');
                     setTimeout(() => setCopiedField(null), 2000);
                   }}
-                  className="px-3 py-1.5 bg-surfaceHighlight hover:bg-white/10 border border-white/10 text-textSecondary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-inputBg hover:bg-card border border-borderColor text-textSecondary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
                   title="Copy Team ID"
                 >
                   {copiedField === 'teamId' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                  <span>{copiedField === 'teamId' ? 'Copied!' : 'Copy ID'}</span>
+                  <span>{copiedField === 'teamId' ? 'Copied!' : 'Copy'}</span>
                 </button>
               </div>
             </div>
@@ -192,19 +190,19 @@ export default function TeamDetails() {
         </div>
       </motion.div>
 
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-white">Team Roster</h2>
+      <div className="flex justify-between items-center mb-5">
+        <h2 className="text-xl font-bold font-display text-white">Team Roster</h2>
         {!isCaptain ? (
           <button 
             onClick={handleLeaveTeam}
-            className="text-sm px-4 py-1.5 border border-secondary/50 text-secondary hover:bg-secondary/10 rounded-lg transition-all flex items-center gap-2"
+            className="text-xs font-bold px-4 py-2 border border-secondary/40 text-secondary hover:bg-secondary/15 rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-red-sm"
           >
             <UserMinus size={14} /> Leave Team
           </button>
         ) : (
           <button 
             onClick={handleDeleteTeam}
-            className="text-sm px-4 py-1.5 border border-rose-500/50 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all flex items-center gap-2"
+            className="text-xs font-bold px-4 py-2 border border-secondary/40 text-secondary hover:bg-secondary/15 rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-red-sm"
           >
             <Trash2 size={14} /> Delete Team
           </button>
@@ -218,25 +216,25 @@ export default function TeamDetails() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-surface/50 border border-white/5 p-4 rounded-xl flex items-center justify-between group hover:border-white/10 transition-all"
+            className="bg-card border border-borderColor p-4 rounded-xl flex items-center justify-between group hover:border-primary/40 transition-all shadow-card-dark"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-background border border-white/10 flex items-center justify-center">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-elevated border border-borderColor flex items-center justify-center flex-shrink-0">
                 {member.avatarUrl ? (
                   <img src={getImageUrl(member.avatarUrl)} alt={member.gameName} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary/40 to-primary/10 flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-full h-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center text-primary font-bold text-lg">
                     {member.gameName ? member.gameName.charAt(0).toUpperCase() : '?'}
                   </div>
                 )}
               </div>
               <div>
-                <h4 className="text-white font-bold flex items-center gap-2">
+                <h4 className="text-white font-bold text-sm flex items-center gap-1.5">
                   {member.gameName || 'Unknown Player'} 
-                  {member.memberRole === 'Captain' && <Crown size={14} className="text-yellow-500" />}
+                  {member.memberRole === 'Captain' && <Crown size={15} className="text-gold" />}
                 </h4>
-                <div className="flex items-center gap-1.5 text-xs text-textSecondary mt-1">
-                  <Gamepad2 size={12} /> {member.freeFireUid || 'No UID'}
+                <div className="flex items-center gap-1.5 text-xs text-textSecondary mt-0.5">
+                  <Gamepad2 size={12} className="text-primary" /> UID: {member.freeFireUid || 'No UID'}
                 </div>
               </div>
             </div>
@@ -244,7 +242,7 @@ export default function TeamDetails() {
             {isCaptain && member.userId !== currentUser.id && (
               <button 
                 onClick={() => handleRemoveMember(member.userId)}
-                className="p-2 text-secondary opacity-0 group-hover:opacity-100 hover:bg-secondary/10 rounded-lg transition-all"
+                className="p-2 text-secondary opacity-0 group-hover:opacity-100 hover:bg-secondary/10 rounded-lg transition-all cursor-pointer"
                 title="Remove Member"
               >
                 <UserMinus size={18} />

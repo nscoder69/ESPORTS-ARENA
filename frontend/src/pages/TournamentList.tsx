@@ -383,37 +383,37 @@ export default function TournamentList() {
         <div className="mt-4 md:mt-0 flex gap-2 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
           <button
             onClick={() => setFilterType('All')}
-            className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${filterType === 'All' ? 'bg-primary text-black border-primary' : 'bg-surface border-white/10 text-white hover:bg-surfaceHighlight'}`}
+            className={`text-xs font-bold px-4 py-2 rounded-full border transition-all whitespace-nowrap cursor-pointer ${filterType === 'All' ? 'bg-primary text-white border-primary shadow-fire-sm' : 'bg-elevated border-borderColor text-textSecondary hover:text-white hover:border-primary/40'}`}
           >
             All Modes
           </button>
           <button
             onClick={() => setFilterType('Live')}
-            className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${filterType === 'Live' ? 'bg-rose-500 text-white border-rose-500' : 'bg-surface border-white/10 text-white hover:bg-surfaceHighlight'}`}
+            className={`text-xs font-bold px-4 py-2 rounded-full border transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${filterType === 'Live' ? 'bg-secondary text-white border-secondary shadow-red-sm' : 'bg-elevated border-borderColor text-textSecondary hover:text-secondary hover:border-secondary/40'}`}
           >
-            Live Tournaments
+            <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span> Live Tournaments
           </button>
           <button
             onClick={() => setFilterType('Clash Squad')}
-            className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${filterType === 'Clash Squad' ? 'bg-primary text-black border-primary' : 'bg-surface border-white/10 text-white hover:bg-surfaceHighlight'}`}
+            className={`text-xs font-bold px-4 py-2 rounded-full border transition-all whitespace-nowrap cursor-pointer ${filterType === 'Clash Squad' ? 'bg-primary text-white border-primary shadow-fire-sm' : 'bg-elevated border-borderColor text-textSecondary hover:text-white hover:border-primary/40'}`}
           >
             Clash Squad
           </button>
           <button
             onClick={() => setFilterType('Full Map - Squad')}
-            className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${filterType === 'Full Map - Squad' ? 'bg-primary text-black border-primary' : 'bg-surface border-white/10 text-white hover:bg-surfaceHighlight'}`}
+            className={`text-xs font-bold px-4 py-2 rounded-full border transition-all whitespace-nowrap cursor-pointer ${filterType === 'Full Map - Squad' ? 'bg-primary text-white border-primary shadow-fire-sm' : 'bg-elevated border-borderColor text-textSecondary hover:text-white hover:border-primary/40'}`}
           >
             FM - Squad
           </button>
           <button
             onClick={() => setFilterType('Full Map - Duo')}
-            className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${filterType === 'Full Map - Duo' ? 'bg-primary text-black border-primary' : 'bg-surface border-white/10 text-white hover:bg-surfaceHighlight'}`}
+            className={`text-xs font-bold px-4 py-2 rounded-full border transition-all whitespace-nowrap cursor-pointer ${filterType === 'Full Map - Duo' ? 'bg-primary text-white border-primary shadow-fire-sm' : 'bg-elevated border-borderColor text-textSecondary hover:text-white hover:border-primary/40'}`}
           >
             FM - Duo
           </button>
           <button
             onClick={() => setFilterType('Full Map - Solo')}
-            className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${filterType === 'Full Map - Solo' ? 'bg-primary text-black border-primary' : 'bg-surface border-white/10 text-white hover:bg-surfaceHighlight'}`}
+            className={`text-xs font-bold px-4 py-2 rounded-full border transition-all whitespace-nowrap cursor-pointer ${filterType === 'Full Map - Solo' ? 'bg-primary text-white border-primary shadow-fire-sm' : 'bg-elevated border-borderColor text-textSecondary hover:text-white hover:border-primary/40'}`}
           >
             FM - Solo
           </button>
@@ -423,15 +423,17 @@ export default function TournamentList() {
       {loading ? (
         <LoadingSpinner size={48} text="Loading Tournaments..." />
       ) : (upcomingTournaments.length === 0 && liveTournaments.length === 0 && finishedTournaments.length === 0) ? (
-        <div className="text-center py-20 border border-dashed border-white/10 rounded-xl">
-          <Trophy className="mx-auto text-borderDim mb-4" size={48} />
-          <p className="text-textSecondary text-lg font-medium">No active tournaments</p>
+        <div className="text-center py-20 border border-dashed border-borderColor rounded-2xl bg-card/50">
+          <Trophy className="mx-auto text-borderColor mb-4" size={48} />
+          <p className="text-textSecondary text-lg font-bold">No active tournaments</p>
         </div>
       ) : (
         <div className="space-y-12">
           {upcomingTournaments.length > 0 && (
             <div>
-              <h3 className="text-xl font-bold font-display text-white mb-4 border-b border-white/10 pb-2">Upcoming Tournaments</h3>
+              <h3 className="text-xl font-bold font-display text-white mb-5 border-b border-borderColor pb-3 flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary shadow-fire-sm"></span> Upcoming Tournaments
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {upcomingTournaments.map((tournament) => (
                   <TournamentCard
@@ -452,9 +454,9 @@ export default function TournamentList() {
 
           {liveTournaments.length > 0 && (
             <div>
-              <h3 className="text-xl font-bold font-display text-white mb-4 border-b border-white/10 pb-2 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                Live Tournaments
+              <h3 className="text-xl font-bold font-display text-white mb-5 border-b border-borderColor pb-3 flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-secondary shadow-red-sm animate-pulse"></span>
+                <span className="text-secondary font-extrabold">LIVE</span> Tournaments
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {liveTournaments.map((tournament) => (
@@ -474,8 +476,8 @@ export default function TournamentList() {
 
           {finishedTournaments.length > 0 && (
             <div>
-              <h3 className="text-xl font-bold font-display text-white mb-4 border-b border-white/10 pb-2 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-primary" />
+              <h3 className="text-xl font-bold font-display text-white mb-5 border-b border-borderColor pb-3 flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-gold" />
                 Finished Tournaments
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -498,32 +500,32 @@ export default function TournamentList() {
 
       {/* Registration Modal */}
       {isModalOpen && selectedTournament && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-panel max-w-md w-full p-6 relative"
+            className="bg-card border border-borderColor rounded-2xl shadow-card-dark max-w-md w-full p-6 sm:p-7 relative"
           >
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-textSecondary hover:text-white">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer">
               <X size={20} />
             </button>
 
-            <h3 className="text-xl font-bold font-display text-white mb-2">Register for Tournament</h3>
-            <p className="text-textSecondary text-sm mb-6">Select a team to register for <strong className="text-white">{selectedTournament.name}</strong></p>
+            <h3 className="text-xl font-bold font-display text-white mb-1.5">Register for Tournament</h3>
+            <p className="text-textSecondary text-xs mb-6">Tournament: <strong className="text-white">{selectedTournament.name}</strong></p>
 
-            {modalError && <div className="bg-rose-500/10 text-rose-400 text-sm p-3 rounded-lg border border-rose-500/20 mb-4">{modalError}</div>}
-            {modalSuccess && <div className="bg-emerald-500/10 text-emerald-400 text-sm p-3 rounded-lg border border-emerald-500/20 mb-4">{modalSuccess}</div>}
+            {modalError && <div className="bg-secondary/15 text-secondary text-xs font-semibold p-3 rounded-xl border border-secondary/30 mb-4">{modalError}</div>}
+            {modalSuccess && <div className="bg-emerald-500/15 text-emerald-400 text-xs font-semibold p-3 rounded-xl border border-emerald-500/30 mb-4">{modalSuccess}</div>}
 
             {!hasGameProfile ? (
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 text-center text-amber-400 mt-2">
-                <Gamepad2 className="mx-auto mb-2 text-amber-400 animate-pulse" size={24} />
+              <div className="bg-gold/10 border border-gold/30 rounded-xl p-5 text-center text-gold mt-2">
+                <Gamepad2 className="mx-auto mb-2 text-gold animate-pulse" size={26} />
                 <h4 className="text-sm font-bold uppercase tracking-wider">Gaming Identity Required</h4>
                 <p className="text-xs text-textSecondary mt-1 mb-4 leading-relaxed">
                   You must update your In-Game Name and Free Fire UID in your profile before participating in any tournament.
                 </p>
                 <Link
                   to="/profile/edit"
-                  className="inline-block bg-amber-500 text-black hover:brightness-110 font-bold px-5 py-2.5 rounded-lg text-xs transition-all uppercase tracking-wider w-full text-center"
+                  className="inline-block bg-gradient-to-r from-primary to-[#FF733B] text-white hover:brightness-110 font-bold px-5 py-2.5 rounded-lg text-xs transition-all uppercase tracking-wider w-full text-center shadow-fire-sm"
                 >
                   Configure Profile
                 </Link>
@@ -534,17 +536,17 @@ export default function TournamentList() {
                   <div className="space-y-4">
                     <button
                       onClick={() => setRegistrationMode('create')}
-                      className="w-full bg-surfaceHighlight border border-white/10 hover:border-primary/50 text-white p-4 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors group"
+                      className="w-full bg-elevated border border-borderColor hover:border-primary/60 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 transition-all group cursor-pointer shadow-sm"
                     >
-                      <span className="font-bold text-lg group-hover:text-primary transition-colors">Create Team</span>
+                      <span className="font-bold text-base sm:text-lg group-hover:text-primary transition-colors">Create Team</span>
                       <span className="text-xs text-textSecondary text-center">Create a new team, register for this tournament, and get an invite code for your friends.</span>
                     </button>
-                    <div className="text-center text-xs text-textSecondary font-semibold uppercase tracking-widest my-2">OR</div>
+                    <div className="text-center text-[10px] text-textSecondary font-bold uppercase tracking-widest my-1">OR</div>
                     <button
                       onClick={() => setRegistrationMode('join')}
-                      className="w-full bg-surfaceHighlight border border-white/10 hover:border-primary/50 text-white p-4 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors group"
+                      className="w-full bg-elevated border border-borderColor hover:border-primary/60 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 transition-all group cursor-pointer shadow-sm"
                     >
-                      <span className="font-bold text-lg group-hover:text-primary transition-colors">Join Team</span>
+                      <span className="font-bold text-base sm:text-lg group-hover:text-primary transition-colors">Join Team</span>
                       <span className="text-xs text-textSecondary text-center">Join an existing team that is already registered using their invite code.</span>
                     </button>
                   </div>
@@ -553,14 +555,14 @@ export default function TournamentList() {
                 {registrationMode === 'solo' && (
                   <div className="space-y-4">
                     {selectedTournament.entryFee > 0 && (
-                      <div className="bg-surface border border-white/10 rounded-lg p-4 flex justify-between items-center mb-2">
+                      <div className="bg-elevated border border-borderColor rounded-xl p-4 flex justify-between items-center mb-2">
                         <div>
-                          <p className="text-textSecondary text-xs font-semibold uppercase">Entry Fee</p>
-                          <p className="text-white font-bold text-lg font-display tracking-wider">₹{selectedTournament.entryFee}</p>
+                          <p className="text-textSecondary text-[10px] font-bold uppercase tracking-wider">Entry Fee</p>
+                          <p className="text-white font-extrabold text-lg font-display tracking-wider">₹{selectedTournament.entryFee}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-textSecondary text-xs font-semibold uppercase">Your Balance</p>
-                          <p className={`font-bold text-lg font-display tracking-wider ${walletBalance !== null && walletBalance >= selectedTournament.entryFee ? 'text-emerald-400' : 'text-rose-500'}`}>
+                          <p className="text-textSecondary text-[10px] font-bold uppercase tracking-wider">Your Balance</p>
+                          <p className={`font-extrabold text-lg font-display tracking-wider ${walletBalance !== null && walletBalance >= selectedTournament.entryFee ? 'text-emerald-400' : 'text-secondary'}`}>
                             {walletBalance !== null ? `₹${walletBalance.toFixed(2)}` : '...'}
                           </p>
                         </div>
@@ -569,7 +571,7 @@ export default function TournamentList() {
 
                     {selectedTournament.entryFee > 0 && walletBalance !== null && walletBalance < selectedTournament.entryFee ? (
                       <div className="text-center py-2">
-                        <p className="text-rose-400 text-sm mb-4 flex items-center justify-center gap-2">
+                        <p className="text-secondary text-xs font-semibold mb-4 flex items-center justify-center gap-2">
                           <CheckCircle size={16} /> Insufficient Balance
                         </p>
                         <Link to="/wallet" className="btn-primary w-full inline-block text-center">
@@ -591,14 +593,14 @@ export default function TournamentList() {
                 {registrationMode === 'create' && (
                   <div className="space-y-4">
                     {selectedTournament.entryFee > 0 && (
-                      <div className="bg-surface border border-white/10 rounded-lg p-4 flex justify-between items-center mb-2">
+                      <div className="bg-elevated border border-borderColor rounded-xl p-4 flex justify-between items-center mb-2">
                         <div>
-                          <p className="text-textSecondary text-xs font-semibold uppercase">Entry Fee</p>
-                          <p className="text-white font-bold text-lg font-display tracking-wider">₹{selectedTournament.entryFee}</p>
+                          <p className="text-textSecondary text-[10px] font-bold uppercase tracking-wider">Entry Fee</p>
+                          <p className="text-white font-extrabold text-lg font-display tracking-wider">₹{selectedTournament.entryFee}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-textSecondary text-xs font-semibold uppercase">Your Balance</p>
-                          <p className={`font-bold text-lg font-display tracking-wider ${walletBalance !== null && walletBalance >= selectedTournament.entryFee ? 'text-emerald-400' : 'text-rose-500'}`}>
+                          <p className="text-textSecondary text-[10px] font-bold uppercase tracking-wider">Your Balance</p>
+                          <p className={`font-extrabold text-lg font-display tracking-wider ${walletBalance !== null && walletBalance >= selectedTournament.entryFee ? 'text-emerald-400' : 'text-secondary'}`}>
                             {walletBalance !== null ? `₹${walletBalance.toFixed(2)}` : '...'}
                           </p>
                         </div>
@@ -607,7 +609,7 @@ export default function TournamentList() {
 
                     {selectedTournament.entryFee > 0 && walletBalance !== null && walletBalance < selectedTournament.entryFee ? (
                       <div className="text-center py-4">
-                        <p className="text-rose-400 text-sm mb-4 bg-rose-500/10 p-3 rounded border border-rose-500/20">
+                        <p className="text-secondary text-xs font-semibold mb-4 bg-secondary/15 p-3 rounded-xl border border-secondary/30">
                           Insufficient wallet balance to register for this tournament. Please add funds.
                         </p>
                         <Link to="/wallet" className="btn-primary w-full block text-center py-3">
@@ -617,7 +619,7 @@ export default function TournamentList() {
                     ) : (
                       <>
                         <div>
-                          <label className="block text-textSecondary text-xs font-semibold uppercase tracking-wider mb-2">Team Name</label>
+                          <label className="block text-textSecondary text-xs font-bold uppercase tracking-wider mb-2">Team Name</label>
                           <input
                             type="text"
                             className="input-field w-full"
@@ -636,17 +638,17 @@ export default function TournamentList() {
                         </button>
                       </>
                     )}
-                    <button onClick={() => setRegistrationMode('select')} className="text-xs text-textSecondary hover:text-white w-full text-center mt-2">Back</button>
+                    <button onClick={() => setRegistrationMode('select')} className="text-xs text-textSecondary hover:text-white w-full text-center mt-2 cursor-pointer">Back</button>
                   </div>
                 )}
 
                 {registrationMode === 'join' && (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-textSecondary text-xs font-semibold uppercase tracking-wider mb-2">Invite Code</label>
+                      <label className="block text-textSecondary text-xs font-bold uppercase tracking-wider mb-2">Invite Code</label>
                       <input
                         type="text"
-                        className="input-field w-full uppercase tracking-widest text-center text-lg"
+                        className="input-field w-full uppercase tracking-widest text-center text-lg font-mono font-bold"
                         placeholder="ENTER CODE"
                         value={inviteCode}
                         onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
@@ -661,7 +663,7 @@ export default function TournamentList() {
                     >
                       {isRegistering ? <><LoadingSpinner size={16} /> Verifying...</> : 'Join Tournament'}
                     </button>
-                    <button onClick={() => setRegistrationMode('select')} className="text-xs text-textSecondary hover:text-white w-full text-center mt-2">Back</button>
+                    <button onClick={() => setRegistrationMode('select')} className="text-xs text-textSecondary hover:text-white w-full text-center mt-2 cursor-pointer">Back</button>
                   </div>
                 )}
 
@@ -671,19 +673,19 @@ export default function TournamentList() {
                     <h4 className="text-xl font-bold text-white mb-2">{modalSuccess}</h4>
 
                     {createdInviteCode && (
-                      <div className="mt-6 bg-surfaceHighlight border border-white/10 rounded-xl p-4">
-                        <p className="text-xs text-textSecondary uppercase tracking-widest font-semibold mb-3">Your Team Invite Code</p>
+                      <div className="mt-6 bg-elevated border border-borderColor rounded-xl p-4">
+                        <p className="text-xs text-textSecondary uppercase tracking-widest font-bold mb-3">Your Team Invite Code</p>
                         <div className="flex items-center justify-center gap-3">
-                          <span className="text-2xl font-bold font-display tracking-widest text-primary">{createdInviteCode}</span>
+                          <span className="text-2xl font-bold font-mono tracking-widest text-primary drop-shadow-[0_0_8px_rgba(255,90,31,0.4)]">{createdInviteCode}</span>
                           <button
                             onClick={copyToClipboard}
-                            className="p-2 bg-white/5 hover:bg-white/10 rounded-md transition-colors text-textSecondary hover:text-white"
+                            className="p-2 bg-inputBg hover:bg-card border border-borderColor rounded-lg transition-colors text-textSecondary hover:text-white cursor-pointer"
                             title="Copy to clipboard"
                           >
                             <Copy size={16} />
                           </button>
                         </div>
-                        {copied && <p className="text-xs text-emerald-400 mt-2">Copied to clipboard!</p>}
+                        {copied && <p className="text-xs text-emerald-400 mt-2 font-bold">Copied to clipboard!</p>}
                         <p className="text-xs text-textSecondary mt-4 leading-relaxed">
                           Share this code with your squad. They can use it by selecting <strong>Join Team</strong> on this tournament.
                         </p>
@@ -701,45 +703,45 @@ export default function TournamentList() {
 
       {/* Participants Modal */}
       {isParticipantsModalOpen && selectedTournament && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-panel max-w-md w-full p-6 relative"
+            className="bg-card border border-borderColor rounded-2xl shadow-card-dark max-w-md w-full p-6 sm:p-7 relative"
           >
-            <button onClick={() => setIsParticipantsModalOpen(false)} className="absolute top-4 right-4 text-textSecondary hover:text-white">
+            <button onClick={() => setIsParticipantsModalOpen(false)} className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer">
               <X size={20} />
             </button>
 
-            <h3 className="text-xl font-bold font-display text-white mb-2">Registered Teams</h3>
-            <p className="text-textSecondary text-sm mb-6">Teams participating in <strong className="text-white">{selectedTournament.name}</strong></p>
+            <h3 className="text-xl font-bold font-display text-white mb-1.5">Registered Teams</h3>
+            <p className="text-textSecondary text-xs mb-6">Teams participating in <strong className="text-white">{selectedTournament.name}</strong></p>
 
             {participantsError ? (
-              <div className="bg-rose-500/10 text-rose-400 text-sm p-4 rounded-lg border border-rose-500/20 text-center">
+              <div className="bg-secondary/15 text-secondary text-xs font-semibold p-4 rounded-xl border border-secondary/30 text-center">
                 {participantsError}
               </div>
             ) : participantsLoading ? (
               <div className="flex flex-col items-center justify-center py-10">
                 <LoadingSpinner size={28} className="mb-2" />
-                <p className="text-textSecondary text-sm">Verifying registration...</p>
+                <p className="text-textSecondary text-xs">Verifying registration...</p>
               </div>
             ) : participantTeams.length === 0 ? (
-              <div className="text-center py-8 text-textSecondary text-sm">
+              <div className="text-center py-8 text-textSecondary text-xs">
                 No teams have registered yet.
               </div>
             ) : (
               <div className="max-h-64 overflow-y-auto space-y-2 custom-scrollbar pr-2">
                 {participantTeams.map((team: any) => (
-                  <div key={team.id} className="flex items-center gap-3 p-3 rounded-lg bg-surface border border-white/5">
-                    <div className="w-8 h-8 rounded bg-background flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <div key={team.id} className="flex items-center gap-3 p-3 rounded-xl bg-elevated border border-borderColor">
+                    <div className="w-8 h-8 rounded-lg bg-inputBg border border-borderColor flex items-center justify-center overflow-hidden flex-shrink-0">
                       {team.logoUrl ? (
                         <img src={getImageUrl(team.logoUrl)} alt={team.name} className="w-full h-full object-cover" />
                       ) : (
-                        <Trophy size={14} className="text-textSecondary" />
+                        <Trophy size={14} className="text-primary" />
                       )}
                     </div>
                     <div className="flex-grow min-w-0">
-                      <span className="text-white font-bold text-sm block truncate">{team.name}</span>
+                      <span className="text-white font-bold text-xs sm:text-sm block truncate">{team.name}</span>
                       {(team.captainGameName || team.captainFreeFireUid) && (
                         <span className="text-xs text-primary font-semibold block truncate">
                           {team.captainGameName || 'Player'} {team.captainFreeFireUid ? `(UID: ${team.captainFreeFireUid})` : ''}
@@ -747,7 +749,7 @@ export default function TournamentList() {
                       )}
                     </div>
                     {team.slotNumber && (
-                      <div className="flex-shrink-0 bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-xs font-bold font-display">
+                      <div className="flex-shrink-0 bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded-md text-xs font-bold font-display shadow-fire-sm">
                         Slot {team.slotNumber}
                       </div>
                     )}
@@ -761,42 +763,47 @@ export default function TournamentList() {
 
       {/* Free Fire Room Credentials Modal */}
       {isRoomCredentialsModalOpen && selectedTournament && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-panel max-w-md w-full p-6 relative border border-emerald-500/20 shadow-2xl"
+            className="bg-card border border-borderColor rounded-2xl shadow-card-dark max-w-md w-full p-6 sm:p-7 relative"
           >
             <button onClick={() => setIsRoomCredentialsModalOpen(false)} className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer">
               <X size={20} />
             </button>
 
             <div className="flex items-center gap-3 mb-2">
-              <Key size={24} className="text-emerald-400" />
-              <h3 className="text-xl font-bold font-display text-white">Free Fire Room Details</h3>
+              <div className="p-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400">
+                <Key size={22} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold font-display text-white">Room Credentials</h3>
+                <span className="text-[10px] text-textSecondary uppercase tracking-wider">Free Fire Custom Room</span>
+              </div>
             </div>
             <p className="text-textSecondary text-xs mb-6">Tournament: <strong className="text-white">{selectedTournament.name}</strong></p>
 
             {loadingRoomCredentials ? (
               <div className="flex flex-col items-center justify-center py-10">
                 <LoadingSpinner size={28} className="mb-2" />
-                <p className="text-textSecondary text-sm animate-pulse">Fetching Room Credentials...</p>
+                <p className="text-textSecondary text-xs animate-pulse">Fetching Room Credentials...</p>
               </div>
             ) : roomCredentialsError ? (
-              <div className="bg-rose-500/10 text-rose-400 text-sm p-4 rounded-xl border border-rose-500/20 text-center font-medium">
+              <div className="bg-secondary/15 text-secondary text-xs font-semibold p-4 rounded-xl border border-secondary/30 text-center">
                 {roomCredentialsError}
               </div>
             ) : !(roomCredentialsData?.isUpdated || roomCredentialsData?.updated) ? (
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 text-center text-amber-400">
-                <Clock className="mx-auto mb-2 text-amber-400 animate-pulse" size={28} />
-                <h4 className="text-sm font-bold uppercase tracking-wider mb-1">Room ID & Password Not Updated Yet</h4>
+              <div className="bg-elevated border border-borderColor rounded-xl p-5 text-center text-primary">
+                <Clock className="mx-auto mb-2 text-primary animate-pulse" size={28} />
+                <h4 className="text-xs font-bold uppercase tracking-wider mb-1">Room ID & Password Not Set Yet</h4>
                 <p className="text-xs text-textSecondary leading-relaxed">
-                  The Admin has not set the Free Fire Room ID and Password for this tournament yet. Please check back closer to the match start time!
+                  The Admin has not published the Free Fire Room ID and Password for this tournament yet. Please check back closer to the match start time!
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="bg-surface border border-white/10 rounded-xl p-4">
+                <div className="bg-elevated border border-borderColor rounded-xl p-4">
                   <label className="block text-textSecondary text-[10px] uppercase font-bold tracking-wider mb-1">Free Fire Room ID</label>
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xl font-mono font-extrabold text-white tracking-widest">{roomCredentialsData.roomId}</span>
@@ -813,7 +820,7 @@ export default function TournamentList() {
                   </div>
                 </div>
 
-                <div className="bg-surface border border-white/10 rounded-xl p-4">
+                <div className="bg-elevated border border-borderColor rounded-xl p-4">
                   <label className="block text-textSecondary text-[10px] uppercase font-bold tracking-wider mb-1">Room Password</label>
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xl font-mono font-extrabold text-primary tracking-widest">{roomCredentialsData.roomPassword}</span>
@@ -823,14 +830,14 @@ export default function TournamentList() {
                         setCopiedField('pwd');
                         setTimeout(() => setCopiedField(null), 2000);
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-fire-sm"
                     >
                       {copiedField === 'pwd' ? <><CheckCircle size={14} /> Copied!</> : <><Copy size={14} /> Copy Password</>}
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-3 text-center text-[11px] text-textSecondary">
+                <div className="bg-elevated border border-borderColor rounded-xl p-3 text-center text-[11px] text-textSecondary">
                   💡 Open Free Fire ➔ Select Custom Room ➔ Enter Room ID & Password to join match!
                 </div>
               </div>

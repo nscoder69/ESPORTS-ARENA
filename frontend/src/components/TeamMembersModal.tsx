@@ -44,7 +44,7 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="glass-panel max-w-md w-full p-6 relative border border-primary/20 shadow-2xl overflow-hidden"
+          className="bg-card border border-borderColor rounded-2xl shadow-card-dark max-w-md w-full p-6 sm:p-7 relative overflow-hidden"
         >
           <button
             onClick={onClose}
@@ -54,7 +54,7 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: 
           </button>
 
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+            <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shadow-fire-sm">
               <Users size={20} />
             </div>
             <div>
@@ -65,11 +65,11 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: 
             </div>
           </div>
 
-          <div className="mt-4 mb-4 flex justify-between items-center bg-surfaceHighlight/30 p-2.5 rounded-xl border border-white/5">
-            <span className="text-xs text-textSecondary font-semibold uppercase tracking-wider">
-              Joined Status
+          <div className="mt-4 mb-4 flex justify-between items-center bg-elevated p-2.5 rounded-xl border border-borderColor">
+            <span className="text-xs text-textSecondary font-bold uppercase tracking-wider">
+              Roster Status
             </span>
-            <span className="bg-primary/20 text-primary px-2.5 py-0.5 rounded-full text-xs font-bold border border-primary/30">
+            <span className="bg-primary/20 text-primary px-2.5 py-0.5 rounded-md text-xs font-bold border border-primary/40 shadow-fire-sm">
               {members.length}/4 Members Joined
             </span>
           </div>
@@ -80,7 +80,7 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: 
               <p className="text-textSecondary text-xs animate-pulse">Loading Team Members...</p>
             </div>
           ) : error ? (
-            <div className="bg-rose-500/10 text-rose-400 text-sm p-4 rounded-xl border border-rose-500/20 text-center font-medium">
+            <div className="bg-secondary/15 text-secondary text-xs font-semibold p-4 rounded-xl border border-secondary/30 text-center">
               {error}
             </div>
           ) : members.length === 0 ? (
@@ -88,18 +88,18 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: 
               No members found in this team yet.
             </div>
           ) : (
-            <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+            <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
               {members.map((member) => (
                 <div
                   key={member.userId}
-                  className="bg-surface/60 border border-white/10 p-3 rounded-xl flex items-center justify-between"
+                  className="bg-elevated border border-borderColor p-3 rounded-xl flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-background border border-white/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-inputBg border border-borderColor flex items-center justify-center flex-shrink-0">
                       {member.avatarUrl ? (
                         <img src={getImageUrl(member.avatarUrl)} alt={member.gameName} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/40 to-primary/10 flex items-center justify-center text-white font-bold text-sm">
+                        <div className="w-full h-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center text-primary font-bold text-sm">
                           {member.gameName ? member.gameName.charAt(0).toUpperCase() : '?'}
                         </div>
                       )}
@@ -108,7 +108,7 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: 
                       <h4 className="text-white font-bold text-sm flex items-center gap-1.5">
                         {member.gameName || 'Unknown Player'}
                         {member.memberRole === 'Captain' && (
-                          <Crown size={14} className="text-yellow-500 flex-shrink-0" />
+                          <Crown size={14} className="text-gold flex-shrink-0" />
                         )}
                       </h4>
                       <div className="flex items-center gap-1 text-[11px] text-textSecondary mt-0.5">
@@ -119,8 +119,8 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: 
 
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                     member.memberRole === 'Captain' 
-                      ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' 
-                      : 'bg-surfaceHighlight text-textSecondary border border-white/10'
+                      ? 'bg-gold/15 text-gold border border-gold/40 shadow-gold-sm' 
+                      : 'bg-inputBg text-textSecondary border border-borderColor'
                   }`}>
                     {member.memberRole || 'Player'}
                   </span>

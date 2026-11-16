@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { sendForgotPasswordOtp, resetPassword } from '../services/authService';
-import { Mail, Lock, Key, ArrowLeft, Check, X } from 'lucide-react';
+import { Mail, Lock, Key, ArrowLeft, Check, X, Flame } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -70,23 +70,31 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-[calc(100vh-4rem)] px-4 py-12 overflow-y-auto">
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12 overflow-hidden bg-background">
+      {/* Fiery ambient glow effects */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+
       <motion.div 
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="glass-panel p-8 md:p-10 w-full max-w-md my-auto flex-shrink-0"
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="relative z-10 bg-surface/95 border border-borderColor shadow-card-dark rounded-2xl p-8 sm:p-10 w-full max-w-md my-auto flex-shrink-0 backdrop-blur-xl"
       >
         <div className="flex items-center gap-2 mb-6">
-          <Link to="/login" className="text-textSecondary hover:text-white transition-colors">
-            <ArrowLeft size={20} />
+          <Link to="/login" className="text-textSecondary hover:text-primary transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+            <ArrowLeft size={16} /> Back to Login
           </Link>
-          <span className="text-sm font-semibold text-textSecondary uppercase tracking-wider">Back to Login</span>
         </div>
 
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Reset Password</h2>
-          <p className="text-sm text-textSecondary">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-elevated border border-borderColor p-2.5 mb-3 shadow-fire-sm">
+            <img src={logo} alt="Esports Arena Logo" className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(255,90,31,0.5)]" />
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-[10px] font-bold tracking-widest uppercase mb-2">
+            <Flame size={11} className="text-primary" /> Security Recovery
+          </div>
+          <h2 className="text-2xl font-extrabold text-white tracking-tight">Reset Password</h2>
+          <p className="text-sm text-textSecondary mt-1">
             {step === 1 
               ? 'Enter your registered email address to receive an OTP' 
               : 'Enter the verification code and set a secure new password'
@@ -95,13 +103,13 @@ export default function ForgotPassword() {
         </div>
         
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm p-4 rounded-lg mb-6 text-center">
+          <div className="bg-secondary/10 border border-secondary/30 text-secondary text-sm p-3.5 rounded-xl mb-6 text-center font-medium">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-primary/10 border border-primary/20 text-primary text-sm p-4 rounded-lg mb-6 text-center">
+          <div className="bg-primary/10 border border-primary/30 text-primary-light text-sm p-3.5 rounded-xl mb-6 text-center font-medium">
             {success}
           </div>
         )}
@@ -109,9 +117,9 @@ export default function ForgotPassword() {
         {step === 1 ? (
           <form onSubmit={handleRequestOtp} className="space-y-5">
             <div>
-              <label htmlFor="forgot-email" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Email Address</label>
+              <label htmlFor="forgot-email" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Email Address</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-textSecondary">
                   <Mail size={16} />
                 </div>
                 <input 
@@ -150,9 +158,9 @@ export default function ForgotPassword() {
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-5">
             <div>
-              <label htmlFor="forgot-otp" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Verification OTP</label>
+              <label htmlFor="forgot-otp" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Verification OTP</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-primary">
                   <Key size={16} />
                 </div>
                 <input 
@@ -171,9 +179,9 @@ export default function ForgotPassword() {
             </div>
 
             <div>
-              <label htmlFor="forgot-new-password" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">New Password</label>
+              <label htmlFor="forgot-new-password" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">New Password</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-textSecondary">
                   <Lock size={16} />
                 </div>
                 <input 
@@ -191,39 +199,39 @@ export default function ForgotPassword() {
             </div>
 
             {/* Password Validation List */}
-            <div className="bg-surface/50 border border-white/5 rounded-lg p-4 space-y-2 text-xs">
-              <span className="text-textSecondary font-semibold uppercase tracking-wider block mb-1">Password Requirements:</span>
+            <div className="bg-elevated border border-borderColor rounded-xl p-4 space-y-2 text-xs">
+              <span className="text-textSecondary font-bold uppercase tracking-wider block mb-1">Password Requirements:</span>
               <div className="flex items-center gap-2">
                 {hasMinLength ? (
                   <Check className="text-primary" size={14} />
                 ) : (
-                  <X className="text-rose-400" size={14} />
+                  <X className="text-secondary" size={14} />
                 )}
-                <span className={hasMinLength ? 'text-white' : 'text-textSecondary'}>More than 8 characters</span>
+                <span className={hasMinLength ? 'text-white font-medium' : 'text-textSecondary'}>More than 8 characters</span>
               </div>
               <div className="flex items-center gap-2">
                 {hasLetter ? (
                   <Check className="text-primary" size={14} />
                 ) : (
-                  <X className="text-rose-400" size={14} />
+                  <X className="text-secondary" size={14} />
                 )}
-                <span className={hasLetter ? 'text-white' : 'text-textSecondary'}>At least one letter (a-z, A-Z)</span>
+                <span className={hasLetter ? 'text-white font-medium' : 'text-textSecondary'}>At least one letter (a-z, A-Z)</span>
               </div>
               <div className="flex items-center gap-2">
                 {hasNumber ? (
                   <Check className="text-primary" size={14} />
                 ) : (
-                  <X className="text-rose-400" size={14} />
+                  <X className="text-secondary" size={14} />
                 )}
-                <span className={hasNumber ? 'text-white' : 'text-textSecondary'}>At least one number (0-9)</span>
+                <span className={hasNumber ? 'text-white font-medium' : 'text-textSecondary'}>At least one number (0-9)</span>
               </div>
               <div className="flex items-center gap-2">
                 {hasSpecial ? (
                   <Check className="text-primary" size={14} />
                 ) : (
-                  <X className="text-rose-400" size={14} />
+                  <X className="text-secondary" size={14} />
                 )}
-                <span className={hasSpecial ? 'text-white' : 'text-textSecondary'}>At least one special character (!@#$ etc.)</span>
+                <span className={hasSpecial ? 'text-white font-medium' : 'text-textSecondary'}>At least one special character (!@#$ etc.)</span>
               </div>
             </div>
             
@@ -247,7 +255,7 @@ export default function ForgotPassword() {
                 setError('');
                 setSuccess('');
               }}
-              className="w-full text-center text-xs text-textSecondary hover:text-white transition-colors cursor-pointer mt-2"
+              className="w-full text-center text-xs text-textSecondary hover:text-primary transition-colors cursor-pointer mt-2"
             >
               Request a new verification code
             </button>

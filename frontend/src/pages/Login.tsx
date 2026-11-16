@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { login } from '../services/authService';
 import API, { isColdStartError, pingBackend } from '../services/api';
-import { Lock, Mail, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, RefreshCw, Flame } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
 
 export default function Login() {
@@ -64,36 +64,47 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-[calc(100vh-4rem)] px-4 py-12 overflow-y-auto">
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12 overflow-hidden bg-background">
+      {/* Fiery ambient glow effects */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
+
       <motion.div 
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="glass-panel p-8 md:p-10 w-full max-w-md my-auto flex-shrink-0"
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="relative z-10 bg-surface/95 border border-borderColor shadow-card-dark rounded-2xl p-8 sm:p-10 w-full max-w-md my-auto flex-shrink-0 backdrop-blur-xl"
       >
+        {/* Esports Brand Header */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-          <p className="text-sm text-textSecondary">Sign in to your account to continue</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-elevated border border-borderColor p-2.5 mb-4 shadow-fire-sm">
+            <img src={logo} alt="Esports Arena Logo" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,90,31,0.6)]" />
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-[11px] font-bold tracking-widest uppercase mb-2">
+            <Flame size={12} className="text-primary animate-pulse" /> Fire & Shadow Arena
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Welcome Back</h2>
+          <p className="text-sm text-textSecondary mt-1">Sign in to dominate the tournaments</p>
         </div>
         
         {wakingUpStatus && (
-          <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm p-3.5 rounded-lg mb-6 flex items-center gap-3">
-            <RefreshCw className="w-5 h-5 text-amber-400 animate-spin flex-shrink-0" />
+          <div className="bg-primary/10 border border-primary/30 text-primary-light text-sm p-3.5 rounded-xl mb-6 flex items-center gap-3">
+            <RefreshCw className="w-5 h-5 text-primary animate-spin flex-shrink-0" />
             <span className="font-medium text-xs leading-relaxed">{wakingUpStatus}</span>
           </div>
         )}
 
         {error && !wakingUpStatus && (
-          <div className="bg-secondary/10 border border-secondary/20 text-secondary text-sm p-3 rounded-md mb-6 text-center">
+          <div className="bg-secondary/10 border border-secondary/30 text-secondary text-sm p-3.5 rounded-xl mb-6 text-center font-medium">
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label htmlFor="login-email" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Email Address</label>
+            <label htmlFor="login-email" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Email Address</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-textSecondary">
                 <Mail size={16} />
               </div>
               <input 
@@ -111,11 +122,11 @@ export default function Login() {
           </div>
           <div>
             <div className="flex justify-between mb-2">
-              <label htmlFor="login-password" className="block text-textSecondary text-xs font-semibold uppercase tracking-wider">Password</label>
-              <Link to="/forgot-password" className="text-xs text-primary hover:text-primary-hover transition-colors">Forgot password?</Link>
+              <label htmlFor="login-password" className="block text-textSecondary text-xs font-bold uppercase tracking-wider">Password</label>
+              <Link to="/forgot-password" className="text-xs text-primary hover:text-primary-hover font-semibold transition-colors">Forgot password?</Link>
             </div>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-textSecondary">
                 <Lock size={16} />
               </div>
               <input 
@@ -131,7 +142,7 @@ export default function Login() {
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-textSecondary hover:text-white transition-colors"
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-textSecondary hover:text-white transition-colors cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -161,8 +172,8 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-textSecondary border-t border-white/10 pt-6">
-          Don't have an account? <Link to="/signup" className="text-white hover:text-primary transition-colors font-medium ml-1">Create one</Link>
+        <div className="mt-8 text-center text-sm text-textSecondary border-t border-borderColor pt-6">
+          Don't have an account? <Link to="/signup" className="text-primary hover:text-primary-hover font-bold transition-colors ml-1">Create one</Link>
         </div>
       </motion.div>
     </div>

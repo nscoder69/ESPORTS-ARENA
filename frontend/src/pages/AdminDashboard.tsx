@@ -907,10 +907,10 @@ const AdminDashboard = () => {
     return (
       <span className="flex items-center gap-1.5 ml-2" title={`${count} pending request${count > 1 ? 's' : ''}`}>
         <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-80"></span>
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,1)]"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-80"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary shadow-red-sm"></span>
         </span>
-        <span className="px-1.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-400 text-[10px] font-extrabold leading-none">
+        <span className="px-1.5 py-0.5 rounded-full bg-secondary/20 border border-secondary/40 text-secondary text-[10px] font-extrabold leading-none">
           {count}
         </span>
       </span>
@@ -918,21 +918,21 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+    <div className="flex flex-col min-h-[calc(100vh-4rem)] bg-background">
 
       {/* Admin Header */}
-      <div className="bg-surface border-b border-white/5 py-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="bg-card border-b border-borderColor py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2 font-bold tracking-widest text-xs uppercase">
-              <ShieldAlert size={14} className="text-rose-400" /> 
-              <span className="text-rose-400">System Administration</span>
+              <ShieldAlert size={14} className="text-secondary" /> 
+              <span className="text-secondary">System Administration</span>
               {isSuperAdmin ? (
-                <span className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider shadow">
+                <span className="bg-gradient-to-r from-gold to-[#FFA500] text-black px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider shadow-gold-sm">
                   ★ Super Admin (Developer Control)
                 </span>
               ) : (
-                <span className="bg-indigo-600 text-white px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider">
+                <span className="bg-elevated border border-borderColor text-primary px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider">
                   Sub-Admin
                 </span>
               )}
@@ -948,7 +948,7 @@ const AdminDashboard = () => {
                       playNotificationSound();
                     }
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-semibold hover:bg-rose-500/30 transition-all cursor-pointer animate-pulse"
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/20 border border-secondary/40 text-secondary text-xs font-bold hover:bg-secondary/30 transition-all cursor-pointer shadow-red-sm animate-pulse"
                   title="Click to enable sound & desktop/phone alerts for incoming admin requests"
                 >
                   <Bell size={13} /> Enable Audio Alerts
@@ -956,7 +956,7 @@ const AdminDashboard = () => {
               ) : (
                 <button
                   onClick={() => playNotificationSound()}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-medium hover:bg-emerald-500/25 transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/25 transition-all cursor-pointer"
                   title="Alerts enabled! Click to test notification chime sound"
                 >
                   <Volume2 size={13} /> Audio Alerts Active (Test Sound)
@@ -1005,11 +1005,11 @@ const AdminDashboard = () => {
           </div>
 
           {/* View Toggle Tabs */}
-          <div className="flex gap-4 mt-6 border-b border-white/10 pb-0 overflow-x-auto">
+          <div className="flex gap-4 mt-6 border-b border-borderColor pb-0 overflow-x-auto hide-scrollbar">
             {hasPermission('MANAGE_TOURNAMENTS') && (
               <button
                 onClick={() => setAdminView('tournaments')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'tournaments' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2.5 text-xs sm:text-sm font-bold tracking-wider transition-all relative whitespace-nowrap cursor-pointer ${adminView === 'tournaments' ? 'text-primary border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Tournaments
               </button>
@@ -1017,7 +1017,7 @@ const AdminDashboard = () => {
             {hasPermission('MANAGE_USERS') && (
               <button
                 onClick={() => setAdminView('users')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap ${adminView === 'users' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2.5 text-xs sm:text-sm font-bold tracking-wider transition-all relative whitespace-nowrap cursor-pointer ${adminView === 'users' ? 'text-primary border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Users & Activity
               </button>
@@ -1025,7 +1025,7 @@ const AdminDashboard = () => {
             {hasPermission('MANAGE_SUPPORT') && (
               <button
                 onClick={() => setAdminView('support')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center ${adminView === 'support' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2.5 text-xs sm:text-sm font-bold tracking-wider transition-all relative whitespace-nowrap flex items-center cursor-pointer ${adminView === 'support' ? 'text-primary border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Support Tickets
                 {renderRedDotBadge(pendingTicketsCount)}
@@ -1034,7 +1034,7 @@ const AdminDashboard = () => {
             {hasPermission('MANAGE_DEPOSITS') && (
               <button
                 onClick={() => setAdminView('deposits')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center ${adminView === 'deposits' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2.5 text-xs sm:text-sm font-bold tracking-wider transition-all relative whitespace-nowrap flex items-center cursor-pointer ${adminView === 'deposits' ? 'text-primary border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Pending Deposits
                 {renderRedDotBadge(pendingDeposits.length)}
@@ -1043,7 +1043,7 @@ const AdminDashboard = () => {
             {hasPermission('MANAGE_WITHDRAWALS') && (
               <button
                 onClick={() => setAdminView('withdrawals')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center ${adminView === 'withdrawals' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2.5 text-xs sm:text-sm font-bold tracking-wider transition-all relative whitespace-nowrap flex items-center cursor-pointer ${adminView === 'withdrawals' ? 'text-primary border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Pending Withdrawals
                 {renderRedDotBadge(pendingWithdrawals.length)}
@@ -1053,7 +1053,7 @@ const AdminDashboard = () => {
             {(hasPermission('MANAGE_GAME_VERIFICATIONS') || hasPermission('MANAGE_USERS')) && (
               <button
                 onClick={() => setAdminView('game-verifications')}
-                className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap flex items-center ${adminView === 'game-verifications' ? 'text-white border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
+                className={`px-4 py-2.5 text-xs sm:text-sm font-bold tracking-wider transition-all relative whitespace-nowrap flex items-center cursor-pointer ${adminView === 'game-verifications' ? 'text-primary border-b-2 border-primary' : 'text-textSecondary hover:text-white'}`}
               >
                 Game Profile Verifications
                 {renderRedDotBadge(gameVerifications.length)}
@@ -1064,13 +1064,13 @@ const AdminDashboard = () => {
               <>
                 <button
                   onClick={() => setAdminView('payment-settings')}
-                  className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap text-amber-400 ${adminView === 'payment-settings' ? 'text-amber-400 border-b-2 border-amber-400 font-bold' : 'text-amber-400/70 hover:text-amber-400'}`}
+                  className={`px-4 py-2.5 text-xs sm:text-sm font-bold tracking-wider transition-all relative whitespace-nowrap cursor-pointer text-gold ${adminView === 'payment-settings' ? 'text-gold border-b-2 border-gold shadow-gold-sm' : 'text-gold/70 hover:text-gold'}`}
                 >
                   ★ UPI QR & Settings
                 </button>
                 <button
                   onClick={() => setAdminView('access-control')}
-                  className={`px-4 py-2 text-sm font-semibold tracking-wider transition-all relative whitespace-nowrap text-amber-400 ${adminView === 'access-control' ? 'text-amber-400 border-b-2 border-amber-400 font-bold' : 'text-amber-400/70 hover:text-amber-400'}`}
+                  className={`px-4 py-2.5 text-xs sm:text-sm font-bold tracking-wider transition-all relative whitespace-nowrap cursor-pointer text-gold ${adminView === 'access-control' ? 'text-gold border-b-2 border-gold shadow-gold-sm' : 'text-gold/70 hover:text-gold'}`}
                 >
                   ★ Sub-Admin Access Control
                 </button>
@@ -1088,8 +1088,8 @@ const AdminDashboard = () => {
         (adminView === 'payment-settings' && !isSuperAdmin) ||
         (adminView === 'access-control' && !isSuperAdmin)) ? (
         <div className="flex-grow max-w-4xl mx-auto w-full px-6 py-16 flex flex-col items-center justify-center text-center">
-          <div className="glass-panel p-10 max-w-lg w-full border border-rose-500/20 bg-rose-500/5 shadow-2xl flex flex-col items-center">
-            <ShieldAlert size={48} className="text-rose-400 mb-4" />
+          <div className="glass-panel p-10 max-w-lg w-full border border-secondary/30 bg-secondary/5 shadow-2xl flex flex-col items-center">
+            <ShieldAlert size={48} className="text-secondary mb-4" />
             <h3 className="text-2xl font-bold font-display text-white mb-2">Access Restricted</h3>
             <p className="text-textSecondary text-sm mb-6">
               You do not have permission to access the <strong>{adminView}</strong> module. Please contact the Super Admin to request feature permissions.
@@ -1114,7 +1114,7 @@ const AdminDashboard = () => {
               </button>
             </div>
 
-            <div className="flex border-b border-white/10 bg-surfaceHighlight/10 rounded-lg p-1">
+            <div className="flex border-b border-borderColor bg-elevated/10 rounded-lg p-1">
               <button
                 onClick={() => { setTab('active'); setSelectedTournament(null); }}
                 className={`flex-1 text-center py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${tab === 'active' ? 'bg-primary text-black' : 'text-textSecondary hover:text-white'}`}
@@ -1144,12 +1144,12 @@ const AdminDashboard = () => {
                   <button
                     key={t.id}
                     onClick={() => handleSelectTournament(t)}
-                    className={`w-full text-left p-4 rounded-xl border transition-all ${selectedTournament?.id === t.id ? 'bg-primary/10 border-primary text-white' : 'bg-surfaceHighlight/30 border-white/5 hover:border-white/10 text-textSecondary hover:text-white'}`}
+                    className={`w-full text-left p-4 rounded-xl border transition-all ${selectedTournament?.id === t.id ? 'bg-primary/10 border-primary text-white' : 'bg-elevated/30 border-borderColor/60 hover:border-borderColor text-textSecondary hover:text-white'}`}
                   >
                     <div className="font-bold font-display mb-1 truncate">{t.name}</div>
                     <div className="flex items-center justify-between text-xs">
                       <span className="flex items-center gap-1"><Users size={12} /> {t.gameMode}</span>
-                      <span className={t.status === 'Upcoming' ? 'text-emerald-400' : t.status === 'Finished' ? 'text-blue-400' : t.status === 'Cancelled' ? 'text-rose-400' : 'text-primary'}>
+                      <span className={t.status === 'Upcoming' ? 'text-emerald-400' : t.status === 'Finished' ? 'text-blue-400' : t.status === 'Cancelled' ? 'text-secondary' : 'text-primary'}>
                         {t.status}
                       </span>
                     </div>
@@ -1162,7 +1162,7 @@ const AdminDashboard = () => {
           {/* Right Column: Registrations Details */}
           <div className="w-full md:w-2/3">
             {!selectedTournament ? (
-              <div className="h-full min-h-[400px] border border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center text-textSecondary bg-surfaceHighlight/10">
+              <div className="h-full min-h-[400px] border border-dashed border-borderColor rounded-2xl flex flex-col items-center justify-center text-textSecondary bg-elevated/10">
                 <Trophy size={48} className="text-white/10 mb-4" />
                 <p>Select a tournament from the list to view its registrations.</p>
               </div>
@@ -1173,7 +1173,7 @@ const AdminDashboard = () => {
                 key={selectedTournament.id}
                 className="glass-panel p-6"
               >
-                <div className="border-b border-white/10 pb-6 mb-6">
+                <div className="border-b border-borderColor pb-6 mb-6">
                   <div className="flex justify-between items-start mb-2">
                     <h2 className="text-2xl font-bold font-display text-white">{selectedTournament.name}</h2>
                     <div className="flex gap-2 flex-wrap">
@@ -1196,14 +1196,14 @@ const AdminDashboard = () => {
                           <button
                             onClick={() => setRescheduleModalOpen(true)}
                             disabled={actionLoading}
-                            className="text-xs font-semibold px-3 py-1.5 rounded bg-surfaceHighlight hover:bg-surface border border-white/10 text-white transition-colors cursor-pointer"
+                            className="text-xs font-semibold px-3 py-1.5 rounded bg-elevated hover:bg-card border border-borderColor text-white transition-colors cursor-pointer"
                           >
                             Reschedule
                           </button>
                           <button
                             onClick={handleCancelTournament}
                             disabled={actionLoading}
-                            className="text-xs font-semibold px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 transition-colors disabled:opacity-50 cursor-pointer"
+                            className="text-xs font-semibold px-3 py-1.5 rounded bg-secondary/15 hover:bg-secondary/20 border border-secondary/30 text-secondary transition-colors disabled:opacity-50 cursor-pointer"
                           >
                             Cancel Tournament
                           </button>
@@ -1212,7 +1212,7 @@ const AdminDashboard = () => {
                       <button
                         onClick={() => handleDeleteTournament(selectedTournament.id)}
                         disabled={actionLoading}
-                        className="text-xs font-semibold px-3 py-1.5 rounded bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 transition-colors flex items-center gap-1 cursor-pointer"
+                        className="text-xs font-semibold px-3 py-1.5 rounded bg-secondary/20 hover:bg-secondary/30 border border-secondary/30 text-secondary transition-colors flex items-center gap-1 cursor-pointer"
                         title="Delete tournament permanently"
                       >
                         <Trash2 size={12} /> Delete Tournament
@@ -1235,19 +1235,19 @@ const AdminDashboard = () => {
                   )}
 
                   {actionError && (
-                    <div className="mb-4 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2 rounded">
+                    <div className="mb-4 text-xs text-secondary bg-secondary/15 border border-secondary/30 p-2 rounded">
                       {actionError}
                     </div>
                   )}
 
                   <div className="flex flex-wrap items-center gap-4 text-sm text-textSecondary mt-4">
-                    <div className="bg-surface px-3 py-1 rounded-full border border-white/5">{selectedTournament.gameMode}</div>
-                    <div className="bg-surface px-3 py-1 rounded-full border border-white/5">{selectedTournament.gameMap}</div>
-                    <div className="bg-surface px-3 py-1 rounded-full border border-white/5 flex items-center gap-1">Prize: <span className="text-primary font-bold">₹{selectedTournament.prizePool}</span></div>
-                    {selectedTournament.firstPrize > 0 && <div className="bg-surface px-3 py-1 rounded-full border border-[#FFD700]/30 flex items-center gap-1 text-[#FFD700]"><Trophy size={14} /> 1st: ₹{selectedTournament.firstPrize}</div>}
-                    {selectedTournament.secondPrize > 0 && <div className="bg-surface px-3 py-1 rounded-full border border-[#C0C0C0]/30 flex items-center gap-1 text-[#C0C0C0]"><Trophy size={14} /> 2nd: ₹{selectedTournament.secondPrize}</div>}
-                    {selectedTournament.thirdPrize > 0 && <div className="bg-surface px-3 py-1 rounded-full border border-[#CD7F32]/30 flex items-center gap-1 text-[#CD7F32]"><Trophy size={14} /> 3rd: ₹{selectedTournament.thirdPrize}</div>}
-                    {selectedTournament.perKillPrize > 0 && <div className="bg-surface px-3 py-1 rounded-full border border-white/10 flex items-center gap-1 text-white"><span className="text-[10px] font-bold">KILL</span> ₹{selectedTournament.perKillPrize}</div>}
+                    <div className="bg-card px-3 py-1 rounded-full border border-borderColor/60">{selectedTournament.gameMode}</div>
+                    <div className="bg-card px-3 py-1 rounded-full border border-borderColor/60">{selectedTournament.gameMap}</div>
+                    <div className="bg-card px-3 py-1 rounded-full border border-borderColor/60 flex items-center gap-1">Prize: <span className="text-primary font-bold">₹{selectedTournament.prizePool}</span></div>
+                    {selectedTournament.firstPrize > 0 && <div className="bg-card px-3 py-1 rounded-full border border-[#FFD700]/30 flex items-center gap-1 text-[#FFD700]"><Trophy size={14} /> 1st: ₹{selectedTournament.firstPrize}</div>}
+                    {selectedTournament.secondPrize > 0 && <div className="bg-card px-3 py-1 rounded-full border border-[#C0C0C0]/30 flex items-center gap-1 text-[#C0C0C0]"><Trophy size={14} /> 2nd: ₹{selectedTournament.secondPrize}</div>}
+                    {selectedTournament.thirdPrize > 0 && <div className="bg-card px-3 py-1 rounded-full border border-[#CD7F32]/30 flex items-center gap-1 text-[#CD7F32]"><Trophy size={14} /> 3rd: ₹{selectedTournament.thirdPrize}</div>}
+                    {selectedTournament.perKillPrize > 0 && <div className="bg-card px-3 py-1 rounded-full border border-borderColor flex items-center gap-1 text-white"><span className="text-[10px] font-bold">KILL</span> ₹{selectedTournament.perKillPrize}</div>}
 
                     {selectedTournament.matchTiming && (
                       <div className="bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
@@ -1255,7 +1255,7 @@ const AdminDashboard = () => {
                       </div>
                     )}
                     {selectedTournament.status === 'Cancelled' && (
-                      <div className="bg-rose-500/10 text-rose-400 px-3 py-1 rounded-full border border-rose-500/20 font-bold uppercase tracking-wider text-xs flex items-center gap-1">
+                      <div className="bg-secondary/15 text-secondary px-3 py-1 rounded-full border border-secondary/30 font-bold uppercase tracking-wider text-xs flex items-center gap-1">
                         <AlertCircle size={14} /> Cancelled
                       </div>
                     )}
@@ -1272,7 +1272,7 @@ const AdminDashboard = () => {
                     <input
                       type="text"
                       placeholder="Search player, UID, or team..."
-                      className="input-field pl-10 py-1.5 text-xs bg-surface"
+                      className="input-field pl-10 py-1.5 text-xs bg-card"
                       value={regSearchQuery}
                       onChange={e => setRegSearchQuery(e.target.value)}
                     />
@@ -1291,14 +1291,14 @@ const AdminDashboard = () => {
                     <p className="text-textSecondary animate-pulse">Fetching registrations...</p>
                   </div>
                 ) : registrations.length === 0 ? (
-                  <div className="text-center py-12 bg-surfaceHighlight/20 rounded-xl border border-white/5">
+                  <div className="text-center py-12 bg-elevated/20 rounded-xl border border-borderColor/60">
                     <p className="text-textSecondary">No teams have registered for this tournament yet.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-white/10 text-textSecondary text-xs uppercase tracking-wider">
+                        <tr className="border-b border-borderColor text-textSecondary text-xs uppercase tracking-wider">
                           <th className="py-3 px-4">Team</th>
                           <th className="py-3 px-4">Captain / Player</th>
                           <th className="py-3 px-4">Registered Date</th>
@@ -1322,10 +1322,10 @@ const AdminDashboard = () => {
                             return teamMatch || captainNameMatch || captainUidMatch || memberMatch;
                           })
                           .map((reg) => (
-                          <tr key={reg.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                          <tr key={reg.id} className="border-b border-borderColor/60 hover:bg-white/5 transition-colors">
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded bg-surfaceHighlight border border-white/10 overflow-hidden flex-shrink-0">
+                                <div className="w-8 h-8 rounded bg-elevated border border-borderColor overflow-hidden flex-shrink-0">
                                   {reg.teamLogoUrl ? (
                                     <img src={getImageUrl(reg.teamLogoUrl)} alt="logo" className="w-full h-full object-cover" />
                                   ) : (
@@ -1376,14 +1376,14 @@ const AdminDashboard = () => {
                               <div className="flex items-center justify-end gap-2">
                                 <button
                                   onClick={() => handleViewMembers(reg)}
-                                  className="p-1.5 rounded bg-surface border border-white/5 text-textSecondary hover:text-white hover:border-white/20 transition-all"
+                                  className="p-1.5 rounded bg-card border border-borderColor/60 text-textSecondary hover:text-white hover:border-borderColor transition-all"
                                   title="View Members"
                                 >
                                   <Users size={14} />
                                 </button>
                                 <button
                                   onClick={() => handleRemoveTeam(reg.teamId, reg.teamName)}
-                                  className="p-1.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-all"
+                                  className="p-1.5 rounded bg-secondary/15 border border-secondary/30 text-secondary hover:bg-secondary/20 transition-all"
                                   title="Remove Team"
                                 >
                                   <Trash2 size={14} />
@@ -1438,7 +1438,7 @@ const AdminDashboard = () => {
                 </p>
                 <h4 className="text-lg sm:text-3xl font-display font-bold text-textSecondary">{userStats.offline}</h4>
               </div>
-              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0 self-end sm:self-auto">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/5 flex items-center justify-center border border-borderColor shrink-0 self-end sm:self-auto">
                 <Users className="text-textSecondary w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
@@ -1451,7 +1451,7 @@ const AdminDashboard = () => {
                 <h3 className="text-xl font-bold font-display text-white">Registered Users</h3>
                 <button
                   onClick={fetchUsers}
-                  className="p-2 rounded bg-surface border border-white/10 text-textSecondary hover:text-white hover:border-white/20 transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+                  className="p-2 rounded bg-card border border-borderColor text-textSecondary hover:text-white hover:border-borderColor transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
                   title="Refresh Users Directory"
                 >
                   <RefreshCw size={14} className={usersLoading ? 'animate-spin' : ''} />
@@ -1473,18 +1473,18 @@ const AdminDashboard = () => {
             {usersLoading ? (
               <LoadingSpinner size={40} text="Loading directory..." />
             ) : usersError ? (
-              <div className="text-center py-12 bg-rose-500/10 border border-rose-500/20 rounded-xl">
-                <p className="text-rose-400 text-sm">{usersError}</p>
+              <div className="text-center py-12 bg-secondary/15 border border-secondary/30 rounded-xl">
+                <p className="text-secondary text-sm">{usersError}</p>
               </div>
             ) : usersList.length === 0 ? (
-              <div className="text-center py-12 bg-surfaceHighlight/20 rounded-xl border border-white/5">
+              <div className="text-center py-12 bg-elevated/20 rounded-xl border border-borderColor/60">
                 <p className="text-textSecondary text-sm">No users registered on the platform yet.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-textSecondary text-xs uppercase tracking-wider">
+                    <tr className="border-b border-borderColor text-textSecondary text-xs uppercase tracking-wider">
                       <th className="py-3 px-4">Avatar</th>
                       <th className="py-3 px-4">Email</th>
                       <th className="py-3 px-4">Role</th>
@@ -1512,9 +1512,9 @@ const AdminDashboard = () => {
                           : 'Never';
 
                         const roleBadgeClass = u.role === 'ROLE_SUPER_ADMIN'
-                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/30 font-bold'
+                          ? 'bg-gold/15 text-gold border-gold/40 font-bold'
                           : u.role === 'ROLE_ADMIN'
-                          ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                          ? 'bg-secondary/15 text-secondary border-secondary/30'
                           : 'bg-primary/10 text-primary border-primary/20';
 
                         const roleLabel = u.role === 'ROLE_SUPER_ADMIN'
@@ -1524,9 +1524,9 @@ const AdminDashboard = () => {
                           : 'Player';
 
                         return (
-                          <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition-colors text-sm">
+                          <tr key={u.id} className="border-b border-borderColor/60 hover:bg-white/5 transition-colors text-sm">
                             <td className="py-4 px-4">
-                              <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-surfaceHighlight/20 flex items-center justify-center">
+                              <div className="w-10 h-10 rounded-full overflow-hidden border border-borderColor bg-elevated/20 flex items-center justify-center">
                                 {u.avatarUrl ? (
                                   <img src={getImageUrl(u.avatarUrl)} alt="Avatar" className="w-full h-full object-cover" />
                                 ) : (
@@ -1583,7 +1583,7 @@ const AdminDashboard = () => {
                                 {isSuperAdmin && (
                                   <button
                                     onClick={() => handleOpenEditAdminModal(u)}
-                                    className="p-1.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all cursor-pointer"
+                                    className="p-1.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-primary hover:bg-indigo-500/20 transition-all cursor-pointer"
                                     title="Configure Sub-Admin Access & Permissions"
                                   >
                                     <Shield size={14} />
@@ -1602,7 +1602,7 @@ const AdminDashboard = () => {
                                     ) : (
                                       <button
                                         onClick={() => handleBlockUser(u.id)}
-                                        className="p-1.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer"
+                                        className="p-1.5 rounded bg-gold/15 border border-gold/30 text-gold hover:bg-gold/20 transition-all cursor-pointer"
                                         title="Block User"
                                       >
                                         <UserX size={14} />
@@ -1610,7 +1610,7 @@ const AdminDashboard = () => {
                                     )}
                                     <button
                                       onClick={() => handleDeleteUser(u.id)}
-                                      className="p-1.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer"
+                                      className="p-1.5 rounded bg-secondary/15 border border-secondary/30 text-secondary hover:bg-secondary/20 transition-all cursor-pointer"
                                       title="Delete User"
                                     >
                                       <Trash2 size={14} />
@@ -1653,16 +1653,16 @@ const AdminDashboard = () => {
                   {pendingTicketsCount > 0 && (
                     <span className="relative flex h-2 w-2 shrink-0">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
                     </span>
                   )}
                 </p>
-                <h4 className={`text-lg sm:text-3xl font-display font-bold ${pendingTicketsCount > 0 ? 'text-rose-400' : 'text-amber-400'}`}>
+                <h4 className={`text-lg sm:text-3xl font-display font-bold ${pendingTicketsCount > 0 ? 'text-secondary' : 'text-gold'}`}>
                   {pendingTicketsCount}
                 </h4>
               </div>
-              <div className={`w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center border shrink-0 self-end sm:self-auto ${pendingTicketsCount > 0 ? 'bg-rose-500/10 border-rose-500/30' : 'bg-amber-500/10 border-amber-500/20'}`}>
-                <Clock className={`${pendingTicketsCount > 0 ? 'text-rose-400' : 'text-amber-400'} w-4 h-4 sm:w-5 sm:h-5`} />
+              <div className={`w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center border shrink-0 self-end sm:self-auto ${pendingTicketsCount > 0 ? 'bg-secondary/15 border-secondary/30' : 'bg-gold/15 border-gold/30'}`}>
+                <Clock className={`${pendingTicketsCount > 0 ? 'text-secondary' : 'text-gold'} w-4 h-4 sm:w-5 sm:h-5`} />
               </div>
             </div>
 
@@ -1688,7 +1688,7 @@ const AdminDashboard = () => {
               <h3 className="text-xl font-bold font-display text-white">Customer Support Tickets</h3>
               <div className="flex items-center gap-4">
                 <select
-                  className="input-field py-2 text-sm bg-surface w-36 cursor-pointer"
+                  className="input-field py-2 text-sm bg-card w-36 cursor-pointer"
                   value={supportFilter}
                   onChange={e => setSupportFilter(e.target.value as any)}
                 >
@@ -1702,18 +1702,18 @@ const AdminDashboard = () => {
             {supportLoading ? (
               <LoadingSpinner size={40} text="Loading support tickets..." />
             ) : supportError ? (
-              <div className="text-center py-12 bg-rose-500/10 border border-rose-500/20 rounded-xl">
-                <p className="text-rose-400 text-sm">{supportError}</p>
+              <div className="text-center py-12 bg-secondary/15 border border-secondary/30 rounded-xl">
+                <p className="text-secondary text-sm">{supportError}</p>
               </div>
             ) : supportTickets.length === 0 ? (
-              <div className="text-center py-12 bg-surfaceHighlight/20 rounded-xl border border-white/5">
+              <div className="text-center py-12 bg-elevated/20 rounded-xl border border-borderColor/60">
                 <p className="text-textSecondary text-sm">No support tickets found.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-textSecondary text-xs uppercase tracking-wider">
+                    <tr className="border-b border-borderColor text-textSecondary text-xs uppercase tracking-wider">
                       <th className="py-3 px-4">User Email</th>
                       <th className="py-3 px-4">Subject</th>
                       <th className="py-3 px-4">Status</th>
@@ -1731,18 +1731,18 @@ const AdminDashboard = () => {
                       .map((t) => {
                         const date = new Date(t.createdAt).toLocaleString();
                         return (
-                          <tr key={t.id} className="border-b border-white/5 hover:bg-white/5 transition-colors text-sm">
+                          <tr key={t.id} className="border-b border-borderColor/60 hover:bg-white/5 transition-colors text-sm">
                             <td className="py-4 px-4 font-medium text-white">{t.user?.email || 'Unknown User'}</td>
                             <td className="py-4 px-4 text-textSecondary">{t.subject}</td>
                             <td className="py-4 px-4">
                               <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded inline-flex items-center gap-1.5 ${t.status === 'Resolved'
                                   ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                  : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                                  : 'bg-secondary/15 text-secondary border border-secondary/30'
                                 }`}>
                                 {t.status === 'Pending' && (
                                   <span className="relative flex h-1.5 w-1.5">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
+                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-secondary"></span>
                                   </span>
                                 )}
                                 {t.status}
@@ -1779,7 +1779,7 @@ const AdminDashboard = () => {
                 {pendingDeposits.length > 0 && (
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
                   </span>
                 )}
               </h3>
@@ -1787,14 +1787,14 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={() => fetchPendingDeposits(false)}
-              className="p-2 rounded bg-surface border border-white/5 text-textSecondary hover:text-white hover:border-white/20 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer"
+              className="p-2 rounded bg-card border border-borderColor/60 text-textSecondary hover:text-white hover:border-borderColor transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer"
             >
               <RefreshCw size={14} className={depositsLoading ? 'animate-spin' : ''} /> Refresh List
             </button>
           </div>
 
           {depositsError && (
-            <div className="glass-panel p-4 border border-rose-500/20 bg-rose-500/5 text-rose-400 text-sm rounded-xl flex items-center gap-2">
+            <div className="glass-panel p-4 border border-secondary/30 bg-secondary/5 text-secondary text-sm rounded-xl flex items-center gap-2">
               <AlertCircle size={16} /> {depositsError}
             </div>
           )}
@@ -1802,7 +1802,7 @@ const AdminDashboard = () => {
           {depositsLoading ? (
             <LoadingSpinner size={40} text="Fetching manual deposits..." />
           ) : pendingDeposits.length === 0 ? (
-            <div className="glass-panel p-12 text-center text-textSecondary border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-3">
+            <div className="glass-panel p-12 text-center text-textSecondary border border-borderColor/60 rounded-2xl flex flex-col items-center justify-center gap-3">
               <CheckCircle size={36} className="text-emerald-500/70" />
               <div>
                 <p className="text-white font-bold">No pending deposits</p>
@@ -1810,11 +1810,11 @@ const AdminDashboard = () => {
               </div>
             </div>
           ) : (
-            <div className="glass-panel border border-white/5 rounded-2xl overflow-hidden shadow-2xl bg-surfaceHighlight/10">
+            <div className="glass-panel border border-borderColor/60 rounded-2xl overflow-hidden shadow-2xl bg-elevated/10">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-textSecondary text-xs uppercase tracking-wider bg-surfaceHighlight/30">
+                    <tr className="border-b border-borderColor text-textSecondary text-xs uppercase tracking-wider bg-elevated/30">
                       <th className="py-3 px-4">Player Email</th>
                       <th className="py-3 px-4">In-Game Name</th>
                       <th className="py-3 px-4">Amount</th>
@@ -1827,12 +1827,12 @@ const AdminDashboard = () => {
                     {pendingDeposits.map((deposit) => {
                       const date = new Date(deposit.createdAt).toLocaleString();
                       return (
-                        <tr key={deposit.id} className="border-b border-white/5 hover:bg-white/5 transition-colors text-sm">
+                        <tr key={deposit.id} className="border-b border-borderColor/60 hover:bg-white/5 transition-colors text-sm">
                           <td className="py-4 px-4 font-semibold text-white">
                             <div className="flex items-center gap-2">
                               <span className="relative flex h-2 w-2 flex-shrink-0">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
                               </span>
                               <span>{deposit.userEmail}</span>
                             </div>
@@ -1870,7 +1870,7 @@ const AdminDashboard = () => {
                               <button
                                 onClick={() => handleVerifyDeposit(deposit.id, false)}
                                 disabled={actionLoading}
-                                className="px-3 py-1.5 rounded text-xs font-bold bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer disabled:opacity-50"
+                                className="px-3 py-1.5 rounded text-xs font-bold bg-secondary/15 border border-secondary/30 text-secondary hover:bg-secondary/20 transition-all cursor-pointer disabled:opacity-50"
                               >
                                 Reject
                               </button>
@@ -1894,7 +1894,7 @@ const AdminDashboard = () => {
                 {pendingWithdrawals.length > 0 && (
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
                   </span>
                 )}
               </h3>
@@ -1902,14 +1902,14 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={() => fetchPendingWithdrawals(false)}
-              className="p-2 rounded bg-surface border border-white/5 text-textSecondary hover:text-white hover:border-white/20 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer"
+              className="p-2 rounded bg-card border border-borderColor/60 text-textSecondary hover:text-white hover:border-borderColor transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer"
             >
               <RefreshCw size={14} className={withdrawalsLoading ? 'animate-spin' : ''} /> Refresh List
             </button>
           </div>
 
           {withdrawalsError && (
-            <div className="glass-panel p-4 border border-rose-500/20 bg-rose-500/5 text-rose-400 text-sm rounded-xl flex items-center gap-2">
+            <div className="glass-panel p-4 border border-secondary/30 bg-secondary/5 text-secondary text-sm rounded-xl flex items-center gap-2">
               <AlertCircle size={16} /> {withdrawalsError}
             </div>
           )}
@@ -1917,7 +1917,7 @@ const AdminDashboard = () => {
           {withdrawalsLoading ? (
             <LoadingSpinner size={40} text="Fetching manual withdrawals..." />
           ) : pendingWithdrawals.length === 0 ? (
-            <div className="glass-panel p-12 text-center text-textSecondary border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-3">
+            <div className="glass-panel p-12 text-center text-textSecondary border border-borderColor/60 rounded-2xl flex flex-col items-center justify-center gap-3">
               <CheckCircle size={36} className="text-emerald-500/70" />
               <div>
                 <p className="text-white font-bold">No pending withdrawals</p>
@@ -1925,11 +1925,11 @@ const AdminDashboard = () => {
               </div>
             </div>
           ) : (
-            <div className="glass-panel border border-white/5 rounded-2xl overflow-hidden shadow-2xl bg-surfaceHighlight/10">
+            <div className="glass-panel border border-borderColor/60 rounded-2xl overflow-hidden shadow-2xl bg-elevated/10">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-textSecondary text-xs uppercase tracking-wider bg-surfaceHighlight/30">
+                    <tr className="border-b border-borderColor text-textSecondary text-xs uppercase tracking-wider bg-elevated/30">
                       <th className="py-3 px-4">Player Email</th>
                       <th className="py-3 px-4">In-Game Name</th>
                       <th className="py-3 px-4">Amount</th>
@@ -1942,18 +1942,18 @@ const AdminDashboard = () => {
                     {pendingWithdrawals.map((withdrawal) => {
                       const date = new Date(withdrawal.createdAt).toLocaleString();
                       return (
-                        <tr key={withdrawal.id} className="border-b border-white/5 hover:bg-white/5 transition-colors text-sm">
+                        <tr key={withdrawal.id} className="border-b border-borderColor/60 hover:bg-white/5 transition-colors text-sm">
                           <td className="py-4 px-4 font-semibold text-white">
                             <div className="flex items-center gap-2">
                               <span className="relative flex h-2 w-2 flex-shrink-0">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
                               </span>
                               <span>{withdrawal.userEmail}</span>
                             </div>
                           </td>
                           <td className="py-4 px-4 text-textSecondary">{withdrawal.username || 'N/A'}</td>
-                          <td className="py-4 px-4 font-display font-bold text-rose-400">₹{withdrawal.amount.toFixed(2)}</td>
+                          <td className="py-4 px-4 font-display font-bold text-secondary">₹{withdrawal.amount.toFixed(2)}</td>
                           <td className="py-4 px-4 text-white font-medium">
                             {(() => {
                               const desc = withdrawal.description || '';
@@ -1967,7 +1967,7 @@ const AdminDashboard = () => {
                                 return (
                                   <div className="flex items-center gap-2">
                                     <span className="text-xs text-textSecondary uppercase font-bold">UPI ID:</span>
-                                    <span className="font-mono text-sm font-bold text-white bg-surface px-2.5 py-1 rounded border border-white/10">{upiId}</span>
+                                    <span className="font-mono text-sm font-bold text-white bg-card px-2.5 py-1 rounded border border-borderColor">{upiId}</span>
                                     <button
                                       onClick={() => {
                                         navigator.clipboard.writeText(upiId);
@@ -2027,7 +2027,7 @@ const AdminDashboard = () => {
                                     {ifsc && (
                                       <div className="flex items-center gap-2 text-xs">
                                         <span className="text-textSecondary font-semibold uppercase text-[10px] w-16">IFSC:</span>
-                                        <span className="font-mono text-amber-400 font-bold">{ifsc}</span>
+                                        <span className="font-mono text-gold font-bold">{ifsc}</span>
                                         <button
                                           onClick={() => {
                                             navigator.clipboard.writeText(ifsc);
@@ -2078,7 +2078,7 @@ const AdminDashboard = () => {
                               <button
                                 onClick={() => handleVerifyWithdrawal(withdrawal.id, false)}
                                 disabled={actionLoading}
-                                className="px-3 py-1.5 rounded text-xs font-bold bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer disabled:opacity-50"
+                                className="px-3 py-1.5 rounded text-xs font-bold bg-secondary/15 border border-secondary/30 text-secondary hover:bg-secondary/20 transition-all cursor-pointer disabled:opacity-50"
                               >
                                 Reject
                               </button>
@@ -2102,7 +2102,7 @@ const AdminDashboard = () => {
                 {gameVerifications.length > 0 && (
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary shadow-[0_0_6px_rgba(244,63,94,1)]"></span>
                   </span>
                 )}
               </h3>
@@ -2110,14 +2110,14 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={() => fetchGameVerifications(false)}
-              className="px-3 py-1.5 rounded text-xs font-semibold bg-surface border border-white/10 text-textSecondary hover:text-white transition-all cursor-pointer flex items-center gap-2"
+              className="px-3 py-1.5 rounded text-xs font-semibold bg-card border border-borderColor text-textSecondary hover:text-white transition-all cursor-pointer flex items-center gap-2"
             >
               <RefreshCw size={14} className={gameVerificationsLoading ? 'animate-spin' : ''} /> Refresh List
             </button>
           </div>
 
           {gameVerificationsError && (
-            <div className="glass-panel p-4 border border-rose-500/20 bg-rose-500/5 text-rose-400 text-sm rounded-xl flex items-center gap-2">
+            <div className="glass-panel p-4 border border-secondary/30 bg-secondary/5 text-secondary text-sm rounded-xl flex items-center gap-2">
               <AlertCircle size={16} /> {gameVerificationsError}
             </div>
           )}
@@ -2125,7 +2125,7 @@ const AdminDashboard = () => {
           {gameVerificationsLoading ? (
             <LoadingSpinner size={40} text="Fetching pending verification requests..." />
           ) : gameVerifications.length === 0 ? (
-            <div className="glass-panel p-12 text-center text-textSecondary border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-3">
+            <div className="glass-panel p-12 text-center text-textSecondary border border-borderColor/60 rounded-2xl flex flex-col items-center justify-center gap-3">
               <CheckCircle size={36} className="text-emerald-500/70" />
               <div>
                 <p className="text-white font-bold">No pending verification requests</p>
@@ -2135,24 +2135,24 @@ const AdminDashboard = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {gameVerifications.map((req) => (
-                <div key={req.id} className="glass-panel p-6 border border-amber-500/20 bg-surface/50 rounded-2xl flex flex-col justify-between gap-4">
+                <div key={req.id} className="glass-panel p-6 border border-gold/30 bg-card/50 rounded-2xl flex flex-col justify-between gap-4">
                   <div>
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+                    <div className="flex items-center justify-between border-b border-borderColor pb-3 mb-3">
                       <div className="flex items-center gap-2">
-                        <UserIcon size={18} className="text-amber-400" />
+                        <UserIcon size={18} className="text-gold" />
                         <span className="font-bold text-white text-sm">{req.userEmail}</span>
                       </div>
-                      <span className="text-[10px] font-extrabold uppercase bg-rose-500/10 border border-rose-500/30 text-rose-400 px-2 py-0.5 rounded flex items-center gap-1.5">
+                      <span className="text-[10px] font-extrabold uppercase bg-secondary/15 border border-secondary/30 text-secondary px-2 py-0.5 rounded flex items-center gap-1.5">
                         <span className="relative flex h-1.5 w-1.5">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-secondary"></span>
                         </span>
                         PENDING REVIEW
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="bg-background/50 p-3 rounded-lg border border-white/5">
+                      <div className="bg-background/50 p-3 rounded-lg border border-borderColor/60">
                         <p className="text-textSecondary font-semibold uppercase text-[10px] mb-1">Requested In-Game Name</p>
                         <p className="font-bold text-white text-sm">{req.requestedGameName || 'Not Provided'}</p>
                         {req.currentGameName && (
@@ -2160,15 +2160,15 @@ const AdminDashboard = () => {
                         )}
                       </div>
 
-                      <div className="bg-background/50 p-3 rounded-lg border border-white/5">
+                      <div className="bg-background/50 p-3 rounded-lg border border-borderColor/60">
                         <p className="text-textSecondary font-semibold uppercase text-[10px] mb-1">Requested Free Fire UID</p>
-                        <p className="font-mono font-bold text-amber-400 text-sm">{req.requestedFreeFireUid || 'Not Provided'}</p>
+                        <p className="font-mono font-bold text-gold text-sm">{req.requestedFreeFireUid || 'Not Provided'}</p>
                         {req.currentFreeFireUid && (
                           <p className="text-[11px] text-textSecondary mt-1">Old: {req.currentFreeFireUid}</p>
                         )}
                       </div>
 
-                      <div className="col-span-2 bg-background/50 p-3 rounded-lg border border-white/5 flex items-center justify-between">
+                      <div className="col-span-2 bg-background/50 p-3 rounded-lg border border-borderColor/60 flex items-center justify-between">
                         <div>
                           <p className="text-textSecondary font-semibold uppercase text-[10px]">Requested Game Level</p>
                           <p className="font-bold text-emerald-400 text-sm">Level {req.requestedGameLevel || 1}</p>
@@ -2180,7 +2180,7 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-3 border-t border-white/10 pt-4">
+                  <div className="flex items-center justify-end gap-3 border-t border-borderColor pt-4">
                     <button
                       onClick={() => {
                         setSelectedReqForReject(req);
@@ -2188,7 +2188,7 @@ const AdminDashboard = () => {
                         setRejectModalOpen(true);
                       }}
                       disabled={actionLoading}
-                      className="px-4 py-2 rounded-lg text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer disabled:opacity-50"
+                      className="px-4 py-2 rounded-lg text-xs font-bold bg-secondary/15 border border-secondary/30 text-secondary hover:bg-secondary/20 transition-all cursor-pointer disabled:opacity-50"
                     >
                       Reject Request
                     </button>
@@ -2208,9 +2208,9 @@ const AdminDashboard = () => {
         </div>
       ) : adminView === 'payment-settings' ? (
         <div className="flex-grow max-w-4xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
-          <div className="glass-panel p-8 relative overflow-hidden border border-amber-500/20 shadow-2xl">
-            <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
-              <QrCode size={28} className="text-amber-400" />
+          <div className="glass-panel p-8 relative overflow-hidden border border-gold/30 shadow-2xl">
+            <div className="flex items-center gap-3 mb-6 border-b border-borderColor pb-4">
+              <QrCode size={28} className="text-gold" />
               <div>
                 <h3 className="text-2xl font-bold font-display text-white">Payment UPI QR & Merchant Configuration</h3>
                 <p className="text-textSecondary text-xs">Super Admin Tool: Update platform UPI ID and custom deposit QR code image</p>
@@ -2218,7 +2218,7 @@ const AdminDashboard = () => {
             </div>
 
             {paymentMsg && (
-              <div className={`mb-6 p-4 rounded-lg text-sm border font-medium ${paymentMsg.includes('successfully') ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'}`}>
+              <div className={`mb-6 p-4 rounded-lg text-sm border font-medium ${paymentMsg.includes('successfully') ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-secondary/15 border-secondary/30 text-secondary'}`}>
                 {paymentMsg}
               </div>
             )}
@@ -2226,9 +2226,9 @@ const AdminDashboard = () => {
             <form onSubmit={handleSavePaymentSettings} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 {/* QR Code Preview */}
-                <div className="text-center p-6 bg-background rounded-2xl border border-white/10">
+                <div className="text-center p-6 bg-background rounded-2xl border border-borderColor">
                   <span className="block text-xs font-semibold uppercase tracking-wider text-textSecondary mb-3">Active Deposit QR Code Preview</span>
-                  <div className="bg-white p-4 rounded-xl inline-block shadow-2xl border border-white/10 mb-3">
+                  <div className="bg-white p-4 rounded-xl inline-block shadow-2xl border border-borderColor mb-3">
                     <img 
                       src={newQrFile ? URL.createObjectURL(newQrFile) : (paymentSettings.upiQrUrl ? getImageUrl(paymentSettings.upiQrUrl) : qrImageDefault)} 
                       alt="UPI QR Code Preview" 
@@ -2302,7 +2302,7 @@ const AdminDashboard = () => {
               </button>
               <button
                 onClick={fetchAdmins}
-                className="bg-surfaceHighlight hover:bg-white/10 text-white px-4 py-2 rounded-lg border border-white/10 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+                className="bg-elevated hover:bg-white/10 text-white px-4 py-2 rounded-lg border border-borderColor text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
               >
                 <RefreshCw size={14} /> Refresh List
               </button>
@@ -2310,13 +2310,13 @@ const AdminDashboard = () => {
           </div>
 
           {loadingAdmins ? (
-            <div className="flex justify-center py-16"><Loader className="animate-spin text-amber-400" size={32} /></div>
+            <div className="flex justify-center py-16"><Loader className="animate-spin text-gold" size={32} /></div>
           ) : (
-            <div className="glass-panel border border-white/5 rounded-2xl overflow-hidden shadow-2xl bg-surfaceHighlight/10">
+            <div className="glass-panel border border-borderColor/60 rounded-2xl overflow-hidden shadow-2xl bg-elevated/10">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-textSecondary text-xs uppercase tracking-wider bg-surfaceHighlight/30">
+                    <tr className="border-b border-borderColor text-textSecondary text-xs uppercase tracking-wider bg-elevated/30">
                       <th className="py-3 px-4">Admin Email</th>
                       <th className="py-3 px-4">In-Game Name</th>
                       <th className="py-3 px-4">Role Tier</th>
@@ -2326,7 +2326,7 @@ const AdminDashboard = () => {
                   </thead>
                   <tbody>
                     {adminsList.map((adm) => (
-                      <tr key={adm.id} className="border-b border-white/5 hover:bg-white/5 transition-colors text-sm">
+                      <tr key={adm.id} className="border-b border-borderColor/60 hover:bg-white/5 transition-colors text-sm">
                         <td className="py-4 px-4 font-semibold text-white">{adm.email}</td>
                         <td className="py-4 px-4 text-textSecondary">{adm.gameName || 'N/A'}</td>
                         <td className="py-4 px-4">
@@ -2335,14 +2335,14 @@ const AdminDashboard = () => {
                               Super Admin
                             </span>
                           ) : (
-                            <span className="bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 font-bold text-[10px] px-2.5 py-1 rounded uppercase tracking-wider">
+                            <span className="bg-primary/30 border border-indigo-500/40 text-indigo-300 font-bold text-[10px] px-2.5 py-1 rounded uppercase tracking-wider">
                               Sub-Admin
                             </span>
                           )}
                         </td>
                         <td className="py-4 px-4 text-xs text-textSecondary">
                           {adm.role === 'ROLE_SUPER_ADMIN' ? (
-                            <span className="text-amber-400 font-semibold">Full Access (All System Controls)</span>
+                            <span className="text-gold font-semibold">Full Access (All System Controls)</span>
                           ) : (
                             <div className="flex flex-wrap gap-1">
                               {adm.permissions ? (
@@ -2360,7 +2360,7 @@ const AdminDashboard = () => {
                         <td className="py-4 px-4 text-right">
                           <button
                             onClick={() => handleOpenEditAdminModal(adm)}
-                            className="px-3 py-1.5 rounded text-xs font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer flex items-center gap-1.5 ml-auto"
+                            className="px-3 py-1.5 rounded text-xs font-bold bg-gold/15 border border-gold/30 text-gold hover:bg-gold/20 transition-all cursor-pointer flex items-center gap-1.5 ml-auto"
                           >
                             <Edit3 size={12} /> Configure Access & Role
                           </button>
@@ -2379,7 +2379,7 @@ const AdminDashboard = () => {
       {/* Edit Admin Access Modal */}
       {selectedAdminUser && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel max-w-lg w-full p-6 relative border border-amber-500/20 shadow-2xl">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel max-w-lg w-full p-6 relative border border-gold/30 shadow-2xl">
             <button 
               onClick={() => setSelectedAdminUser(null)} 
               className="absolute top-4 right-4 text-textSecondary hover:text-white cursor-pointer"
@@ -2395,7 +2395,7 @@ const AdminDashboard = () => {
                 <select
                   value={editRole}
                   onChange={e => setEditRole(e.target.value as any)}
-                  className="w-full input-field py-2.5 text-sm bg-surface font-semibold text-white"
+                  className="w-full input-field py-2.5 text-sm bg-card font-semibold text-white"
                 >
                   <option value="ROLE_ADMIN">Sub-Admin (Granted Required Accesses)</option>
                   <option value="ROLE_SUPER_ADMIN">Super Admin (Primary Developer Admin - Full Controls)</option>
@@ -2406,7 +2406,7 @@ const AdminDashboard = () => {
               {editRole === 'ROLE_ADMIN' && (
                 <div>
                   <label className="block text-textSecondary text-xs font-semibold mb-3 uppercase tracking-wider">Select Module Permissions</label>
-                  <div className="space-y-2 bg-background p-4 rounded-xl border border-white/10">
+                  <div className="space-y-2 bg-background p-4 rounded-xl border border-borderColor">
                     {[
                       { key: 'MANAGE_TOURNAMENTS', label: 'Tournaments Management (Create, Reschedule, Bracket Results)' },
                       { key: 'MANAGE_DEPOSITS', label: 'Pending Deposits Approval (Verify UTR & Credit Cash)' },
@@ -2420,7 +2420,7 @@ const AdminDashboard = () => {
                           type="checkbox"
                           checked={editPermissions.includes(perm.key)}
                           onChange={() => togglePermission(perm.key)}
-                          className="w-4 h-4 rounded text-primary focus:ring-primary bg-surface border-white/20 cursor-pointer"
+                          className="w-4 h-4 rounded text-primary focus:ring-primary bg-card border-borderColor cursor-pointer"
                         />
                         <span className="font-medium">{perm.label}</span>
                       </label>
@@ -2433,7 +2433,7 @@ const AdminDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedAdminUser(null)}
-                  className="flex-1 py-3 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 transition-colors text-xs cursor-pointer"
+                  className="flex-1 py-3 bg-elevated hover:bg-white/10 text-white font-semibold rounded-md border border-borderColor transition-colors text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -2469,7 +2469,7 @@ const AdminDashboard = () => {
               <input
                 type="text"
                 placeholder="Search user by email or name..."
-                className="input-field pl-10 py-2 text-sm bg-surface"
+                className="input-field pl-10 py-2 text-sm bg-card"
                 value={promoteSearchQuery}
                 onChange={e => setPromoteSearchQuery(e.target.value)}
               />
@@ -2489,10 +2489,10 @@ const AdminDashboard = () => {
                       setIsPromoteUserModalOpen(false);
                       handleOpenEditAdminModal(u);
                     }}
-                    className="flex items-center justify-between p-3 rounded-lg bg-surface border border-white/5 hover:border-primary/50 hover:bg-white/5 cursor-pointer transition-all"
+                    className="flex items-center justify-between p-3 rounded-lg bg-card border border-borderColor/60 hover:border-primary/50 hover:bg-white/5 cursor-pointer transition-all"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-surfaceHighlight border border-white/10 flex items-center justify-center overflow-hidden">
+                      <div className="w-8 h-8 rounded-full bg-elevated border border-borderColor flex items-center justify-center overflow-hidden">
                         {u.avatarUrl ? <img src={getImageUrl(u.avatarUrl)} alt="Avatar" className="w-full h-full object-cover" /> : <UserIcon size={14} className="text-textSecondary" />}
                       </div>
                       <div>
@@ -2500,7 +2500,7 @@ const AdminDashboard = () => {
                         <span className="text-xs text-textSecondary">{u.gameName || 'No Game Name'} | UID: {u.freeFireUid || 'N/A'}</span>
                       </div>
                     </div>
-                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${u.role === 'ROLE_ADMIN' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : u.role === 'ROLE_SUPER_ADMIN' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-surfaceHighlight text-textSecondary border-white/10'}`}>
+                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${u.role === 'ROLE_ADMIN' ? 'bg-indigo-500/10 text-primary border-indigo-500/20' : u.role === 'ROLE_SUPER_ADMIN' ? 'bg-gold/15 text-gold border-gold/30' : 'bg-elevated text-textSecondary border-borderColor'}`}>
                       {u.role === 'ROLE_ADMIN' ? 'Sub-Admin' : u.role === 'ROLE_SUPER_ADMIN' ? 'Super Admin' : 'Player'}
                     </span>
                   </div>
@@ -2520,7 +2520,7 @@ const AdminDashboard = () => {
 
             <input
               type="datetime-local"
-              className="input-field w-full mb-4 bg-surface"
+              className="input-field w-full mb-4 bg-card"
               value={newMatchTiming}
               onChange={e => setNewMatchTiming(e.target.value)}
             />
@@ -2545,9 +2545,9 @@ const AdminDashboard = () => {
             ) : (
               <div className="space-y-2">
                 {teamMembers.map((member: any) => (
-                  <div key={member.userId} className="flex justify-between items-center bg-surface border border-white/5 p-3 rounded-lg">
+                  <div key={member.userId} className="flex justify-between items-center bg-card border border-borderColor/60 p-3 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center border border-white/10 overflow-hidden">
+                      <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center border border-borderColor overflow-hidden">
                         {member.avatarUrl ? <img src={getImageUrl(member.avatarUrl)} alt="Avatar" className="w-full h-full object-cover" /> : <UserX size={14} className="text-textSecondary" />}
                       </div>
                       <div>
@@ -2570,7 +2570,7 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                     </div>
-                    <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded border ${member.memberRole === 'Captain' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-surfaceHighlight text-textSecondary border-white/10'}`}>
+                    <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded border ${member.memberRole === 'Captain' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-elevated text-textSecondary border-borderColor'}`}>
                       {member.memberRole}
                     </span>
                   </div>
@@ -2607,7 +2607,7 @@ const AdminDashboard = () => {
             </p>
 
             {actionError && (
-              <div className="mb-4 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2 rounded">
+              <div className="mb-4 text-xs text-secondary bg-secondary/15 border border-secondary/30 p-2 rounded">
                 {actionError}
               </div>
             )}
@@ -2620,7 +2620,7 @@ const AdminDashboard = () => {
                     <Trophy size={12} /> 1st Place Winner
                   </label>
                   <select
-                    className="input-field w-full text-sm bg-surface"
+                    className="input-field w-full text-sm bg-card"
                     value={firstPlaceTeamId}
                     onChange={e => setFirstPlaceTeamId(e.target.value)}
                   >
@@ -2637,7 +2637,7 @@ const AdminDashboard = () => {
                     <Trophy size={12} /> 2nd Place Winner
                   </label>
                   <select
-                    className="input-field w-full text-sm bg-surface"
+                    className="input-field w-full text-sm bg-card"
                     value={secondPlaceTeamId}
                     onChange={e => setSecondPlaceTeamId(e.target.value)}
                   >
@@ -2654,7 +2654,7 @@ const AdminDashboard = () => {
                     <Trophy size={12} /> 3rd Place Winner
                   </label>
                   <select
-                    className="input-field w-full text-sm bg-surface"
+                    className="input-field w-full text-sm bg-card"
                     value={thirdPlaceTeamId}
                     onChange={e => setThirdPlaceTeamId(e.target.value)}
                   >
@@ -2667,11 +2667,11 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            <div className="border-t border-white/10 pt-4 mb-6">
+            <div className="border-t border-borderColor pt-4 mb-6">
               <h4 className="text-white font-bold text-sm mb-4">Total Kills by Team</h4>
               <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
                 {registrations.map(r => (
-                  <div key={r.teamId} className="flex items-center justify-between bg-surface/50 border border-white/5 p-3 rounded-lg">
+                  <div key={r.teamId} className="flex items-center justify-between bg-card/50 border border-borderColor/60 p-3 rounded-lg">
                     <span className="text-sm text-white font-medium">{r.teamName}</span>
                     <div className="flex items-center gap-2">
                       <label className="text-xs text-textSecondary">Kills:</label>
@@ -2694,7 +2694,7 @@ const AdminDashboard = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setResultsModalOpen(false)}
-                className="w-1/2 bg-surfaceHighlight hover:bg-surface border border-white/10 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
+                className="w-1/2 bg-elevated hover:bg-card border border-borderColor text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
               >
                 Cancel
               </button>
@@ -2731,7 +2731,7 @@ const AdminDashboard = () => {
 
             <div className="mb-6">
               <label className="block text-textSecondary text-[10px] uppercase font-bold tracking-wider mb-2">User's Message</label>
-              <p className="text-textPrimary text-sm bg-black/30 p-4 rounded border border-white/5 whitespace-pre-line max-h-48 overflow-y-auto">
+              <p className="text-textPrimary text-sm bg-black/30 p-4 rounded border border-borderColor/60 whitespace-pre-line max-h-48 overflow-y-auto">
                 {selectedTicket.message}
               </p>
             </div>
@@ -2792,8 +2792,8 @@ const AdminDashboard = () => {
               <X size={22} />
             </button>
 
-            <div className="flex flex-col sm:flex-row gap-6 items-start border-b border-white/10 pb-6 mb-6">
-              <div className="w-16 h-16 rounded-full overflow-hidden border border-white/10 bg-surfaceHighlight/20 flex items-center justify-center flex-shrink-0">
+            <div className="flex flex-col sm:flex-row gap-6 items-start border-b border-borderColor pb-6 mb-6">
+              <div className="w-16 h-16 rounded-full overflow-hidden border border-borderColor bg-elevated/20 flex items-center justify-center flex-shrink-0">
                 {selectedProfileUser.avatarUrl ? (
                   <img src={getImageUrl(selectedProfileUser.avatarUrl)} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
@@ -2804,7 +2804,7 @@ const AdminDashboard = () => {
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <h3 className="text-2xl font-bold font-display text-white">{selectedProfileUser.email}</h3>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${selectedProfileUser.role === 'ROLE_ADMIN'
-                      ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                      ? 'bg-secondary/15 text-secondary border-secondary/30'
                       : 'bg-primary/10 text-primary border-primary/20'
                     }`}>
                     {selectedProfileUser.role === 'ROLE_ADMIN' ? 'Admin' : 'Player'}
@@ -2825,7 +2825,7 @@ const AdminDashboard = () => {
                 {/* Stats Left Column */}
                 <div className="col-span-1 space-y-4">
                   {/* Wallet Balance Card */}
-                  <div className="glass-panel p-5 bg-surfaceHighlight/20 border border-white/5 relative overflow-hidden group">
+                  <div className="glass-panel p-5 bg-elevated/20 border border-borderColor/60 relative overflow-hidden group">
                     <div className="absolute top-3 right-3 text-textSecondary/10 group-hover:text-textSecondary/20 transition-colors">
                       <Wallet size={40} />
                     </div>
@@ -2839,8 +2839,8 @@ const AdminDashboard = () => {
                   </div>
 
                   {/* Activity Stats Card */}
-                  <div className="glass-panel p-5 bg-surfaceHighlight/20 border border-white/5 space-y-3">
-                    <h4 className="text-white font-semibold text-sm border-b border-white/5 pb-2">Profile Statistics</h4>
+                  <div className="glass-panel p-5 bg-elevated/20 border border-borderColor/60 space-y-3">
+                    <h4 className="text-white font-semibold text-sm border-b border-borderColor/60 pb-2">Profile Statistics</h4>
                     <div className="flex justify-between text-xs">
                       <span className="text-textSecondary">Tournaments Played</span>
                       <span className="text-white font-bold">{profileTournaments.length}</span>
@@ -2857,7 +2857,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-textSecondary">Completed Withdrawals</span>
-                      <span className="text-rose-400 font-bold">
+                      <span className="text-secondary font-bold">
                         {profileTransactions.filter((t: any) => t.transactionType === 'WITHDRAWAL' && t.status === 'SUCCESS').length}
                       </span>
                     </div>
@@ -2867,7 +2867,7 @@ const AdminDashboard = () => {
                 {/* Tabs Right Column */}
                 <div className="col-span-1 md:col-span-2 flex flex-col max-h-[450px]">
                   {/* Tab Selector */}
-                  <div className="flex border-b border-white/10 mb-4">
+                  <div className="flex border-b border-borderColor mb-4">
                     <button
                       onClick={() => setProfileActiveTab('transactions')}
                       className={`pb-2.5 px-4 font-semibold text-sm border-b-2 transition-all cursor-pointer ${profileActiveTab === 'transactions'
@@ -2893,14 +2893,14 @@ const AdminDashboard = () => {
                     {profileActiveTab === 'transactions' ? (
                       <div className="space-y-3">
                         {profileTransactions.length === 0 ? (
-                          <p className="text-textSecondary text-sm py-8 text-center bg-black/10 rounded border border-white/5">No transactions recorded for this user.</p>
+                          <p className="text-textSecondary text-sm py-8 text-center bg-black/10 rounded border border-borderColor/60">No transactions recorded for this user.</p>
                         ) : (
                           profileTransactions.map((tx: any) => (
-                            <div key={tx.id} className="p-3 bg-white/[0.02] border border-white/5 hover:border-white/10 rounded-lg flex items-center justify-between text-xs">
+                            <div key={tx.id} className="p-3 bg-white/[0.02] border border-borderColor/60 hover:border-borderColor rounded-lg flex items-center justify-between text-xs">
                               <div className="flex items-center gap-3">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${tx.transactionType === 'DEPOSIT' || tx.transactionType === 'PRIZE'
                                     ? 'bg-emerald-500/10 text-emerald-400'
-                                    : 'bg-rose-500/10 text-rose-400'
+                                    : 'bg-secondary/15 text-secondary'
                                   }`}>
                                   {tx.transactionType === 'DEPOSIT' || tx.transactionType === 'PRIZE' ? '+' : '-'}
                                 </div>
@@ -2919,7 +2919,7 @@ const AdminDashboard = () => {
                                   {tx.transactionType === 'DEPOSIT' || tx.transactionType === 'PRIZE' ? '+' : '-'}₹{tx.amount.toFixed(2)}
                                 </p>
                                 <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded mt-1 uppercase ${tx.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-400' :
-                                    tx.status === 'PENDING' ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'
+                                    tx.status === 'PENDING' ? 'bg-gold/15 text-gold' : 'bg-secondary/15 text-secondary'
                                   }`}>
                                   {tx.status}
                                 </span>
@@ -2931,10 +2931,10 @@ const AdminDashboard = () => {
                     ) : (
                       <div className="space-y-3">
                         {profileTournaments.length === 0 ? (
-                          <p className="text-textSecondary text-sm py-8 text-center bg-black/10 rounded border border-white/5">No tournaments registered for this user.</p>
+                          <p className="text-textSecondary text-sm py-8 text-center bg-black/10 rounded border border-borderColor/60">No tournaments registered for this user.</p>
                         ) : (
                           profileTournaments.map((t: any) => (
-                            <div key={t.id} className="p-3 bg-white/[0.02] border border-white/5 hover:border-white/10 rounded-lg flex items-center justify-between text-xs">
+                            <div key={t.id} className="p-3 bg-white/[0.02] border border-borderColor/60 hover:border-borderColor rounded-lg flex items-center justify-between text-xs">
                               <div>
                                 <p className="text-white font-semibold text-sm">{t.name}</p>
                                 <div className="flex gap-4 text-[10px] text-textSecondary mt-1">
@@ -2944,7 +2944,7 @@ const AdminDashboard = () => {
                               </div>
                               <div className="text-right">
                                 <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${t.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-400' :
-                                    t.status === 'CANCELLED' ? 'bg-rose-500/10 text-rose-400' : 'bg-primary/10 text-primary'
+                                    t.status === 'CANCELLED' ? 'bg-secondary/15 text-secondary' : 'bg-primary/10 text-primary'
                                   }`}>
                                   {t.status}
                                 </span>
@@ -3002,7 +3002,7 @@ const AdminDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setRoomModalOpen(false)}
-                  className="flex-1 py-3 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 transition-colors text-xs cursor-pointer"
+                  className="flex-1 py-3 bg-elevated hover:bg-white/10 text-white font-semibold rounded-md border border-borderColor transition-colors text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -3022,7 +3022,7 @@ const AdminDashboard = () => {
       {/* Super Admin Security Confirmation Modal */}
       {isSuperAdminConfirmModalOpen && superAdminConfirmUser && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel max-w-md w-full p-6 relative border border-amber-500/30 shadow-2xl">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel max-w-md w-full p-6 relative border border-gold/40 shadow-2xl">
             <button 
               onClick={() => {
                 setIsSuperAdminConfirmModalOpen(false);
@@ -3034,19 +3034,19 @@ const AdminDashboard = () => {
             >
               <X size={20} />
             </button>
-            <h3 className="text-xl font-bold font-display text-amber-400 mb-1 flex items-center gap-2">
-              <ShieldAlert className="text-amber-400" size={22} /> Super Admin Security Authorization
+            <h3 className="text-xl font-bold font-display text-gold mb-1 flex items-center gap-2">
+              <ShieldAlert className="text-gold" size={22} /> Super Admin Security Authorization
             </h3>
             <p className="text-textSecondary text-xs mb-4">
               Promoting user <strong className="text-white">{superAdminConfirmUser.email}</strong> to Super Admin requires website owner authorization to prevent hacking.
             </p>
 
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3.5 mb-5 text-xs text-amber-300">
+            <div className="bg-gold/15 border border-gold/30 rounded-xl p-3.5 mb-5 text-xs text-gold">
               {superAdminConfirmMsg || "A 6-digit confirmation code has been sent to the official website admin email address."}
             </div>
 
             {confirmError && (
-              <div className="mb-4 p-3 rounded-lg text-xs bg-rose-500/10 border border-rose-500/30 text-rose-400 font-medium">
+              <div className="mb-4 p-3 rounded-lg text-xs bg-secondary/15 border border-secondary/30 text-secondary font-medium">
                 {confirmError}
               </div>
             )}
@@ -3059,7 +3059,7 @@ const AdminDashboard = () => {
                   required
                   maxLength={6}
                   placeholder="e.g. 849204"
-                  className="input-field w-full font-mono text-center tracking-[8px] text-2xl py-3 font-bold text-amber-400"
+                  className="input-field w-full font-mono text-center tracking-[8px] text-2xl py-3 font-bold text-gold"
                   value={inputConfirmationCode}
                   onChange={e => setInputConfirmationCode(e.target.value.replace(/\D/g, ''))}
                 />
@@ -3074,7 +3074,7 @@ const AdminDashboard = () => {
                     setInputConfirmationCode('');
                     setConfirmError('');
                   }}
-                  className="flex-1 py-3 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 transition-colors text-xs cursor-pointer"
+                  className="flex-1 py-3 bg-elevated hover:bg-white/10 text-white font-semibold rounded-md border border-borderColor transition-colors text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -3097,11 +3097,11 @@ const AdminDashboard = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-panel max-w-md w-full p-6 relative overflow-hidden border border-rose-500/30"
+            className="glass-panel max-w-md w-full p-6 relative overflow-hidden border border-secondary/30"
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+            <div className="flex items-center justify-between border-b border-borderColor pb-4 mb-4">
               <h3 className="text-lg font-bold text-white font-display flex items-center gap-2">
-                <AlertCircle size={20} className="text-rose-400" /> Reject In-Game Credentials
+                <AlertCircle size={20} className="text-secondary" /> Reject In-Game Credentials
               </h3>
               <button
                 onClick={() => {
@@ -3139,14 +3139,14 @@ const AdminDashboard = () => {
                     setSelectedReqForReject(null);
                     setRejectionReasonInput('');
                   }}
-                  className="flex-1 py-2.5 bg-surfaceHighlight hover:bg-white/10 text-white font-semibold rounded-md border border-white/10 text-xs cursor-pointer"
+                  className="flex-1 py-2.5 bg-elevated hover:bg-white/10 text-white font-semibold rounded-md border border-borderColor text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading || !rejectionReasonInput.trim()}
-                  className="flex-1 py-2.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-md text-xs cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-secondary hover:bg-rose-600 text-white font-bold rounded-md text-xs cursor-pointer disabled:opacity-50"
                 >
                   {actionLoading ? 'Rejecting...' : 'Confirm Rejection'}
                 </button>

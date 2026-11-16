@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser, sendOtp } from '../services/authService';
-import { User, Mail, Lock, Gamepad2, Upload, X, Key, Eye, EyeOff, Shield } from 'lucide-react';
+import { User, Mail, Lock, Gamepad2, Upload, X, Key, Eye, EyeOff, Shield, Flame } from 'lucide-react';
 import logo from '../assets/obitoloo.png';
 
 export default function Signup() {
@@ -132,30 +132,40 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-[calc(100vh-4rem)] px-4 py-12 overflow-y-auto">
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12 overflow-hidden bg-background">
+      {/* Fiery ambient glow effects */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-primary/10 rounded-full blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-10 left-10 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
+
       <motion.div 
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="glass-panel p-8 md:p-10 w-full max-w-md my-auto flex-shrink-0"
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="relative z-10 bg-surface/95 border border-borderColor shadow-card-dark rounded-2xl p-8 sm:p-10 w-full max-w-md my-auto flex-shrink-0 backdrop-blur-xl"
       >
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Create an Account</h2>
-          <p className="text-sm text-textSecondary">Join the ultimate competitive platform</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-elevated border border-borderColor p-2.5 mb-4 shadow-fire-sm">
+            <img src={logo} alt="Esports Arena Logo" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,90,31,0.6)]" />
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-[11px] font-bold tracking-widest uppercase mb-2">
+            <Flame size={12} className="text-primary animate-pulse" /> Fire & Shadow Arena
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Create Account</h2>
+          <p className="text-sm text-textSecondary mt-1">Join elite competitive Free Fire tournaments</p>
         </div>
         
         {error && (
-          <div className="bg-secondary/10 border border-secondary/20 text-secondary text-sm p-3 rounded-md mb-6 text-center">
+          <div className="bg-secondary/10 border border-secondary/30 text-secondary text-sm p-3.5 rounded-xl mb-6 text-center font-medium">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label htmlFor="signup-email" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Email Address *</label>
+            <label htmlFor="signup-email" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Email Address *</label>
             <div className="flex gap-2">
               <div className="relative flex-grow">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-textSecondary">
                   <Mail size={16} />
                 </div>
                 <input 
@@ -167,14 +177,14 @@ export default function Signup() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  placeholder="you@example.com"
+                  placeholder="you@gmail.com"
                 />
               </div>
               <button
                 type="button"
                 onClick={handleSendOtp}
                 disabled={isSendingOtp || otpCountdown > 0}
-                className="px-4 py-2 bg-surfaceHighlight hover:bg-white/10 text-white rounded-md border border-white/10 transition-colors text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap min-w-[100px] flex items-center justify-center gap-2 cursor-pointer"
+                className="px-4 py-2 bg-elevated hover:bg-surface text-white rounded-lg border border-borderColor hover:border-primary/50 transition-all text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap min-w-[100px] flex items-center justify-center gap-2 cursor-pointer shadow-sm"
               >
                 {isSendingOtp ? (
                   <>
@@ -197,7 +207,7 @@ export default function Signup() {
               </button>
             </div>
             {otpMessage && (
-              <p className="text-emerald-400 text-xs mt-1">{otpMessage}</p>
+              <p className="text-emerald-400 text-xs font-medium mt-1.5">{otpMessage}</p>
             )}
           </div>
 
@@ -208,9 +218,9 @@ export default function Signup() {
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <label htmlFor="signup-otp" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Verification OTP *</label>
+              <label htmlFor="signup-otp" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Verification OTP *</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-primary">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-primary">
                   <Key size={16} />
                 </div>
                 <input 
@@ -226,14 +236,14 @@ export default function Signup() {
                   placeholder="------"
                 />
               </div>
-              <p className="text-[10px] text-textSecondary mt-1">Please enter the 6-digit OTP code.</p>
+              <p className="text-[11px] text-textSecondary mt-1">Please enter the 6-digit OTP code sent to your email.</p>
             </motion.div>
           )}
           
           <div>
-            <label htmlFor="signup-password" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Password *</label>
+            <label htmlFor="signup-password" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Password *</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-textSecondary">
                 <Lock size={16} />
               </div>
               <input 
@@ -249,7 +259,7 @@ export default function Signup() {
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-textSecondary hover:text-white transition-colors"
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-textSecondary hover:text-white transition-colors cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -257,39 +267,39 @@ export default function Signup() {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-white/10">
+          <div className="pt-4 border-t border-borderColor">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-textSecondary font-semibold">Profile & Gaming Details</p>
-              <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">ADMIN VERIFIED</span>
+              <p className="text-xs text-textSecondary font-bold uppercase tracking-wider">Profile & Gaming Details</p>
+              <span className="text-[10px] text-gold font-bold bg-gold/10 border border-gold/30 px-2 py-0.5 rounded shadow-gold-sm">ADMIN VERIFIED</span>
             </div>
-            <p className="text-xs text-amber-300/80 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg flex items-center gap-2 mb-4">
-              <Shield size={14} className="shrink-0 text-amber-400" />
+            <p className="text-xs text-gold/90 bg-gold/10 border border-gold/20 p-2.5 rounded-lg flex items-center gap-2 mb-4">
+              <Shield size={14} className="shrink-0 text-gold" />
               Game credentials will be reviewed & verified by Admin prior to tournament participation.
             </p>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Profile Picture</label>
+                <label className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Profile Picture</label>
                 <div className="flex items-center gap-4">
                   {avatarPreview ? (
-                    <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-primary group">
+                    <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-primary shadow-fire-sm group">
                       <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
                       <button 
                         type="button" 
                         onClick={removeAvatar}
-                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                       >
                         <X size={20} className="text-white" />
                       </button>
                     </div>
                   ) : (
-                    <div className="w-16 h-16 rounded-full bg-surfaceHighlight border border-white/10 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-elevated border border-borderColor flex items-center justify-center">
                       <User size={24} className="text-textSecondary" />
                     </div>
                   )}
                   <div className="flex-1">
-                    <label className="cursor-pointer bg-surfaceHighlight hover:bg-white/10 text-white text-sm px-4 py-2 rounded-md border border-white/10 transition-colors inline-flex items-center gap-2">
-                      <Upload size={16} /> Choose Image
+                    <label className="cursor-pointer bg-elevated hover:bg-surface text-white text-xs font-bold px-4 py-2.5 rounded-lg border border-borderColor hover:border-primary/50 transition-all inline-flex items-center gap-2">
+                      <Upload size={15} className="text-primary" /> Choose Image
                       <input 
                         type="file" 
                         name="avatar" 
@@ -298,15 +308,15 @@ export default function Signup() {
                         onChange={handleChange}
                       />
                     </label>
-                    <p className="text-textSecondary text-xs mt-2">JPG, PNG (Max 2MB)</p>
+                    <p className="text-textSecondary text-[11px] mt-1.5">JPG, PNG (Max 2MB)</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="signup-gamename" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">In-Game Name</label>
+                <label htmlFor="signup-gamename" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">In-Game Name</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-textSecondary">
                     <User size={16} />
                   </div>
                   <input 
@@ -322,9 +332,9 @@ export default function Signup() {
                 </div>
               </div>
               <div>
-                <label htmlFor="signup-uid" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">Free Fire UID</label>
+                <label htmlFor="signup-uid" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Free Fire UID</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textSecondary">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-textSecondary">
                     <Gamepad2 size={16} />
                   </div>
                   <input 
@@ -340,15 +350,15 @@ export default function Signup() {
                 </div>
               </div>
               <div>
-                <label htmlFor="signup-level" className="block text-textSecondary text-xs font-semibold mb-2 uppercase tracking-wider">In-Game Level (Free Fire Level)</label>
+                <label htmlFor="signup-level" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">In-Game Level (Free Fire Level)</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-amber-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gold">
                     <Shield size={16} />
                   </div>
                   <input 
                     id="signup-level"
-                    type="number"
-                    min="1"
+                    type="number" 
+                    min="1" 
                     max="100" 
                     name="gameLevel"
                     autoComplete="off"
@@ -384,8 +394,8 @@ export default function Signup() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-textSecondary border-t border-white/10 pt-6">
-          Already have an account? <Link to="/login" className="text-white hover:text-primary transition-colors font-medium ml-1">Sign In</Link>
+        <div className="mt-8 text-center text-sm text-textSecondary border-t border-borderColor pt-6">
+          Already have an account? <Link to="/login" className="text-primary hover:text-primary-hover font-bold transition-colors ml-1">Sign In</Link>
         </div>
       </motion.div>
     </div>
