@@ -70,7 +70,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12 overflow-hidden bg-background">
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-3 sm:px-4 py-6 sm:py-12 overflow-hidden bg-background">
       {/* Fiery ambient glow effects */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -78,23 +78,23 @@ export default function ForgotPassword() {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="relative z-10 bg-surface/95 border border-borderColor shadow-card-dark rounded-2xl p-8 sm:p-10 w-full max-w-md my-auto flex-shrink-0 backdrop-blur-xl"
+        className="relative z-10 bg-surface/95 border border-borderColor shadow-card-dark rounded-2xl p-5 sm:p-8 md:p-10 w-full max-w-md my-auto flex-shrink-0 backdrop-blur-xl"
       >
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-4 sm:mb-6">
           <Link to="/login" className="text-textSecondary hover:text-primary transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
             <ArrowLeft size={16} /> Back to Login
           </Link>
         </div>
 
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-elevated border border-borderColor p-2.5 mb-3 shadow-fire-sm">
+        <div className="flex flex-col items-center text-center mb-6 sm:mb-8">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-elevated border border-borderColor p-2 mb-2 sm:mb-3 shadow-fire-sm flex items-center justify-center">
             <img src={logo} alt="Esports Arena Logo" className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(255,90,31,0.5)]" />
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-[10px] font-bold tracking-widest uppercase mb-2">
             <Flame size={11} className="text-primary" /> Security Recovery
           </div>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight">Reset Password</h2>
-          <p className="text-sm text-textSecondary mt-1">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Reset Password</h2>
+          <p className="text-xs sm:text-sm text-textSecondary mt-1">
             {step === 1 
               ? 'Enter your registered email address to receive an OTP' 
               : 'Enter the verification code and set a secure new password'
@@ -103,13 +103,13 @@ export default function ForgotPassword() {
         </div>
         
         {error && (
-          <div className="bg-secondary/10 border border-secondary/30 text-secondary text-sm p-3.5 rounded-xl mb-6 text-center font-medium">
+          <div className="bg-secondary/10 border border-secondary/30 text-secondary text-sm p-3.5 rounded-xl mb-5 sm:mb-6 text-center font-medium">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-primary/10 border border-primary/30 text-primary-light text-sm p-3.5 rounded-xl mb-6 text-center font-medium">
+          <div className="bg-primary/10 border border-primary/30 text-primary-light text-sm p-3.5 rounded-xl mb-5 sm:mb-6 text-center font-medium">
             {success}
           </div>
         )}

@@ -64,7 +64,7 @@ export default function Login() {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12 overflow-hidden bg-background">
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-3 sm:px-4 py-6 sm:py-12 overflow-hidden bg-background">
       {/* Fiery ambient glow effects */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
@@ -73,34 +73,34 @@ export default function Login() {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="relative z-10 bg-surface/95 border border-borderColor shadow-card-dark rounded-2xl p-8 sm:p-10 w-full max-w-md my-auto flex-shrink-0 backdrop-blur-xl"
+        className="relative z-10 bg-surface/95 border border-borderColor shadow-card-dark rounded-2xl p-5 sm:p-8 md:p-10 w-full max-w-md my-auto flex-shrink-0 backdrop-blur-xl"
       >
         {/* Esports Brand Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-elevated border border-borderColor p-2.5 mb-4 shadow-fire-sm">
+        <div className="flex flex-col items-center text-center mb-6 sm:mb-8">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-elevated border border-borderColor p-2 sm:p-2.5 mb-2.5 sm:mb-3 shadow-fire-sm flex items-center justify-center">
             <img src={logo} alt="Esports Arena Logo" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,90,31,0.6)]" />
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-[11px] font-bold tracking-widest uppercase mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-[10px] sm:text-[11px] font-bold tracking-widest uppercase mb-2">
             <Flame size={12} className="text-primary animate-pulse" /> Fire & Shadow Arena
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Welcome Back</h2>
-          <p className="text-sm text-textSecondary mt-1">Sign in to dominate the tournaments</p>
+          <p className="text-xs sm:text-sm text-textSecondary mt-1">Sign in to dominate the tournaments</p>
         </div>
         
         {wakingUpStatus && (
-          <div className="bg-primary/10 border border-primary/30 text-primary-light text-sm p-3.5 rounded-xl mb-6 flex items-center gap-3">
+          <div className="bg-primary/10 border border-primary/30 text-primary-light text-sm p-3.5 rounded-xl mb-5 sm:mb-6 flex items-center gap-3">
             <RefreshCw className="w-5 h-5 text-primary animate-spin flex-shrink-0" />
             <span className="font-medium text-xs leading-relaxed">{wakingUpStatus}</span>
           </div>
         )}
 
         {error && !wakingUpStatus && (
-          <div className="bg-secondary/10 border border-secondary/30 text-secondary text-sm p-3.5 rounded-xl mb-6 text-center font-medium">
+          <div className="bg-secondary/10 border border-secondary/30 text-secondary text-sm p-3.5 rounded-xl mb-5 sm:mb-6 text-center font-medium">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
           <div>
             <label htmlFor="login-email" className="block text-textSecondary text-xs font-bold mb-2 uppercase tracking-wider">Email Address</label>
             <div className="relative">
@@ -172,7 +172,7 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="mt-8 text-center text-sm text-textSecondary border-t border-borderColor pt-6">
+        <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-textSecondary border-t border-borderColor pt-4 sm:pt-6">
           Don't have an account? <Link to="/signup" className="text-primary hover:text-primary-hover font-bold transition-colors ml-1">Create one</Link>
         </div>
       </motion.div>

@@ -132,7 +132,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12 overflow-hidden bg-background">
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-3 sm:px-4 py-6 sm:py-12 overflow-hidden bg-background">
       {/* Fiery ambient glow effects */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-primary/10 rounded-full blur-[130px] pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
@@ -141,21 +141,21 @@ export default function Signup() {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="relative z-10 bg-surface/95 border border-borderColor shadow-card-dark rounded-2xl p-8 sm:p-10 w-full max-w-md my-auto flex-shrink-0 backdrop-blur-xl"
+        className="relative z-10 bg-surface/95 border border-borderColor shadow-card-dark rounded-2xl p-5 sm:p-8 md:p-10 w-full max-w-md my-auto flex-shrink-0 backdrop-blur-xl"
       >
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-elevated border border-borderColor p-2.5 mb-4 shadow-fire-sm">
+        <div className="flex flex-col items-center text-center mb-6 sm:mb-8">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-elevated border border-borderColor p-2 sm:p-2.5 mb-2.5 sm:mb-3 shadow-fire-sm flex items-center justify-center">
             <img src={logo} alt="Esports Arena Logo" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,90,31,0.6)]" />
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-[11px] font-bold tracking-widest uppercase mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-[10px] sm:text-[11px] font-bold tracking-widest uppercase mb-2">
             <Flame size={12} className="text-primary animate-pulse" /> Fire & Shadow Arena
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Create Account</h2>
-          <p className="text-sm text-textSecondary mt-1">Join elite competitive Free Fire tournaments</p>
+          <p className="text-xs sm:text-sm text-textSecondary mt-1">Join elite competitive Free Fire tournaments</p>
         </div>
         
         {error && (
-          <div className="bg-secondary/10 border border-secondary/30 text-secondary text-sm p-3.5 rounded-xl mb-6 text-center font-medium">
+          <div className="bg-secondary/10 border border-secondary/30 text-secondary text-sm p-3.5 rounded-xl mb-5 sm:mb-6 text-center font-medium">
             {error}
           </div>
         )}
@@ -184,7 +184,7 @@ export default function Signup() {
                 type="button"
                 onClick={handleSendOtp}
                 disabled={isSendingOtp || otpCountdown > 0}
-                className="px-4 py-2 bg-elevated hover:bg-surface text-white rounded-lg border border-borderColor hover:border-primary/50 transition-all text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap min-w-[100px] flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                className="px-3 sm:px-4 py-2 bg-elevated hover:bg-surface text-white rounded-lg border border-borderColor hover:border-primary/50 transition-all text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap min-w-[85px] sm:min-w-[100px] shrink-0 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
               >
                 {isSendingOtp ? (
                   <>
@@ -394,7 +394,7 @@ export default function Signup() {
           </button>
         </form>
 
-        <div className="mt-8 text-center text-sm text-textSecondary border-t border-borderColor pt-6">
+        <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-textSecondary border-t border-borderColor pt-4 sm:pt-6">
           Already have an account? <Link to="/login" className="text-primary hover:text-primary-hover font-bold transition-colors ml-1">Sign In</Link>
         </div>
       </motion.div>
